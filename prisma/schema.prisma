@@ -1,0 +1,234 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  OK
+  BANNED
+}
+
+enum AuctionStatus {
+  DRAFT
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+enum BidStatus {
+  OK
+  VOID
+}
+
+enum MessageKind {
+  TEXT
+  SYSTEM
+}
+
+enum DealStatus {
+  CREATED
+  AWAITING_PAYMENT
+  PAID
+  SHIPPED
+  RECEIVED
+  DISPUTED
+  REFUNDED
+  CLOSED
+  CANCELLED
+}
+
+model User {
+  id               String      @id @default(cuid())
+  email            String      @unique @db.VarChar(254)
+  nickname         String      @unique @db.VarChar(50)
+  fullName         String?     @db.VarChar(100)
+  logoUrl          String?
+  role             Role        @default(USER)
+  status           UserStatus  @default(OK)
+  sessionVersion   Int         @default(0)
+  emailVerifiedAt  DateTime?
+  phone            String?     @db.VarChar(20)
+  phoneVerifiedAt  DateTime?
+  avatarUrl        String?
+  ratingAvg        Float       @default(0)
+  ratingCount      Int         @default(0)
+  locale           String?     @db.VarChar(10)
+  timezone         String?     @db.VarChar(50)
+  currency         String?     @db.VarChar(3)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  
+  credentials              UserCredential?
+  identities               UserIdentity[]
+  auctions                 Auction[]       @relation("UserAuctions")
+  highestBidderForAuctions Auction[]       @relation("UserBids")
+  bids                     Bid[]
+  watchlist                Watchlist[]
+  conversationsA           Conversation[]  @relation("A")
+  conversationsB           Conversation[]  @relation("B")
+  messages                 Message[]
+  dealsAsBuyer             Deal[]          @relation("BuyerDeals")
+  dealsAsSeller            Deal[]          @relation("SellerDeals")
+  shippingAddress          ShippingAddress? @relation("UserAddress")
+}
+
+model UserCredential {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  passHash  String
+  createdAt DateTime @default(now())
+}
+
+model UserIdentity {
+  id             String   @id @default(cuid())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  provider       String   @db.VarChar(50)
+  providerUserId String   @db.VarChar(255)
+  createdAt      DateTime @default(now())
+
+  @@unique([provider, providerUserId])
+}
+
+model Auction {
+  id                String          @id @default(cuid())
+  owner             User            @relation("UserAuctions", fields: [ownerId], references: [id])
+  ownerId           String
+  title             String          @db.VarChar(255)
+  description       String
+  status            AuctionStatus   @default(DRAFT)
+  startAt           DateTime?
+  endAt             DateTime?
+  startPriceMinor   Int
+  minIncrementMinor Int
+  currentPriceMinor Int             @default(0)
+  highestBidder     User?           @relation("UserBids", fields: [highestBidderId], references: [id])
+  highestBidderId   String?
+  currency          String          @db.VarChar(3)
+  cancelledReason   String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  images                  AuctionImage[]
+  bids                    Bid[]
+  watchlistedBy           Watchlist[]
+  deal                    Deal?
+  auctionForConversations Conversation[] @relation("ConversationAuction")
+
+  @@index([ownerId, status, endAt])
+  @@index([status, endAt])
+}
+
+model AuctionImage {
+  id        String   @id @default(cuid())
+  auction   Auction  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  auctionId String
+  url       String
+  position  Int      @default(0)
+}
+
+model Bid {
+  id          String    @id @default(cuid())
+  auction     Auction   @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  auctionId   String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId      String
+  amountMinor Int
+  status      BidStatus @default(OK)
+  createdAt   DateTime  @default(now())
+
+  @@index([auctionId, createdAt])
+}
+
+model Watchlist {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  auction   Auction @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  auctionId String
+  createdAt DateTime @default(now())
+
+  @@id([userId, auctionId])
+}
+
+model Conversation {
+  id             String   @id @default(cuid())
+  auction        Auction  @relation("ConversationAuction", fields: [auctionId], references: [id], onDelete: Cascade)
+  auctionId      String
+  userA          User     @relation("A", fields: [userAId], references: [id], onDelete: Cascade)
+  userAId        String
+  userB          User     @relation("B", fields: [userBId], references: [id], onDelete: Cascade)
+  userBId        String
+  lastMessageAt  DateTime @default(now())
+  unreadCountA   Int      @default(0)
+  unreadCountB   Int      @default(0)
+  messages       Message[]
+
+  @@unique([auctionId, userAId, userBId])
+  @@index([userAId, lastMessageAt])
+  @@index([userBId, lastMessageAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String
+  sender         User?        @relation(fields: [senderId], references: [id])
+  senderId       String?
+  kind           MessageKind  @default(TEXT)
+  body           String
+  meta           Json?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model Deal {
+  id                String     @id @default(cuid())
+  auction           Auction    @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  auctionId         String     @unique
+  seller            User       @relation("SellerDeals", fields: [sellerId], references: [id], onDelete: Restrict)
+  sellerId          String
+  buyer             User       @relation("BuyerDeals", fields: [buyerId], references: [id], onDelete: Restrict)
+  buyerId           String
+  status            DealStatus @default(CREATED)
+  paidAt            DateTime?
+  paidAmountMinor   Int?
+  currency          String     @db.VarChar(3)
+  shippedAt         DateTime?
+  shippingCompany   String?    @db.VarChar(100)
+  trackingNumber    String?    @db.VarChar(100)
+  receivedAt        DateTime?
+  disputeReason     String?
+  closedAt          DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([sellerId, status])
+  @@index([buyerId, status])
+}
+
+model ShippingAddress {
+  id         String   @id @default(cuid())
+  user       User     @relation("UserAddress",fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @unique
+
+  street     String   @db.VarChar(255)
+  city       String   @db.VarChar(100)
+  state      String?  @db.VarChar(100)
+  postalCode String   @db.VarChar(20)
+  country    String   @db.VarChar(2) // ISO 3166-1 alpha-2, e.g. \"HU\"
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
