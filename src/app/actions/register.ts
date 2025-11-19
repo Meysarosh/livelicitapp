@@ -6,6 +6,7 @@ import * as z from 'zod';
 import { RegisterFormSchema, type RegisterFormState } from '@/lib/formValidation/validation';
 import { signIn } from '@/lib/auth';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
+import { Prisma } from '@prisma/client';
 
 export async function register(prev: RegisterFormState, formData: FormData): Promise<RegisterFormState> {
   const raw = {
@@ -35,27 +36,33 @@ export async function register(prev: RegisterFormState, formData: FormData): Pro
 
   const { nickname, email, password } = parsed.data;
 
-  const emailExists = await prisma.user.findUnique({ where: { email } });
-  if (emailExists) {
-    return {
-      message: 'E-mail already in use.',
-      values: { nickname, email },
-    };
-  }
-
-  const nicknameExists = await prisma.user.findUnique({ where: { nickname } });
-  if (nicknameExists) {
-    return {
-      message: 'Nickname already in use.',
-      values: { nickname, email },
-    };
-  }
-
   const hash = await bcrypt.hash(password, 10);
-  //TODO error handling
-  await prisma.user.create({
-    data: { nickname, email, credentials: { create: { passHash: hash } } },
-  });
+
+  try {
+    await prisma.user.create({
+      data: { nickname, email, credentials: { create: { passHash: hash } } },
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      const target = (err.meta?.target ?? []) as string[];
+      const errors: {
+        nickname?: string[];
+        email?: string[];
+        password?: string[];
+        confirmPassword?: string[];
+      } = {};
+      if (target.includes('email')) {
+        errors.email = ['This email is already registered.'];
+      }
+      if (target.includes('nickname')) {
+        errors.nickname = ['This nickname is already taken.'];
+      }
+      return { errors, values: { email, nickname } };
+    }
+    console.log('APP/ACTIONS/REGISTER: unexpected error', err);
+    return { message: 'Server error. Please try again.', values: { email, nickname } };
+  }
+
   try {
     await signIn('credentials', { identifier: email, password, redirectTo: '/auctions' });
   } catch (err) {

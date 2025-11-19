@@ -8,11 +8,11 @@ type HeaderUser = { id: string; nickname: string; role: string } | null;
 
 export default function Header({ user }: { user: HeaderUser }) {
   const pathname = usePathname();
-  const onAuthPage = pathname?.startsWith('/auth');
+  const authPaths = ['/login', '/register'];
+  const onAuthPage = authPaths.includes(pathname);
 
   function handleClickSignOut() {
-    console.log('signing out');
-    signOut();
+    signOut({ callbackUrl: '/auctions' });
   }
 
   return (
@@ -24,20 +24,20 @@ export default function Header({ user }: { user: HeaderUser }) {
 
         <Nav aria-label='Primary'>
           <Link href='/auctions'>Auctions</Link>
-          <Link href='/auction/create'>Create</Link>
+          <Link href='/account/auctions'>My Auctions</Link>
         </Nav>
 
         <Right>
           {user ? (
             <>
               <Hello>Hello, {user.nickname}</Hello>
-              <Btn href='/account'>Profile</Btn>
+              <Btn href='/account/profile'>Profile</Btn>
               <Button onClick={handleClickSignOut}>Sign out</Button>
             </>
           ) : onAuthPage ? null : (
             <>
-              <Btn href='/auth/login'>Sign in</Btn>
-              <Btn href='/auth/register'>Sign up</Btn>
+              <Btn href='/login'>Sign in</Btn>
+              <Btn href='/register'>Sign up</Btn>
             </>
           )}
         </Right>

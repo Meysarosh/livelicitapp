@@ -66,7 +66,7 @@ export default function LoginForm() {
       </Form>
 
       <Note>
-        New here? <SCLink href='/auth/register'>Create an account</SCLink>
+        New here? <SCLink href='/register'>Create an account</SCLink>
       </Note>
     </>
   );

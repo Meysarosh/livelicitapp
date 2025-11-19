@@ -2,13 +2,26 @@
 
 import { ThemeProvider, createGlobalStyle } from 'styled-components';
 import type { ReactNode } from 'react';
-import { theme } from '@/theme';
 
-const GlobalStyles = createGlobalStyle`
-  *,*::before,*::after { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+export const theme = {
+  colors: {
+    bg: '#e6e6e6',
+    text: '#0b0c10',
+    primary: '#1f8ef1',
+  },
+  radii: { md: '12px' },
+};
+
+export const GlobalStyles = createGlobalStyle`
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{
+    padding:0;
+    margin:0;
+    background: ${({ theme }) => theme.colors.bg};
+    color: ${({ theme }) => theme.colors.text};
+  }
   img, video { max-width: 100%; height: auto; display: block; }
-  a { color: inherit; text-decoration: none; }
+  a{color:inherit;text-decoration:none}
   button { cursor: pointer; }
 `;
 
