@@ -89,7 +89,7 @@ export default function RegisterForm() {
         {/* Nickname */}
         <FormField>
           <Label id={nicknameIds.labelId} htmlFor={nicknameIds.inputId}>
-            Name<RequiredMark aria-hidden='true'>*</RequiredMark>
+            Nickname<RequiredMark aria-hidden='true'>*</RequiredMark>
           </Label>
           <Input
             id={nicknameIds.inputId}
@@ -181,7 +181,7 @@ export default function RegisterForm() {
       </Form>
 
       <Note>
-        Already have an account? <SCLink href='/auth/login'>Log in</SCLink>
+        Already have an account? <SCLink href='/login'>Log in</SCLink>
       </Note>
     </>
   );
