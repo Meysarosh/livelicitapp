@@ -18,9 +18,10 @@ enum UserStatus {
 }
 
 enum AuctionStatus {
-  DRAFT      // not yet published
-  ACTIVE     // normal published auction, time decides scheduled/live/ended
-  CANCELLED  // manually cancelled; overrides time
+  DRAFT      
+  ACTIVE     
+  ENDED
+  CANCELLED  
 }
 
 enum BidStatus {
