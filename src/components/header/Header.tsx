@@ -25,6 +25,7 @@ export default function Header({ user }: { user: HeaderUser }) {
         <Nav aria-label='Primary'>
           <Link href='/auctions'>Auctions</Link>
           <Link href='/account/auctions'>My Auctions</Link>
+          <Link href='/account/auctions/create'>Create Auction</Link>
         </Nav>
 
         <Right>

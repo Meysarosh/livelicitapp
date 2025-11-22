@@ -18,11 +18,9 @@ enum UserStatus {
 }
 
 enum AuctionStatus {
-  DRAFT
-  SCHEDULED
-  LIVE
-  ENDED
-  CANCELLED
+  DRAFT      // not yet published
+  ACTIVE     // normal published auction, time decides scheduled/live/ended
+  CANCELLED  // manually cancelled; overrides time
 }
 
 enum BidStatus {
@@ -108,8 +106,8 @@ model Auction {
   title             String          @db.VarChar(255)
   description       String
   status            AuctionStatus   @default(DRAFT)
-  startAt           DateTime?
-  endAt             DateTime?
+  startAt           DateTime
+  endAt             DateTime
   startPriceMinor   Int
   minIncrementMinor Int
   currentPriceMinor Int             @default(0)
@@ -126,7 +124,7 @@ model Auction {
   deal                    Deal?
   auctionForConversations Conversation[] @relation("ConversationAuction")
 
-  @@index([ownerId, status, endAt])
+  @@index([status, startAt])
   @@index([status, endAt])
 }
 

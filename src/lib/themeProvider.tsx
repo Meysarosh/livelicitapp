@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 
 export const theme = {
   colors: {
+    // bg: 'transparent',
     bg: '#e6e6e6',
     text: '#0b0c10',
     primary: '#1f8ef1',
