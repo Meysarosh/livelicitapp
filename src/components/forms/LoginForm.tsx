@@ -1,7 +1,7 @@
 'use client';
 
 import { login } from '@/app/actions/login';
-
+import { signIn } from 'next-auth/react';
 import { Title, Btn, Form, FormField, Label, Input, Summary, Note, SCLink } from './form.styles';
 import { useActionState, useEffect, useRef } from 'react';
 
@@ -68,6 +68,23 @@ export default function LoginForm() {
       <Note>
         New here? <SCLink href='/register'>Create an account</SCLink>
       </Note>
+
+      <div style={{ margin: '1.5rem 0', textAlign: 'center' }}>
+        <span>or</span>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Btn
+          type='button'
+          onClick={() =>
+            signIn('auth0', {
+              callbackUrl: '/account/auctions',
+            })
+          }
+        >
+          Continue with Auth0
+        </Btn>
+      </div>
     </>
   );
 }
