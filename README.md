@@ -21,11 +21,13 @@ NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="change-me"
 
 
-# Auth0 (enable later)
+# Auth0
 AUTH0_CLIENT_ID=""
 AUTH0_CLIENT_SECRET=""
 AUTH0_ISSUER="" # e.g., https://your-tenant.eu.auth0.com
 ```
+
+Auth0 Dashboard: https://manage.auth0.com/dashboard/us/dev-rgz88jufcjv24fyq/
 
 ## Adatbázis indítása Dockerben
 
