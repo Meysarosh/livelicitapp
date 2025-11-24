@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import type { Auction, AuctionImage, User } from '@prisma/client';
+import type { Auction, AuctionImage } from '@prisma/client';
 import {
   Wrapper,
   LeftColumn,
@@ -11,32 +11,24 @@ import {
   MainImageBox,
   ThumbImageBox,
   DescriptionBox,
-  MetaRow,
-  Badge,
   Panel,
   PriceRow,
   PriceLabel,
   PriceValue,
   ActionsTitle,
-  Small,
 } from './AuctionDetailsView.styles';
 import Image from 'next/image';
-import { getEffectiveAuctionStatus, type EffectiveAuctionStatus } from '@/lib/auctionStatus';
 
 type AuctionWithImages = Auction & { images: AuctionImage[] };
-type OwnerLite = Pick<User, 'id' | 'nickname' | 'ratingAvg' | 'ratingCount'>;
 
 interface AuctionDetailsViewProps {
   auction: AuctionWithImages;
-  owner: OwnerLite;
-  currentUserId?: string;
   actions?: ReactNode;
+  metadata?: ReactNode;
+  watchlistButton?: ReactNode;
 }
 
-export function AuctionDetailsView({ auction, owner, currentUserId, actions }: AuctionDetailsViewProps) {
-  const effectiveStatus: EffectiveAuctionStatus = getEffectiveAuctionStatus(auction);
-  const isOwner = currentUserId === owner.id;
-
+export function AuctionDetailsView({ auction, actions, metadata, watchlistButton }: AuctionDetailsViewProps) {
   const mainImage = auction.images[0];
   const otherImages = auction.images.slice(1);
 
@@ -50,20 +42,10 @@ export function AuctionDetailsView({ auction, owner, currentUserId, actions }: A
         }).format(d)
       : '—';
 
-  const statusTone = effectiveStatus === 'LIVE' ? 'success' : effectiveStatus === 'CANCELLED' ? 'danger' : 'neutral';
-
   return (
     <Wrapper>
       <LeftColumn>
         <Title>{auction.title}</Title>
-
-        <MetaRow>
-          <Badge $tone={statusTone}>{effectiveStatus}</Badge>
-          <span>Seller: {owner.nickname}</span>
-          <span>
-            Rating: {owner.ratingCount > 0 ? owner.ratingAvg.toFixed(1) : '—'} ({owner.ratingCount})
-          </span>
-        </MetaRow>
 
         <ImagesWrapper>
           <MainImageBox>
@@ -99,6 +81,8 @@ export function AuctionDetailsView({ auction, owner, currentUserId, actions }: A
       </LeftColumn>
 
       <RightColumn>
+        {metadata}
+        {watchlistButton}
         <Panel>
           <PriceRow>
             <PriceLabel>Current price</PriceLabel>
@@ -120,8 +104,6 @@ export function AuctionDetailsView({ auction, owner, currentUserId, actions }: A
 
         <Panel>
           <ActionsTitle>Actions</ActionsTitle>
-          {isOwner && <Small>You are the owner of this auction.</Small>}
-          {!isOwner && !actions && <Small>No actions available for this auction.</Small>}
           {actions}
         </Panel>
       </RightColumn>

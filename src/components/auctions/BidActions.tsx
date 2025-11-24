@@ -5,7 +5,7 @@ import { placeBid } from '@/app/actions/placeBid';
 import type { PlaceBidFormState } from '@/lib/formValidation/validation';
 import { Form, FormField, Label, Input, Btn, ErrorText, Note } from '@/components/forms/form.styles';
 import { getEffectiveAuctionStatus } from '@/lib/auctionStatus';
-import { AuctionWithOwnerAndImages } from '@/lib/data/auctions';
+import { AuctionWithOwnerAndImages } from '@/lib/data/prismaQueries';
 
 interface BidActionsProps {
   auction: AuctionWithOwnerAndImages;
