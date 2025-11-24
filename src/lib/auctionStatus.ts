@@ -8,13 +8,7 @@ export function getEffectiveAuctionStatus(
   if (auction.status === 'CANCELLED') return 'CANCELLED';
   if (auction.status === 'DRAFT') return 'DRAFT';
 
-  // const { startAt, endAt } = auction;
   const now = new Date();
-
-  // if (!startAt || !endAt) {
-  //   // Fallback: trust stored status
-  //   return auction.status;
-  // }
 
   if (now < auction.startAt) {
     return 'SCHEDULED';
