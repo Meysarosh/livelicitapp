@@ -156,3 +156,27 @@ export type CreateAuctionFormState =
       };
     }
   | undefined;
+
+// --- Place Bid ---
+
+export const PlaceBidFormSchema = z.object({
+  auctionId: z.string().min(1, { message: 'Missing auction id.' }),
+  amount: z
+    .string({ message: 'Please enter your bid.' })
+    .trim()
+    .refine((v) => !Number.isNaN(Number(v)) && Number(v) > 0, {
+      message: 'Bid amount must be a number greater than 0.',
+    }),
+});
+
+export type PlaceBidFormState =
+  | {
+      errors?: {
+        amount?: string[];
+      };
+      message?: string;
+      values?: {
+        amount?: string;
+      };
+    }
+  | undefined;
