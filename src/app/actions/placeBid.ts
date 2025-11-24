@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/lib/auth';
+import { requireUser } from '@/lib/auth/requireUser';
 import { prisma } from '@/lib/db';
 import { PlaceBidFormSchema, type PlaceBidFormState } from '@/lib/formValidation/validation';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
@@ -9,11 +9,7 @@ import { redirect } from 'next/navigation';
 type TxResult = { kind: 'error'; state: PlaceBidFormState } | { kind: 'success'; auctionId: string };
 
 export async function placeBid(_prevState: PlaceBidFormState, formData: FormData): Promise<PlaceBidFormState> {
-  const session = await auth();
-  const user = session?.user;
-  if (!user) {
-    redirect('/login');
-  }
+  const user = await requireUser();
 
   const raw = {
     auctionId: formData.get('auctionId'),

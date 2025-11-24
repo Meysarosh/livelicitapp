@@ -1,22 +1,11 @@
-import { prisma } from '@/lib/db';
 import { AuctionsList } from '@/components/auctions/AuctionsList';
 import type { AuctionListItemVM } from '@/components/auctions/types';
 import { formatMoney, formatDateTime } from '@/lib/format';
 import { getEffectiveAuctionStatus } from '@/lib/auctionStatus';
+import { getActiveAuctions } from '@/lib/data/auctions';
 
 export default async function PublicAuctionsPage() {
-  const now = new Date();
-
-  const auctions = await prisma.auction.findMany({
-    where: {
-      status: 'ACTIVE',
-      endAt: { gt: now },
-    },
-    orderBy: { startAt: 'asc' },
-    include: {
-      images: { orderBy: { position: 'asc' }, take: 1 },
-    },
-  });
+  const auctions = await getActiveAuctions();
 
   const items: AuctionListItemVM[] = auctions.map((a) => {
     const firstImage = a.images[0]?.url;
