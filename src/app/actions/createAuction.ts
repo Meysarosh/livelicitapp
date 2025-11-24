@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/lib/auth';
+import { requireUser } from '@/lib/auth/requireUser';
 import { prisma } from '@/lib/db';
 import {
   CreateAuctionFormSchema,
@@ -14,11 +14,7 @@ export async function createAuction(
   _prevState: CreateAuctionFormState,
   formData: FormData
 ): Promise<CreateAuctionFormState> {
-  const session = await auth();
-  const user = session?.user;
-  if (!user) {
-    redirect('/login');
-  }
+  const user = await requireUser();
 
   const raw = {
     title: formData.get('title'),
