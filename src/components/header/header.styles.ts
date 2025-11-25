@@ -23,25 +23,7 @@ export const Right = styled.div`
   gap: 8px;
   align-items: center;
 `;
-export const Btn = styled(Link)`
-  padding: 8px 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  transition: background 0.15s;
-  &:hover {
-    background: #f8fafc;
-  }
-`;
-export const Button = styled.button`
-  padding: 8px 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: white;
-  transition: background 0.15s;
-  &:hover {
-    background: #f8fafc;
-  }
-`;
+
 export const Hello = styled.span`
   font-size: 14px;
   opacity: 0.9;

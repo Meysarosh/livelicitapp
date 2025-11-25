@@ -1,6 +1,6 @@
 'use server';
 
-import { LoginFormSchema, type LoginFormState } from '@/lib/formValidation/validation';
+import { LoginFormSchema, type LoginFormState } from '@/services/zodValidation-service';
 import { signIn } from '@/lib/auth';
 import { AuthError } from 'next-auth';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';

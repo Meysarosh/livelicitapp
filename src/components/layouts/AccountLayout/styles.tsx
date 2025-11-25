@@ -2,6 +2,7 @@
 
 import styled from 'styled-components';
 import Link from 'next/link';
+import { SubTitle } from '@/components/ui';
 
 export const LayoutWrapper = styled.div`
   display: grid;
@@ -21,10 +22,7 @@ export const Sidebar = styled.aside`
   padding: 16px;
 `;
 
-export const SidebarTitle = styled.h2`
-  font-size: 16px;
-  font-weight: 600;
-  margin-top: 0;
+export const SidebarTitle = styled(SubTitle)`
   margin-bottom: 12px;
 `;
 

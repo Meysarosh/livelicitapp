@@ -23,12 +23,6 @@ export const RightColumn = styled.div`
   gap: 16px;
 `;
 
-export const Title = styled.h1`
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-`;
-
 export const ImagesWrapper = styled.div`
   display: flex;
   gap: 8px;
@@ -80,10 +74,4 @@ export const PriceLabel = styled.span`
 
 export const PriceValue = styled.span`
   font-weight: 600;
-`;
-
-export const ActionsTitle = styled.h2`
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
 `;

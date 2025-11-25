@@ -1,9 +1,9 @@
-import { requireUser } from '@/lib/auth/requireUser';
-import { getUserWatchlist } from '@/lib/data/prismaQueries';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { getUserWatchlist } from '@/data-access/auctions';
 import { AuctionsList } from '@/components/auctions/AuctionsList';
 
 export default async function WatchlistPage() {
-  const user = await requireUser();
+  const user = await getAuthUser();
   const items = await getUserWatchlist(user.id);
 
   const auctions = items.map((i) => i.auction);

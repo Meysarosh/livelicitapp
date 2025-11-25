@@ -1,20 +1,42 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useMemo, useState } from 'react';
 import { createAuction } from '@/app/actions/createAuction';
-import { Title, Form, FormField, Label, Input, Textarea, Btn, ErrorText, Note } from '@/components/forms/form.styles';
-import type { CreateAuctionFormState } from '@/lib/formValidation/validation';
-
-function fieldIds(base: string) {
-  return {
-    inputId: base,
-    errorId: `${base}-err`,
-    labelId: `${base}-label`,
-  } as const;
-}
+import { Form, FormField } from '@/components/forms/form.styles';
+import { Button, Input, Title, Note, TextArea, Select } from '@/components/ui';
+import { DEFAULT_CURRENCY, SUPPORTED_CURRENCIES } from '@/lib/constants';
+import type { CreateAuctionFormState } from '@/services/zodValidation-service';
 
 export default function CreateAuctionForm() {
   const [state, action, pending] = useActionState<CreateAuctionFormState, FormData>(createAuction, undefined);
+
+  const startModeOptions = useMemo(
+    () => [
+      { value: 'now', label: 'Start now' },
+      { value: 'future', label: 'Schedule for later' },
+    ],
+    [],
+  );
+
+  const durationOptions = useMemo(
+    () => [
+      { value: '1', label: '1 day' },
+      { value: '3', label: '3 days' },
+      { value: '5', label: '5 days' },
+      { value: '7', label: '7 days' },
+      { value: 'test', label: 'Test (1 minute)' },
+    ],
+    [],
+  );
+
+  const currencyOptions = useMemo(
+    () =>
+      SUPPORTED_CURRENCIES.map((currency) => ({
+        value: currency,
+        label: currency,
+      })),
+    [],
+  );
 
   const [startMode, setStartMode] = useState<'now' | 'future'>(state?.values?.startMode ?? 'now');
 
@@ -23,16 +45,6 @@ export default function CreateAuctionForm() {
     const iso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
     return iso;
   });
-
-  const titleIds = fieldIds('title');
-  const descriptionIds = fieldIds('description');
-  const startingPriceIds = fieldIds('startingPrice');
-  const minIncrementIds = fieldIds('minIncrement');
-  const startModeIds = fieldIds('startMode');
-  const startAtIds = fieldIds('startAt');
-  const durationDaysIds = fieldIds('durationDays');
-  const currencyIds = fieldIds('currency');
-  const imageUrlsIds = fieldIds('imageUrls');
 
   return (
     <>
@@ -47,174 +59,126 @@ export default function CreateAuctionForm() {
       <Form action={action}>
         {/* Title */}
         <FormField>
-          <Label id={titleIds.labelId} htmlFor={titleIds.inputId}>
-            Title
-          </Label>
           <Input
-            id={titleIds.inputId}
+            label='Title'
+            id='title'
             name='title'
             required
             defaultValue={state?.values?.title ?? ''}
-            aria-labelledby={titleIds.labelId}
-            aria-invalid={!!state?.errors?.title}
+            error={state?.errors?.title?.[0]}
           />
-          {state?.errors?.title && <ErrorText id={titleIds.errorId}>{state.errors.title[0]}</ErrorText>}
         </FormField>
 
         {/* Description */}
         <FormField>
-          <Label id={descriptionIds.labelId} htmlFor={descriptionIds.inputId}>
-            Description
-          </Label>
-          <Textarea
-            id={descriptionIds.inputId}
+          <TextArea
+            label='Description'
+            id='description'
             name='description'
             required
             defaultValue={state?.values?.description ?? ''}
-            aria-labelledby={descriptionIds.labelId}
-            aria-invalid={!!state?.errors?.description}
+            error={state?.errors?.description?.[0]}
           />
-          {state?.errors?.description && (
-            <ErrorText id={descriptionIds.errorId}>{state.errors.description[0]}</ErrorText>
-          )}
         </FormField>
 
         {/* Image URLs */}
         <FormField>
-          <Label id={imageUrlsIds.labelId} htmlFor={imageUrlsIds.inputId}>
-            Image URLs (one per line)
-          </Label>
-          <Textarea
-            id={imageUrlsIds.inputId}
+          <TextArea
+            label='Image URLs (one per line)'
+            id='imageUrls'
             name='imageUrls'
             placeholder={'https://example.com/image1.jpg\nhttps://example.com/image2.jpg'}
             defaultValue={state?.values?.imageUrls ?? ''}
-            aria-labelledby={imageUrlsIds.labelId}
           />
         </FormField>
 
         {/* Starting price */}
         <FormField>
-          <Label id={startingPriceIds.labelId} htmlFor={startingPriceIds.inputId}>
-            Starting price
-          </Label>
           <Input
-            id={startingPriceIds.inputId}
+            label='Starting price'
+            id='startingPrice'
             name='startingPrice'
             type='number'
             step='0.01'
             min={0}
             required
             defaultValue={state?.values?.startingPrice ?? ''}
-            aria-labelledby={startingPriceIds.labelId}
-            aria-invalid={!!state?.errors?.startingPrice}
+            error={state?.errors?.startingPrice?.[0]}
           />
-          {state?.errors?.startingPrice && (
-            <ErrorText id={startingPriceIds.errorId}>{state.errors.startingPrice[0]}</ErrorText>
-          )}
         </FormField>
 
         {/* Minimum increment */}
         <FormField>
-          <Label id={minIncrementIds.labelId} htmlFor={minIncrementIds.inputId}>
-            Minimum increment
-          </Label>
           <Input
-            id={minIncrementIds.inputId}
+            label='Minimum increment'
+            id='minIncrement'
             name='minIncrement'
             type='number'
             step='0.01'
             min={0}
             required
             defaultValue={state?.values?.minIncrement ?? ''}
-            aria-labelledby={minIncrementIds.labelId}
-            aria-invalid={!!state?.errors?.minIncrement}
+            error={state?.errors?.minIncrement?.[0]}
           />
-          {state?.errors?.minIncrement && (
-            <ErrorText id={minIncrementIds.errorId}>{state.errors.minIncrement[0]}</ErrorText>
-          )}
         </FormField>
 
         {/* Start mode: now / future */}
         <FormField>
-          <Label id={startModeIds.labelId} htmlFor={startModeIds.inputId}>
-            Start
-          </Label>
-          <select
-            id={startModeIds.inputId}
+          <Select
+            label='Start'
+            id='startMode'
             name='startMode'
             value={startMode}
             onChange={(e) => setStartMode(e.target.value as 'now' | 'future')}
-            aria-labelledby={startModeIds.labelId}
-            aria-invalid={!!state?.errors?.startMode}
-          >
-            <option value='now'>Start now</option>
-            <option value='future'>Schedule for later</option>
-          </select>
-          {state?.errors?.startMode && <ErrorText id={startModeIds.errorId}>{state.errors.startMode[0]}</ErrorText>}
+            options={startModeOptions}
+            error={state?.errors?.startMode?.[0]}
+          />
         </FormField>
 
         {/* Start date/time (only when future) */}
         {startMode === 'future' && (
           <FormField>
-            <Label id={startAtIds.labelId} htmlFor={startAtIds.inputId}>
-              Start date &amp; time
-            </Label>
             <Input
-              id={startAtIds.inputId}
+              label='Start date & time'
+              id='startAt'
               name='startAt'
               type='datetime-local'
               min={minStartAt}
               required
               defaultValue={state?.values?.startAt ?? ''}
-              aria-labelledby={startAtIds.labelId}
-              aria-invalid={!!state?.errors?.startAt}
+              error={state?.errors?.startAt?.[0]}
             />
-            {state?.errors?.startAt && <ErrorText id={startAtIds.errorId}>{state.errors.startAt[0]}</ErrorText>}
           </FormField>
         )}
 
         {/* Duration in days */}
         <FormField>
-          <Label id={durationDaysIds.labelId} htmlFor={durationDaysIds.inputId}>
-            Duration
-          </Label>
-          <select
-            id={durationDaysIds.inputId}
+          <Select
+            label='Duration'
+            id='durationDays'
             name='durationDays'
             defaultValue={state?.values?.durationDays ?? '7'}
-            aria-labelledby={durationDaysIds.labelId}
-            aria-invalid={!!state?.errors?.durationDays}
-          >
-            <option value='1'>1 day</option>
-            <option value='3'>3 days</option>
-            <option value='5'>5 days</option>
-            <option value='7'>7 days</option>
-            <option value='test'>Test (1 minute)</option>
-          </select>
-          {state?.errors?.durationDays && (
-            <ErrorText id={durationDaysIds.errorId}>{state.errors.durationDays[0]}</ErrorText>
-          )}
+            options={durationOptions}
+            error={state?.errors?.durationDays?.[0]}
+          />
         </FormField>
 
         {/* Currency */}
         <FormField>
-          <Label id={currencyIds.labelId} htmlFor={currencyIds.inputId}>
-            Currency
-          </Label>
-          <Input
-            id={currencyIds.inputId}
+          <Select
+            label='Currency'
+            id='currency'
             name='currency'
-            defaultValue={state?.values?.currency ?? 'HUF'}
-            aria-labelledby={currencyIds.labelId}
-            aria-invalid={!!state?.errors?.currency}
+            required
+            defaultValue={state?.values?.currency ?? DEFAULT_CURRENCY}
+            options={currencyOptions}
+            error={state?.errors?.currency?.[0]}
           />
-          {state?.errors?.currency && <ErrorText id={currencyIds.errorId}>{state.errors.currency[0]}</ErrorText>}
         </FormField>
 
-        <Btn disabled={pending} type='submit'>
+        <Button disabled={pending} type='submit'>
           {pending ? 'Creating…' : 'Create auction'}
-        </Btn>
+        </Button>
       </Form>
     </>
   );

@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { DEFAULT_CURRENCY } from '@/lib/constants';
 
 // --- Login ---
 
@@ -88,7 +89,11 @@ export const CreateAuctionFormSchema = z
       error: 'Please choose duration in days.',
     }),
 
-    currency: z.string().trim().length(3, { message: 'Currency must be a 3-letter code.' }).default('HUF'),
+    currency: z
+      .string()
+      .trim()
+      .length(3, { message: 'Currency must be a 3-letter code.' })
+      .default(DEFAULT_CURRENCY),
 
     startMode: z.enum(['now', 'future']).default('now'),
 

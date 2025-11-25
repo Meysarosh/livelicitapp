@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import { requireUser } from '@/lib/auth/requireUser';
-import { getAuctionWithOwnerAndImages } from '@/lib/data/prismaQueries';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { getAuctionWithOwnerAndImages } from '@/data-access/auctions';
 import { AuctionDetailsView } from '@/components/auctions/AuctionDetailsView';
 import Link from 'next/link';
 
@@ -9,7 +9,7 @@ interface RouteParams {
 }
 
 export default async function MyAuctionDetailsPage({ params }: { params: Promise<RouteParams> }) {
-  const user = await requireUser();
+  const user = await getAuthUser();
   const { id } = await params;
   const auction = await getAuctionWithOwnerAndImages(id);
   if (!auction || auction.owner.id !== user.id) {
@@ -27,7 +27,7 @@ export default async function MyAuctionDetailsPage({ params }: { params: Promise
 
   return (
     <div style={{ padding: '20px 0' }}>
-      <AuctionDetailsView auction={auction} owner={auction.owner} currentUserId={user.id} actions={actions} />
+      <AuctionDetailsView auction={auction} actions={actions} />
     </div>
   );
 }

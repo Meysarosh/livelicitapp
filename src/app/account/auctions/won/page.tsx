@@ -1,10 +1,10 @@
-import { requireUser } from '@/lib/auth/requireUser';
-import { getUserWonDeals } from '@/lib/data/prismaQueries';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { getDealsAsBuyer } from '@/data-access/deals';
 import { AuctionsList } from '@/components/auctions/AuctionsList';
 
 export default async function WonAuctionsPage() {
-  const user = await requireUser();
-  const deals = await getUserWonDeals(user.id);
+  const user = await getAuthUser();
+  const deals = await getDealsAsBuyer(user.id);
   const auctions = deals.map((d) => d.auction);
 
   return (

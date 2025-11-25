@@ -6,7 +6,6 @@ import {
   Wrapper,
   LeftColumn,
   RightColumn,
-  Title,
   ImagesWrapper,
   MainImageBox,
   ThumbImageBox,
@@ -15,9 +14,8 @@ import {
   PriceRow,
   PriceLabel,
   PriceValue,
-  ActionsTitle,
 } from './AuctionDetailsView.styles';
-import Image from 'next/image';
+import { ImageWithSkeleton, Title, SubTitle } from '@/components/ui';
 
 type AuctionWithImages = Auction & { images: AuctionImage[] };
 
@@ -49,28 +47,12 @@ export function AuctionDetailsView({ auction, actions, metadata, watchlistButton
 
         <ImagesWrapper>
           <MainImageBox>
-            {mainImage ? (
-              <Image
-                src={mainImage.url}
-                alt={auction.title}
-                width={600}
-                height={400}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            ) : (
-              <div style={{ padding: 12, fontSize: 13, color: '#9ca3af' }}>No image</div>
-            )}
+            <ImageWithSkeleton src={mainImage ? mainImage.url : undefined} alt={auction.title} />
           </MainImageBox>
 
           {otherImages.map((img) => (
             <ThumbImageBox key={img.id}>
-              <Image
-                src={img.url}
-                alt={auction.title}
-                width={160}
-                height={160}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+              <ImageWithSkeleton src={img.url} alt={auction.title} />
             </ThumbImageBox>
           ))}
         </ImagesWrapper>
@@ -103,7 +85,7 @@ export function AuctionDetailsView({ auction, actions, metadata, watchlistButton
         </Panel>
 
         <Panel>
-          <ActionsTitle>Actions</ActionsTitle>
+          <SubTitle>Actions</SubTitle>
           {actions}
         </Panel>
       </RightColumn>

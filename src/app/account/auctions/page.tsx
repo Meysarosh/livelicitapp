@@ -1,9 +1,9 @@
-import { requireUser } from '@/lib/auth/requireUser';
-import { getUserAuctions } from '@/lib/data/prismaQueries';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { getUserAuctions } from '@/data-access/auctions';
 import { AuctionsList } from '@/components/auctions/AuctionsList';
 
 export default async function MyAuctionsPage() {
-  const user = await requireUser();
+  const user = await getAuthUser();
 
   const auctions = await getUserAuctions(user.id);
 

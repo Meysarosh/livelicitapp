@@ -1,4 +1,4 @@
-import { EffectiveAuctionStatus, getEffectiveAuctionStatus } from '@/lib/auctionStatus';
+import { EffectiveAuctionStatus, getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
 import { MetaRow, Badge } from './AuctionMetaData.styles';
 import { Auction } from '@prisma/client';
 import { User } from '@prisma/client';

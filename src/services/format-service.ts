@@ -1,4 +1,4 @@
-export function formatMoney(minor: number, currency: string) {
+export function formatPrice(minor: number, currency: string) {
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency,
