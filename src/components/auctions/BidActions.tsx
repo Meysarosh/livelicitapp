@@ -2,10 +2,11 @@
 
 import { useActionState } from 'react';
 import { placeBid } from '@/app/actions/placeBid';
-import type { PlaceBidFormState } from '@/lib/formValidation/validation';
-import { Form, FormField, Label, Input, Btn, ErrorText, Note } from '@/components/forms/form.styles';
-import { getEffectiveAuctionStatus } from '@/lib/auctionStatus';
-import { AuctionWithOwnerAndImages } from '@/lib/data/prismaQueries';
+import type { PlaceBidFormState } from '@/services/zodValidation-service';
+import { Form, FormField } from '@/components/forms/form.styles';
+import { Button, Input, Note } from '@/components/ui';
+import { getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
+import { AuctionWithOwnerAndImages } from '@/data-access/auctions';
 
 interface BidActionsProps {
   auction: AuctionWithOwnerAndImages;
@@ -43,11 +44,7 @@ export function BidActions({ auction, currentUserId }: BidActionsProps) {
 
   const minNextPrice = (currentPriceMinor + minIncrementMinor) / 100;
 
-  const amountIds = {
-    inputId: 'bid-amount',
-    labelId: 'bid-amount-label',
-    errorId: 'bid-amount-error',
-  } as const;
+  const amountInputId = 'bid-amount';
 
   return (
     <>
@@ -58,29 +55,25 @@ export function BidActions({ auction, currentUserId }: BidActionsProps) {
       )}
 
       <Form action={action}>
-        <input type='hidden' name='auctionId' value={auctionId} />
+        <Input type='hidden' name='auctionId' value={auctionId} />
 
         <FormField>
-          <Label id={amountIds.labelId} htmlFor={amountIds.inputId}>
-            Your bid ({currency})
-          </Label>
           <Input
-            id={amountIds.inputId}
+            label={`Your bid (${currency})`}
+            id={amountInputId}
             name='amount'
             type='number'
             min={minNextPrice}
             step={minIncrementMinor / 100}
             required
             defaultValue={state?.values?.amount ?? minNextPrice}
-            aria-labelledby={amountIds.labelId}
-            aria-invalid={!!state?.errors?.amount}
+            error={state?.errors?.amount?.[0]}
           />
-          {state?.errors?.amount && <ErrorText id={amountIds.errorId}>{state.errors.amount[0]}</ErrorText>}
         </FormField>
 
-        <Btn type='submit' disabled={pending}>
+        <Button type='submit' disabled={pending}>
           {pending ? 'Placing bid…' : 'Place bid'}
-        </Btn>
+        </Button>
       </Form>
     </>
   );

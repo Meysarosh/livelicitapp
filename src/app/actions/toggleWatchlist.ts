@@ -1,29 +1,17 @@
 'use server';
 
-import { requireUser } from '@/lib/auth/requireUser';
-import { prisma } from '@/lib/db';
+import { watchlistAdd, watchlistRemove } from '@/data-access/watchlist';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
 
 export async function toggleWatchlist(auctionId: string, inWatchlist: boolean) {
-  const user = await requireUser();
+  const user = await getAuthUser();
 
   if (inWatchlist) {
-    await prisma.watchlist.delete({
-      where: {
-        userId_auctionId: {
-          userId: user.id,
-          auctionId,
-        },
-      },
-    });
+    await watchlistRemove(user.id, auctionId);
     return { inWatchlist: false };
   }
 
-  await prisma.watchlist.create({
-    data: {
-      userId: user.id,
-      auctionId,
-    },
-  });
+  await watchlistAdd(user.id, auctionId);
 
   return { inWatchlist: true };
 }

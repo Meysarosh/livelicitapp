@@ -1,20 +1,21 @@
 'use server';
 
-import { requireUser } from '@/lib/auth/requireUser';
-import { prisma } from '@/lib/db';
+import { redirect } from 'next/navigation';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { createAuctionInDb } from '@/data-access/auctions';
 import {
   CreateAuctionFormSchema,
   durationDayOptions,
   type CreateAuctionFormState,
-} from '@/lib/formValidation/validation';
+} from '@/services/zodValidation-service';
+import { DEFAULT_CURRENCY } from '@/lib/constants';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
-import { redirect } from 'next/navigation';
 
 export async function createAuction(
   _prevState: CreateAuctionFormState,
   formData: FormData
 ): Promise<CreateAuctionFormState> {
-  const user = await requireUser();
+  const user = await getAuthUser();
 
   const raw = {
     title: formData.get('title'),
@@ -22,7 +23,7 @@ export async function createAuction(
     startingPrice: formData.get('startingPrice'),
     minIncrement: formData.get('minIncrement'),
     durationDays: formData.get('durationDays') ?? '7',
-    currency: formData.get('currency') ?? 'HUF',
+    currency: formData.get('currency') ?? DEFAULT_CURRENCY,
     startMode: formData.get('startMode') ?? 'now',
     startAt: formData.get('startAt'),
     imageUrls: formData.get('imageUrls'),
@@ -43,7 +44,6 @@ export async function createAuction(
         currency: fieldErrors.currency,
         startMode: fieldErrors.startMode,
         startAt: fieldErrors.startAt,
-        // imageUrls: fieldErrors.imageUrls,
       },
       values: {
         title: (raw.title as string | null) ?? undefined,
@@ -59,86 +59,18 @@ export async function createAuction(
     };
   }
 
-  const {
-    title,
-    description,
-    startingPrice,
-    minIncrement,
-    durationDays,
-    currency,
-    startMode,
-    startAt: startAtRaw,
-    imageUrls,
-  } = parsed.data;
-
-  const toMinor = (v: string) => Math.round(Number(v) * 100);
-  const startPriceMinor = toMinor(startingPrice);
-  const minIncrementMinor = toMinor(minIncrement);
-
-  const now = new Date(Date.now());
-  let startAt: Date;
-
-  if (startMode === 'future' && startAtRaw) {
-    startAt = new Date(startAtRaw);
-  } else {
-    startAt = now;
-  }
-
-  let durationMs: number;
-  if (durationDays === 'test') {
-    // 1 minute duration for testing/demo
-    durationMs = 1 * 60 * 1000;
-  } else {
-    const days = Number(durationDays) || 7;
-    durationMs = days * 24 * 60 * 60 * 1000;
-  }
-  const endAt = new Date(startAt.getTime() + durationMs);
-
-  //TODO update after implementation of image uploading
-  const parsedImageUrls = (imageUrls ?? '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
-  console.log('BEFORE PRISMA`S CREATE');
   try {
-    await prisma.auction.create({
-      data: {
-        ownerId: user.id,
-        title,
-        description,
-        startPriceMinor,
-        minIncrementMinor,
-        currentPriceMinor: startPriceMinor,
-        currency,
-        status: 'ACTIVE',
-        startAt,
-        endAt,
-        images: parsedImageUrls.length
-          ? {
-              create: parsedImageUrls.map((url, index) => ({
-                url,
-                position: index,
-              })),
-            }
-          : undefined,
-      },
-    });
+    await createAuctionInDb(parsed.data, user.id);
   } catch (err) {
     console.error('APP/ACTIONS/CREATE_AUCTION:', err);
+
     if (isNextRedirectError(err)) throw err;
 
     return {
       message: 'Server error. Please try again.',
       values: {
-        title,
-        description,
-        startingPrice,
-        minIncrement,
-        durationDays,
-        currency,
-        startMode,
-        startAt: startAtRaw,
-        imageUrls: imageUrls ?? '',
+        ...parsed.data,
+        imageUrls: parsed.data.imageUrls ?? '',
       },
     };
   }

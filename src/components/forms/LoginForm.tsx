@@ -2,12 +2,9 @@
 
 import { login } from '@/app/actions/login';
 import { signIn } from 'next-auth/react';
-import { Title, Btn, Form, FormField, Label, Input, Summary, Note, SCLink } from './form.styles';
+import { Form, FormField, Summary, SCLink } from './form.styles';
+import { Button, Input, Title, Note } from '@/components/ui';
 import { useActionState, useEffect, useRef } from 'react';
-
-function fieldIds(base: string) {
-  return { inputId: base, labelId: `${base}-label` } as const;
-}
 
 export default function LoginForm() {
   const [state, action, pending] = useActionState(login, undefined);
@@ -16,9 +13,6 @@ export default function LoginForm() {
   useEffect(() => {
     if (state?.message) alertRef.current?.focus();
   }, [state?.message]);
-
-  const identifierIds = fieldIds('identifier');
-  const pwIds = fieldIds('password');
 
   return (
     <>
@@ -32,37 +26,31 @@ export default function LoginForm() {
 
       <Form action={action}>
         <FormField>
-          <Label id={identifierIds.labelId} htmlFor={identifierIds.inputId}>
-            Email
-          </Label>
           <Input
-            id={identifierIds.inputId}
+            label='Email'
+            id='identifier'
             name='identifier'
             type='text'
             placeholder='you@example.com'
             autoComplete='email'
             required
             defaultValue={state?.values?.identifier ?? ''}
-            aria-labelledby={identifierIds.labelId}
           />
         </FormField>
         <FormField>
-          <Label id={pwIds.labelId} htmlFor={pwIds.inputId}>
-            Password
-          </Label>
           <Input
-            id={pwIds.inputId}
+            label='Password'
+            id='password'
             name='password'
             type='password'
             autoComplete='current-password'
             required
-            aria-labelledby={pwIds.labelId}
           />
         </FormField>
 
-        <Btn disabled={pending} type='submit'>
+        <Button disabled={pending} type='submit'>
           {pending ? 'Signing in…' : 'Sign in'}
-        </Btn>
+        </Button>
       </Form>
 
       <Note>
@@ -74,7 +62,7 @@ export default function LoginForm() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <Btn
+        <Button
           type='button'
           onClick={() =>
             signIn('auth0', {
@@ -83,7 +71,7 @@ export default function LoginForm() {
           }
         >
           Continue with Auth0
-        </Btn>
+        </Button>
       </div>
     </>
   );

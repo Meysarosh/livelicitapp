@@ -3,41 +3,19 @@
 import { useActionState, useEffect, useRef } from 'react';
 
 import { register } from '@/app/actions/register';
-import { buildErrorSummary } from '@/lib/formValidation/errorSummary';
-import {
-  SCLink,
-  Title,
-  Summary,
-  SummaryTitle,
-  SummaryList,
-  RequiredMark,
-  Form,
-  FormField,
-  Label,
-  Input,
-  ErrorText,
-  Btn,
-  Note,
-} from './form.styles';
+import { buildErrorSummary } from '@/services/errorSummary-service';
+import { SCLink, Summary, SummaryList, RequiredMark, Form, FormField } from './form.styles';
+import { Button, Input, Title, SubTitle, Note } from '@/components/ui';
 
 type RegisterField = 'nickname' | 'email' | 'password' | 'confirmPassword';
 
-function fieldIds(base: string) {
-  return {
-    inputId: base,
-    errorId: `${base}-err`,
-    hintId: `${base}-hint`,
-    labelId: `${base}-label`,
-  } as const;
-}
-
-function describedByIds(opts: { error?: string; hint?: string }) {
-  const ids = [opts.hint, opts.error].filter(Boolean).join(' ');
-  return ids.length ? ids : undefined;
-}
-
 export default function RegisterForm() {
   const [state, action, pending] = useActionState(register, undefined);
+
+  const nicknameId: RegisterField = 'nickname';
+  const emailId: RegisterField = 'email';
+  const passwordId: RegisterField = 'password';
+  const confirmPasswordId: RegisterField = 'confirmPassword';
 
   const errors = buildErrorSummary<RegisterField>({
     errors: state?.errors as Partial<Record<RegisterField, string[]>> | undefined,
@@ -56,10 +34,6 @@ export default function RegisterForm() {
     if (errors.length) summaryRef.current?.focus();
   }, [errors.length]);
 
-  const nicknameIds = fieldIds('nickname');
-  const emailIds = fieldIds('email');
-  const pwIds = fieldIds('password');
-  const cpwIds = fieldIds('confirmPassword');
   const requiredNoteId = 'required-note';
 
   return (
@@ -68,7 +42,7 @@ export default function RegisterForm() {
 
       {errors.length > 0 && (
         <Summary ref={summaryRef} tabIndex={-1} role='alert' aria-labelledby='error-summary-title'>
-          <SummaryTitle id='error-summary-title'>Please fix the following:</SummaryTitle>
+          <SubTitle id='error-summary-title'>Please fix the following:</SubTitle>
           <SummaryList>
             {errors.map((el, i) => (
               <li key={`${el.inputId}-${i}`}>
@@ -88,96 +62,66 @@ export default function RegisterForm() {
       <Form action={action} aria-describedby={requiredNoteId}>
         {/* Nickname */}
         <FormField>
-          <Label id={nicknameIds.labelId} htmlFor={nicknameIds.inputId}>
-            Nickname<RequiredMark aria-hidden='true'>*</RequiredMark>
-          </Label>
           <Input
-            id={nicknameIds.inputId}
+            label='Nickname'
+            id={nicknameId}
             name='nickname'
             placeholder='Your nickname'
             autoComplete='nickname'
             required
             defaultValue={state?.values?.nickname ?? ''}
-            aria-labelledby={nicknameIds.labelId}
-            aria-invalid={!!state?.errors?.nickname}
-            aria-describedby={describedByIds({
-              hint: requiredNoteId,
-              error: state?.errors?.nickname ? nicknameIds.errorId : undefined,
-            })}
+            aria-describedby={requiredNoteId}
+            error={state?.errors?.nickname?.[0]}
           />
-          {state?.errors?.nickname && <ErrorText id={nicknameIds.errorId}>{state.errors.nickname[0]}</ErrorText>}
         </FormField>
 
         {/* Email */}
         <FormField>
-          <Label id={emailIds.labelId} htmlFor={emailIds.inputId}>
-            Email<RequiredMark aria-hidden='true'>*</RequiredMark>
-          </Label>
           <Input
-            id={emailIds.inputId}
+            label='Email'
+            id={emailId}
             name='email'
             type='email'
             placeholder='you@example.com'
             autoComplete='email'
             required
             defaultValue={state?.values?.email ?? ''}
-            aria-labelledby={emailIds.labelId}
-            aria-invalid={!!state?.errors?.email}
-            aria-describedby={describedByIds({
-              hint: requiredNoteId,
-              error: state?.errors?.email ? emailIds.errorId : undefined,
-            })}
+            aria-describedby={requiredNoteId}
+            error={state?.errors?.email?.[0]}
           />
-          {state?.errors?.email && <ErrorText id={emailIds.errorId}>{state.errors.email[0]}</ErrorText>}
         </FormField>
 
         {/* Password */}
         <FormField>
-          <Label id={pwIds.labelId} htmlFor={pwIds.inputId}>
-            Password<RequiredMark aria-hidden='true'>*</RequiredMark>
-          </Label>
           <Input
-            id={pwIds.inputId}
+            label='Password'
+            id={passwordId}
             name='password'
             type='password'
             autoComplete='new-password'
             required
-            aria-labelledby={pwIds.labelId}
-            aria-invalid={!!state?.errors?.password}
-            aria-describedby={describedByIds({
-              hint: requiredNoteId,
-              error: state?.errors?.password ? pwIds.errorId : undefined,
-            })}
+            aria-describedby={requiredNoteId}
+            error={state?.errors?.password?.[0]}
           />
-          {state?.errors?.password && <ErrorText id={pwIds.errorId}>{state.errors.password[0]}</ErrorText>}
         </FormField>
 
         {/* Confirm Password */}
         <FormField>
-          <Label id={cpwIds.labelId} htmlFor={cpwIds.inputId}>
-            Confirm password<RequiredMark aria-hidden='true'>*</RequiredMark>
-          </Label>
           <Input
-            id={cpwIds.inputId}
+            label='Confirm password'
+            id={confirmPasswordId}
             name='confirmPassword'
             type='password'
             autoComplete='new-password'
             required
-            aria-labelledby={cpwIds.labelId}
-            aria-invalid={!!state?.errors?.confirmPassword}
-            aria-describedby={describedByIds({
-              hint: requiredNoteId,
-              error: state?.errors?.confirmPassword ? cpwIds.errorId : undefined,
-            })}
+            aria-describedby={requiredNoteId}
+            error={state?.errors?.confirmPassword?.[0]}
           />
-          {state?.errors?.confirmPassword && (
-            <ErrorText id={cpwIds.errorId}>{state.errors.confirmPassword[0]}</ErrorText>
-          )}
         </FormField>
 
-        <Btn disabled={pending} type='submit'>
+        <Button disabled={pending} type='submit'>
           {pending ? 'Creating…' : 'Create account'}
-        </Btn>
+        </Button>
       </Form>
 
       <Note>

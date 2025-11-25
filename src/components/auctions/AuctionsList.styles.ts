@@ -36,9 +36,10 @@ export const Body = styled.div`
   flex: 1;
 `;
 
-export const Title = styled.div`
+export const ItemTitle = styled.h3`
   font-size: 14px;
   font-weight: 600;
+  margin: 0;
 `;
 
 export const MetaRow = styled.div`

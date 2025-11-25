@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { AuctionDetailsView } from '@/components/auctions/AuctionDetailsView';
 import { BidActions } from '@/components/auctions/BidActions';
-import { getAuctionWithOwnerAndImages } from '@/lib/data/prismaQueries';
+import { getAuctionWithOwnerAndImages } from '@/data-access/auctions';
 import { AuctionMetaData } from '@/components/auctions/AuctionMetaData';
 import { prisma } from '@/lib/db';
 import { WatchlistButton } from '@/components/auctions/WatchlistButton';

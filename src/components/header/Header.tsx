@@ -1,5 +1,6 @@
 'use client';
-import { Bar, Wrap, Brand, Nav, Right, Hello, Btn, Button } from './header.styles';
+import { Bar, Wrap, Brand, Nav, Right, Hello } from './header.styles';
+import { Button, LinkButton } from '@/components/ui';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -24,20 +25,20 @@ export default function Header({ user }: { user: HeaderUser }) {
 
         <Nav aria-label='Primary'>
           <Link href='/auctions'>Auctions</Link>
-          <Link href='/account/auctions'>Account</Link>
+          <Link href='/account'>Account</Link>
         </Nav>
 
         <Right>
           {user ? (
             <>
               <Hello>Hello, {user.nickname}</Hello>
-              <Btn href='/account/profile'>Profile</Btn>
+              <LinkButton href='/account/profile'>Profile</LinkButton>
               <Button onClick={handleClickSignOut}>Sign out</Button>
             </>
           ) : onAuthPage ? null : (
             <>
-              <Btn href='/login'>Sign in</Btn>
-              <Btn href='/register'>Sign up</Btn>
+              <LinkButton href='/login'>Sign in</LinkButton>
+              <LinkButton href='/register'>Sign up</LinkButton>
             </>
           )}
         </Right>

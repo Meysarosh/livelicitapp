@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import type { Route } from 'next';
-import { ImageWithSkeleton } from '../global/ImageWithSkeleton';
-import { getEffectiveAuctionStatus } from '@/lib/auctionStatus';
-import { formatDateTime, formatMoney } from '@/lib/format';
-import { ActiveAuctions } from '@/lib/data/prismaQueries';
+import { ImageWithSkeleton } from '@/components/ui';
+import { getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
+import { formatDateTime, formatPrice } from '@/services/format-service';
+import { ActiveAuctions } from '@/data-access/auctions';
 
-import { List, Item, Thumb, Body, Title, MetaRow, MetaPiece } from './AuctionsList.styles';
+import { List, Item, Thumb, Body, ItemTitle, MetaRow, MetaPiece } from './AuctionsList.styles';
 
 type Props = {
   auctions: ActiveAuctions;
@@ -46,7 +46,7 @@ export function AuctionsList({ auctions, page }: Props) {
       href: href as Route,
       imageUrl: firstImage || undefined,
       priceLabel,
-      priceText: formatMoney(priceValue, a.currency),
+      priceText: formatPrice(priceValue, a.currency),
       metaLabel,
       metaText: formatDateTime(metaDate),
     };
@@ -64,7 +64,7 @@ export function AuctionsList({ auctions, page }: Props) {
 
           <Body>
             <Link href={item.href}>
-              <Title>{item.title}</Title>
+              <ItemTitle>{item.title}</ItemTitle>
             </Link>
 
             {(item.priceText || item.metaText) && (

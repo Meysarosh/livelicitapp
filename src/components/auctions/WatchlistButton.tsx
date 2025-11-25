@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from 'react';
 import { toggleWatchlist } from '@/app/actions/toggleWatchlist';
-import { Btn } from '@/components/forms/form.styles';
+import { Button } from '@/components/ui';
 
 interface WatchlistButtonProps {
   auctionId: string;
@@ -15,7 +15,7 @@ export function WatchlistButton({ auctionId, initialInWatchlist, disabled }: Wat
   const [isPending, startTransition] = useTransition();
 
   return (
-    <Btn
+    <Button
       type='button'
       disabled={disabled || isPending}
       onClick={() => {
@@ -30,6 +30,6 @@ export function WatchlistButton({ auctionId, initialInWatchlist, disabled }: Wat
       }}
     >
       {isPending ? 'Updating…' : inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
-    </Btn>
+    </Button>
   );
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { finalizeAuction } from '@/lib/finalizeAuction';
+import { finalizeAuction } from '@/data-access/finalizeAuction';
 
 // Optionally limit how many to process per run to avoid timeouts
 const BATCH_LIMIT = 100;

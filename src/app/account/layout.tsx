@@ -1,4 +1,4 @@
-import { requireUser } from '@/lib/auth/requireUser';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
 import {
   Content,
   LayoutWrapper,
@@ -10,7 +10,7 @@ import {
 } from '@/components/layouts/AccountLayout/styles';
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireUser();
+  const user = await getAuthUser();
 
   return (
     <LayoutWrapper>

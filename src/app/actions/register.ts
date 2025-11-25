@@ -1,12 +1,12 @@
 'use server';
 
-import { prisma } from '@/lib/db';
+import { Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import * as z from 'zod';
-import { RegisterFormSchema, type RegisterFormState } from '@/lib/formValidation/validation';
+import { RegisterFormSchema, type RegisterFormState } from '@/services/zodValidation-service';
 import { signIn } from '@/lib/auth';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
-import { Prisma } from '@prisma/client';
+import { createUser } from '@/data-access/user';
 
 export async function register(prev: RegisterFormState, formData: FormData): Promise<RegisterFormState> {
   const raw = {
@@ -39,9 +39,7 @@ export async function register(prev: RegisterFormState, formData: FormData): Pro
   const hash = await bcrypt.hash(password, 10);
 
   try {
-    await prisma.user.create({
-      data: { nickname, email, credentials: { create: { passHash: hash } } },
-    });
+    await createUser(nickname, email, hash);
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       const target = (err.meta?.target ?? []) as string[];
