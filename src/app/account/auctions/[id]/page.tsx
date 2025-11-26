@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getAuctionById } from '@/data-access/auctions';
+import { getAuctionDetailsForOwner } from '@/data-access/auctions';
 import { AuctionDetailsView } from '@/components/auctions/AuctionDetailsView';
 
 interface RouteParams {
@@ -9,7 +9,7 @@ interface RouteParams {
 
 export default async function MyAuctionDetailsPage({ params }: { params: Promise<RouteParams> }) {
   const { id } = await params;
-  const auction = await getAuctionById(id);
+  const auction = await getAuctionDetailsForOwner(id);
   if (!auction) {
     notFound();
   }

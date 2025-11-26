@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { AuctionDetailsView } from '@/components/auctions/AuctionDetailsView';
 import { BidActions } from '@/components/auctions/BidActions';
-import { getAuctionById } from '@/data-access/auctions';
+import { getAuctionDetailsForPublic } from '@/data-access/auctions';
 import { AuctionMetaData } from '@/components/auctions/AuctionMetaData';
 import { WatchlistButton } from '@/components/auctions/WatchlistButton';
 import { getWatchlistEntry } from '@/data-access/watchlist';
@@ -17,7 +17,7 @@ export default async function AuctionDetailsPage({ params }: { params: Promise<P
 
   const pageParams = await params;
 
-  const auction = await getAuctionById(pageParams.id, true);
+  const auction = await getAuctionDetailsForPublic(pageParams.id);
 
   if (!auction || !auction.owner) {
     notFound();

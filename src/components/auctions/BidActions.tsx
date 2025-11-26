@@ -20,7 +20,7 @@ export function BidActions({ auction, userId }: BidActionsProps) {
   const { id: auctionId, currency, currentPriceMinor, minIncrementMinor, owner } = auction;
 
   const effectiveStatus = getEffectiveAuctionStatus(auction);
-  const isOwner = owner?.id === userId;
+  const isOwner = owner.id === userId;
 
   // Decide if current user can bid
   let canBid = false;

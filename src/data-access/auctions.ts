@@ -22,21 +22,10 @@ export async function getAuction(id: string, tx: DbClient = prisma): Promise<Auc
 
 export type AuctionWithOwnerAndImages = Auction & {
   images: AuctionImage[];
-  owner?: Pick<User, 'id' | 'nickname' | 'ratingAvg' | 'ratingCount'>;
+  owner: Pick<User, 'id' | 'nickname' | 'ratingAvg' | 'ratingCount'>;
 };
-// TODO SEPARATE FUNCTION FOR OWNER AND NON-OWNER VIEW
-export async function getAuctionById(id: string, owner?: boolean): Promise<AuctionWithOwnerAndImages | null> {
-  if (!owner) {
-    return prisma.auction.findUnique({
-      where: { id },
-      include: {
-        images: {
-          orderBy: { position: 'asc' },
-        },
-      },
-    });
-  }
 
+export async function getAuctionDetailsForPublic(id: string): Promise<AuctionWithOwnerAndImages | null> {
   return prisma.auction.findUnique({
     where: { id },
     include: {
@@ -50,6 +39,17 @@ export async function getAuctionById(id: string, owner?: boolean): Promise<Aucti
           ratingAvg: true,
           ratingCount: true,
         },
+      },
+    },
+  });
+}
+
+export async function getAuctionDetailsForOwner(id: string) {
+  return prisma.auction.findUnique({
+    where: { id },
+    include: {
+      images: {
+        orderBy: { position: 'asc' },
       },
     },
   });
@@ -88,7 +88,7 @@ export async function updateAuctionBid(
 }
 //READ ACTIVE AUCTIONS
 
-export async function getActiveAuctions(): Promise<AuctionWithOwnerAndImages[]> {
+export async function getActiveAuctions() {
   const now = new Date();
 
   return await prisma.auction.findMany({
@@ -104,7 +104,7 @@ export async function getActiveAuctions(): Promise<AuctionWithOwnerAndImages[]> 
 }
 
 // READ USER'S AUCTIONS
-export async function getAuctionsByUser(userId: string): Promise<AuctionWithOwnerAndImages[]> {
+export async function getAuctionsByUser(userId: string) {
   return prisma.auction.findMany({
     where: { ownerId: userId },
     orderBy: { createdAt: 'desc' },
