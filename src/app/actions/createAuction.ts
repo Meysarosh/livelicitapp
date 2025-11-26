@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { createAuction } from '@/data-access/auctions';
+import { createAuction as createAuctionInDb } from '@/data-access/auctions';
 import {
   CreateAuctionFormSchema,
   durationDayOptions,
@@ -12,7 +12,7 @@ import { DEFAULT_CURRENCY } from '@/lib/constants';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
 import { AuctionStatus } from '@prisma/client';
 
-export async function auctionCreate(
+export async function createAuction(
   _prevState: CreateAuctionFormState,
   formData: FormData
 ): Promise<CreateAuctionFormState> {
@@ -123,7 +123,7 @@ export async function auctionCreate(
   };
 
   try {
-    await createAuction(data);
+    await createAuctionInDb(data);
   } catch (err) {
     console.error('APP/ACTIONS/CREATE_AUCTION:', err);
 
