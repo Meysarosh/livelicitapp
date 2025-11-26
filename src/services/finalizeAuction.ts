@@ -2,7 +2,7 @@ import { getAuctionWithDeal, updateAuction } from '@/data-access/auctions';
 import { createConversation, getConversationByAuctionAndUsers } from '@/data-access/conversations';
 import { createDeal } from '@/data-access/deals';
 import { createMessage } from '@/data-access/messages';
-import type { DealStatus, Prisma } from '@prisma/client';
+import { type Prisma, DealStatus } from '@prisma/client';
 
 export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: string) {
   // Re-fetch auction inside the transaction for safety
@@ -31,7 +31,7 @@ export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: s
     auctionId: auction.id,
     sellerId,
     buyerId,
-    status: 'AWAITING_PAYMENT' as DealStatus,
+    status: DealStatus.AWAITING_PAYMENT,
     currency: auction.currency,
   };
 

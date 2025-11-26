@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useMemo, useState } from 'react';
-import { auctionCreate } from '@/app/actions/auctionCreate';
+import { createAuction } from '@/app/actions/createAuction';
 import { Form } from '@/components/forms/form.styles';
 import { Button, Title, Note } from '@/components/ui';
 import { Input, TextArea, Select } from '@/components/ui';
@@ -11,7 +11,7 @@ import { FormFieldWrapper } from '../forms/FormFiieldWrapper';
 import { isoToLocalForInput } from '@/services/format-service';
 
 export default function CreateAuctionForm() {
-  const [state, action, pending] = useActionState<CreateAuctionFormState, FormData>(auctionCreate, undefined);
+  const [state, action, pending] = useActionState<CreateAuctionFormState, FormData>(createAuction, undefined);
 
   const startModeOptions = useMemo(
     () => [
