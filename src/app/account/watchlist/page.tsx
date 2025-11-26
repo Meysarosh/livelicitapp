@@ -1,10 +1,10 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getUserWatchlist } from '@/data-access/auctions';
+import { getWatchlistByUser } from '@/data-access/watchlist';
 import { AuctionsList } from '@/components/auctions/AuctionsList';
 
 export default async function WatchlistPage() {
   const user = await getAuthUser();
-  const items = await getUserWatchlist(user.id);
+  const items = await getWatchlistByUser(user.id);
 
   const auctions = items.map((i) => i.auction);
 

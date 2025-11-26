@@ -1,21 +1,24 @@
 'use client';
 
 import { useActionState, useMemo, useState } from 'react';
-import { createAuction } from '@/app/actions/createAuction';
-import { Form, FormField } from '@/components/forms/form.styles';
-import { Button, Input, Title, Note, TextArea, Select } from '@/components/ui';
+import { auctionCreate } from '@/app/actions/auctionCreate';
+import { Form } from '@/components/forms/form.styles';
+import { Button, Title, Note } from '@/components/ui';
+import { Input, TextArea, Select } from '@/components/ui';
 import { DEFAULT_CURRENCY, SUPPORTED_CURRENCIES } from '@/lib/constants';
 import type { CreateAuctionFormState } from '@/services/zodValidation-service';
+import { FormFieldWrapper } from '../forms/FormFiieldWrapper';
+import { isoToLocalForInput } from '@/services/format-service';
 
 export default function CreateAuctionForm() {
-  const [state, action, pending] = useActionState<CreateAuctionFormState, FormData>(createAuction, undefined);
+  const [state, action, pending] = useActionState<CreateAuctionFormState, FormData>(auctionCreate, undefined);
 
   const startModeOptions = useMemo(
     () => [
       { value: 'now', label: 'Start now' },
       { value: 'future', label: 'Schedule for later' },
     ],
-    [],
+    []
   );
 
   const durationOptions = useMemo(
@@ -26,7 +29,7 @@ export default function CreateAuctionForm() {
       { value: '7', label: '7 days' },
       { value: 'test', label: 'Test (1 minute)' },
     ],
-    [],
+    []
   );
 
   const currencyOptions = useMemo(
@@ -35,10 +38,26 @@ export default function CreateAuctionForm() {
         value: currency,
         label: currency,
       })),
-    [],
+    []
   );
 
   const [startMode, setStartMode] = useState<'now' | 'future'>(state?.values?.startMode ?? 'now');
+
+  const [isoStartAt, setIsoStartAt] = useState(state?.values?.startAt ?? '');
+
+  const initialLocalStartAt = useMemo(() => isoToLocalForInput(state?.values?.startAt), [state?.values?.startAt]);
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+
+    if (!val) {
+      setIsoStartAt('');
+      return;
+    }
+
+    const date = new Date(val);
+    setIsoStartAt(date.toISOString());
+  };
 
   const [minStartAt] = useState(() => {
     const now = new Date();
@@ -57,124 +76,74 @@ export default function CreateAuctionForm() {
       )}
 
       <Form action={action}>
-        {/* Title */}
-        <FormField>
-          <Input
-            label='Title'
-            id='title'
-            name='title'
-            required
-            defaultValue={state?.values?.title ?? ''}
-            error={state?.errors?.title?.[0]}
-          />
-        </FormField>
+        <FormFieldWrapper label='Title' required error={state?.errors?.title?.[0]}>
+          <Input name='title' type='text' defaultValue={state?.values?.title ?? ''} />
+        </FormFieldWrapper>
 
-        {/* Description */}
-        <FormField>
-          <TextArea
-            label='Description'
-            id='description'
-            name='description'
-            required
-            defaultValue={state?.values?.description ?? ''}
-            error={state?.errors?.description?.[0]}
-          />
-        </FormField>
+        <FormFieldWrapper label='Description' required error={state?.errors?.description?.[0]}>
+          <TextArea name='description' defaultValue={state?.values?.description ?? ''} />
+        </FormFieldWrapper>
 
-        {/* Image URLs */}
-        <FormField>
+        <FormFieldWrapper label='Image URLs (one per line)' error={state?.errors?.imageUrls?.[0]}>
           <TextArea
-            label='Image URLs (one per line)'
-            id='imageUrls'
             name='imageUrls'
             placeholder={'https://example.com/image1.jpg\nhttps://example.com/image2.jpg'}
             defaultValue={state?.values?.imageUrls ?? ''}
           />
-        </FormField>
+        </FormFieldWrapper>
 
-        {/* Starting price */}
-        <FormField>
+        <FormFieldWrapper label='Starting price' required error={state?.errors?.startingPrice?.[0]}>
           <Input
-            label='Starting price'
-            id='startingPrice'
             name='startingPrice'
             type='number'
             step='0.01'
             min={0}
-            required
             defaultValue={state?.values?.startingPrice ?? ''}
-            error={state?.errors?.startingPrice?.[0]}
           />
-        </FormField>
+        </FormFieldWrapper>
 
-        {/* Minimum increment */}
-        <FormField>
+        <FormFieldWrapper label='Minimum increment' required error={state?.errors?.minIncrement?.[0]}>
           <Input
-            label='Minimum increment'
-            id='minIncrement'
             name='minIncrement'
             type='number'
             step='0.01'
             min={0}
-            required
             defaultValue={state?.values?.minIncrement ?? ''}
-            error={state?.errors?.minIncrement?.[0]}
           />
-        </FormField>
+        </FormFieldWrapper>
 
-        {/* Start mode: now / future */}
-        <FormField>
+        <FormFieldWrapper label='Start' error={state?.errors?.startMode?.[0]}>
           <Select
-            label='Start'
-            id='startMode'
             name='startMode'
             value={startMode}
             onChange={(e) => setStartMode(e.target.value as 'now' | 'future')}
             options={startModeOptions}
-            error={state?.errors?.startMode?.[0]}
           />
-        </FormField>
+        </FormFieldWrapper>
 
-        {/* Start date/time (only when future) */}
         {startMode === 'future' && (
-          <FormField>
+          <FormFieldWrapper label='Start date & time' required error={state?.errors?.startAt?.[0]}>
             <Input
-              label='Start date & time'
-              id='startAt'
-              name='startAt'
               type='datetime-local'
               min={minStartAt}
-              required
-              defaultValue={state?.values?.startAt ?? ''}
-              error={state?.errors?.startAt?.[0]}
+              defaultValue={initialLocalStartAt}
+              onChange={handleDateChange}
             />
-          </FormField>
+            <input type='hidden' name='startAt' value={isoStartAt} />
+          </FormFieldWrapper>
         )}
 
-        {/* Duration in days */}
-        <FormField>
-          <Select
-            label='Duration'
-            id='durationDays'
-            name='durationDays'
-            defaultValue={state?.values?.durationDays ?? '7'}
-            options={durationOptions}
-            error={state?.errors?.durationDays?.[0]}
-          />
-        </FormField>
+        <FormFieldWrapper label='Duration' required error={state?.errors?.durationDays?.[0]}>
+          <Select name='durationDays' defaultValue={state?.values?.durationDays ?? '7'} options={durationOptions} />
+        </FormFieldWrapper>
 
-        {/* Currency */}
-        <FormField>
+        <FormFieldWrapper label='Currency' required error={state?.errors?.currency?.[0]}>
           <Select
-            label='Currency'
-            id='currency'
             name='currency'
-            required
             defaultValue={state?.values?.currency ?? DEFAULT_CURRENCY}
             options={currencyOptions}
-            error={state?.errors?.currency?.[0]}
           />
-        </FormField>
+        </FormFieldWrapper>
 
         <Button disabled={pending} type='submit'>
           {pending ? 'Creating…' : 'Create auction'}

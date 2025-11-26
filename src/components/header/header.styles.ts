@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Link from 'next/link';
 
 export const Bar = styled.header`
   border-bottom: 1px solid #e5e7eb;

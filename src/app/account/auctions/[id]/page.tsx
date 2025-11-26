@@ -1,18 +1,16 @@
 import { notFound } from 'next/navigation';
-import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getAuctionWithOwnerAndImages } from '@/data-access/auctions';
-import { AuctionDetailsView } from '@/components/auctions/AuctionDetailsView';
 import Link from 'next/link';
+import { getAuctionById } from '@/data-access/auctions';
+import { AuctionDetailsView } from '@/components/auctions/AuctionDetailsView';
 
 interface RouteParams {
   id: string;
 }
 
 export default async function MyAuctionDetailsPage({ params }: { params: Promise<RouteParams> }) {
-  const user = await getAuthUser();
   const { id } = await params;
-  const auction = await getAuctionWithOwnerAndImages(id);
-  if (!auction || auction.owner.id !== user.id) {
+  const auction = await getAuctionById(id);
+  if (!auction) {
     notFound();
   }
 

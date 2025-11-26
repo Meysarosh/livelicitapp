@@ -1,28 +1,24 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { finalizeAuction } from '@/data-access/finalizeAuction';
+import { finalizeAuction } from '@/services/finalizeAuction';
+import { getAuctionsToFinalize } from '@/data-access/auctions';
 
-// Optionally limit how many to process per run to avoid timeouts
 const BATCH_LIMIT = 100;
 
 export async function GET() {
-  const now = new Date();
-
   // Find auctions to finalize: ACTIVE and already past endAt
-  const auctionsToFinalize = await prisma.auction.findMany({
-    where: {
-      status: 'ACTIVE',
-      endAt: { lte: now },
-    },
-    select: { id: true },
-    take: BATCH_LIMIT,
-  });
+  const auctionsToFinalize = await getAuctionsToFinalize(BATCH_LIMIT);
 
-  let processed = 0;
+  const results = await Promise.allSettled(
+    auctionsToFinalize.map((a) => prisma.$transaction((tx) => finalizeAuction(tx, a.id)))
+  );
 
-  for (const a of auctionsToFinalize) {
-    await prisma.$transaction((tx) => finalizeAuction(tx, a.id));
-    processed++;
+  const processed = results.filter((r) => r.status === 'fulfilled').length;
+  const errors = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason);
+
+  if (errors.length > 0) {
+    // TODO: proper logging
+    console.error('Errors occurred while finalizing auctions:', errors);
   }
 
   return NextResponse.json({

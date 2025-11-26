@@ -3,29 +3,30 @@
 import { useActionState } from 'react';
 import { placeBid } from '@/app/actions/placeBid';
 import type { PlaceBidFormState } from '@/services/zodValidation-service';
-import { Form, FormField } from '@/components/forms/form.styles';
+import { Form } from '@/components/forms/form.styles';
 import { Button, Input, Note } from '@/components/ui';
 import { getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
 import { AuctionWithOwnerAndImages } from '@/data-access/auctions';
+import { FormFieldWrapper } from '../forms/FormFiieldWrapper';
 
 interface BidActionsProps {
   auction: AuctionWithOwnerAndImages;
-  currentUserId?: string;
+  userId?: string;
 }
 
-export function BidActions({ auction, currentUserId }: BidActionsProps) {
+export function BidActions({ auction, userId }: BidActionsProps) {
   const [state, action, pending] = useActionState<PlaceBidFormState, FormData>(placeBid, undefined);
 
   const { id: auctionId, currency, currentPriceMinor, minIncrementMinor, owner } = auction;
 
   const effectiveStatus = getEffectiveAuctionStatus(auction);
-  const isOwner = currentUserId === owner.id;
+  const isOwner = owner?.id === userId;
 
   // Decide if current user can bid
   let canBid = false;
   let reasonIfCannotBid: string | undefined;
 
-  if (!currentUserId) {
+  if (!userId) {
     canBid = false;
     reasonIfCannotBid = 'Please log in to place a bid.';
   } else if (isOwner) {
@@ -44,8 +45,6 @@ export function BidActions({ auction, currentUserId }: BidActionsProps) {
 
   const minNextPrice = (currentPriceMinor + minIncrementMinor) / 100;
 
-  const amountInputId = 'bid-amount';
-
   return (
     <>
       {state?.message && (
@@ -57,19 +56,15 @@ export function BidActions({ auction, currentUserId }: BidActionsProps) {
       <Form action={action}>
         <Input type='hidden' name='auctionId' value={auctionId} />
 
-        <FormField>
+        <FormFieldWrapper label={`Your bid (${currency})`} required error={state?.errors?.amount?.[0]}>
           <Input
-            label={`Your bid (${currency})`}
-            id={amountInputId}
             name='amount'
             type='number'
             min={minNextPrice}
             step={minIncrementMinor / 100}
-            required
             defaultValue={state?.values?.amount ?? minNextPrice}
-            error={state?.errors?.amount?.[0]}
           />
-        </FormField>
+        </FormFieldWrapper>
 
         <Button type='submit' disabled={pending}>
           {pending ? 'Placing bid…' : 'Place bid'}

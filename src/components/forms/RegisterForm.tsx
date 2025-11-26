@@ -4,18 +4,15 @@ import { useActionState, useEffect, useRef } from 'react';
 
 import { register } from '@/app/actions/register';
 import { buildErrorSummary } from '@/services/errorSummary-service';
-import { SCLink, Summary, SummaryList, RequiredMark, Form, FormField } from './form.styles';
-import { Button, Input, Title, SubTitle, Note } from '@/components/ui';
+import { SCLink, Summary, SummaryList, RequiredMark, Form } from './form.styles';
+import { Button, Title, SubTitle, Note } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { FormFieldWrapper } from './FormFiieldWrapper';
 
 type RegisterField = 'nickname' | 'email' | 'password' | 'confirmPassword';
 
 export default function RegisterForm() {
   const [state, action, pending] = useActionState(register, undefined);
-
-  const nicknameId: RegisterField = 'nickname';
-  const emailId: RegisterField = 'email';
-  const passwordId: RegisterField = 'password';
-  const confirmPasswordId: RegisterField = 'confirmPassword';
 
   const errors = buildErrorSummary<RegisterField>({
     errors: state?.errors as Partial<Record<RegisterField, string[]>> | undefined,
@@ -60,64 +57,35 @@ export default function RegisterForm() {
       </Note>
 
       <Form action={action} aria-describedby={requiredNoteId}>
-        {/* Nickname */}
-        <FormField>
+        <FormFieldWrapper label='Nickname' required error={state?.errors?.nickname?.[0]}>
           <Input
-            label='Nickname'
-            id={nicknameId}
             name='nickname'
+            type='text'
             placeholder='Your nickname'
             autoComplete='nickname'
-            required
             defaultValue={state?.values?.nickname ?? ''}
             aria-describedby={requiredNoteId}
-            error={state?.errors?.nickname?.[0]}
           />
-        </FormField>
+        </FormFieldWrapper>
 
-        {/* Email */}
-        <FormField>
+        <FormFieldWrapper label='Email' required error={state?.errors?.email?.[0]}>
           <Input
-            label='Email'
-            id={emailId}
             name='email'
             type='email'
             placeholder='you@example.com'
             autoComplete='email'
-            required
             defaultValue={state?.values?.email ?? ''}
             aria-describedby={requiredNoteId}
-            error={state?.errors?.email?.[0]}
           />
-        </FormField>
+        </FormFieldWrapper>
 
-        {/* Password */}
-        <FormField>
-          <Input
-            label='Password'
-            id={passwordId}
-            name='password'
-            type='password'
-            autoComplete='new-password'
-            required
-            aria-describedby={requiredNoteId}
-            error={state?.errors?.password?.[0]}
-          />
-        </FormField>
+        <FormFieldWrapper label='Password' required error={state?.errors?.password?.[0]}>
+          <Input name='password' type='password' autoComplete='new-password' aria-describedby={requiredNoteId} />
+        </FormFieldWrapper>
 
-        {/* Confirm Password */}
-        <FormField>
-          <Input
-            label='Confirm password'
-            id={confirmPasswordId}
-            name='confirmPassword'
-            type='password'
-            autoComplete='new-password'
-            required
-            aria-describedby={requiredNoteId}
-            error={state?.errors?.confirmPassword?.[0]}
-          />
-        </FormField>
+        <FormFieldWrapper label='Confirm password' required error={state?.errors?.confirmPassword?.[0]}>
+          <Input name='confirmPassword' type='password' autoComplete='new-password' aria-describedby={requiredNoteId} />
+        </FormFieldWrapper>
 
         <Button disabled={pending} type='submit'>
           {pending ? 'Creating…' : 'Create account'}

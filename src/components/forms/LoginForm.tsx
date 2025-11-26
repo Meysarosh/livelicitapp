@@ -2,9 +2,11 @@
 
 import { login } from '@/app/actions/login';
 import { signIn } from 'next-auth/react';
-import { Form, FormField, Summary, SCLink } from './form.styles';
-import { Button, Input, Title, Note } from '@/components/ui';
+import { Form, Summary, SCLink } from './form.styles';
+import { Button, Title, Note } from '@/components/ui';
 import { useActionState, useEffect, useRef } from 'react';
+import { FormFieldWrapper } from './FormFiieldWrapper';
+import { Input } from '@/components/ui';
 
 export default function LoginForm() {
   const [state, action, pending] = useActionState(login, undefined);
@@ -25,28 +27,19 @@ export default function LoginForm() {
       )}
 
       <Form action={action}>
-        <FormField>
+        <FormFieldWrapper label='Identifier' required>
           <Input
-            label='Email'
-            id='identifier'
             name='identifier'
             type='text'
-            placeholder='you@example.com'
+            placeholder='Enter you@example.com or username'
             autoComplete='email'
-            required
             defaultValue={state?.values?.identifier ?? ''}
           />
-        </FormField>
-        <FormField>
-          <Input
-            label='Password'
-            id='password'
-            name='password'
-            type='password'
-            autoComplete='current-password'
-            required
-          />
-        </FormField>
+        </FormFieldWrapper>
+
+        <FormFieldWrapper label='Password' required>
+          <Input name='password' type='password' autoComplete='current-password' />
+        </FormFieldWrapper>
 
         <Button disabled={pending} type='submit'>
           {pending ? 'Signing in…' : 'Sign in'}
