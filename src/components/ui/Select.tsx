@@ -1,9 +1,6 @@
-'use client';
-
+import React from 'react';
 import styled from 'styled-components';
-import React, { useId } from 'react';
-import { ErrorText } from './Typography';
-import { RequiredMark } from '@/components/forms/form.styles';
+import { useFormField } from '../forms/FormFiieldWrapper';
 
 const SCSelect = styled.select`
   margin: 4px 0;
@@ -26,75 +23,43 @@ const SCSelect = styled.select`
   }
 `;
 
-const SCLabel = styled.label`
-  font-size: 14px;
-  display: inline-flex;
-  align-items: baseline;
-`;
+type SelectOptions<T extends string | number = string> = { value: T; label: React.ReactNode };
 
-type SelectOption = { value: string; label: React.ReactNode };
-
-type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
-  label?: React.ReactNode;
-  error?: React.ReactNode;
-  options?: SelectOption[];
-};
+type SelectProps = {
+  options: SelectOptions[];
+} & React.ComponentProps<'select'>;
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>((props, ref) => {
-  const { label, error, options, children, ...rest } = props;
-  const autoId = useId();
+  const { id: contextId, hasError, labelId, errorId } = useFormField();
 
-  const {
-    id,
-    ['aria-describedby']: ariaDescribedBy,
-    ['aria-labelledby']: ariaLabelledByProp,
-    ['aria-invalid']: ariaInvalidProp,
-    ...selectRest
-  } = rest;
+  const id = props.id ?? contextId;
 
-  const selectId = id ?? autoId;
-  const isRequiredField = Boolean(rest.required);
-  const labelId = `${selectId}-label`;
-  const errorId = `${selectId}-error`;
+  const isInvalid = props['aria-invalid'] ?? hasError;
 
-  const describedByParts = [ariaDescribedBy, error ? errorId : undefined].filter(
-    (val): val is string => Boolean(val),
-  );
-  const mergedAriaDescribedBy = describedByParts.length ? describedByParts.join(' ') : undefined;
+  const describedBy =
+    [props['aria-describedby'], hasError ? errorId : undefined].filter(Boolean).join(' ') || undefined;
 
-  const labelledByParts = [ariaLabelledByProp, label ? labelId : undefined].filter(
-    (val): val is string => Boolean(val),
-  );
-  const mergedAriaLabelledBy = labelledByParts.length ? labelledByParts.join(' ') : undefined;
+  const labelledBy = [props['aria-labelledby'], labelId].filter(Boolean).join(' ') || undefined;
 
-  const mergedAriaInvalid = typeof ariaInvalidProp !== 'undefined' ? ariaInvalidProp : error ? true : undefined;
+  const options = props.options;
 
   return (
-    <>
-      {label && (
-        <SCLabel id={labelId} htmlFor={selectId}>
-          {label}
-          {isRequiredField && <RequiredMark aria-hidden='true'>*</RequiredMark>}
-        </SCLabel>
-      )}
-      <SCSelect
-        ref={ref}
-        id={selectId}
-        aria-describedby={mergedAriaDescribedBy}
-        aria-labelledby={mergedAriaLabelledBy}
-        aria-invalid={mergedAriaInvalid}
-        {...selectRest}
-      >
-        {options
-          ? options.map((opt) => (
-              <option key={String(opt.value)} value={opt.value}>
-                {opt.label}
-              </option>
-            ))
-          : children}
-      </SCSelect>
-      {error && <ErrorText id={errorId}>{error}</ErrorText>}
-    </>
+    <SCSelect
+      ref={ref}
+      id={id}
+      aria-invalid={isInvalid}
+      aria-describedby={describedBy}
+      aria-labelledby={labelledBy}
+      {...props}
+    >
+      {options
+        ? options.map((opt) => (
+            <option key={String(opt.value)} value={opt.value}>
+              {opt.label}
+            </option>
+          ))
+        : props.children}
+    </SCSelect>
   );
 });
 

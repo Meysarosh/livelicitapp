@@ -1,9 +1,8 @@
 'use client';
 
 import styled from 'styled-components';
-import React, { useId } from 'react';
-import { ErrorText } from './Typography';
-import { RequiredMark } from '@/components/forms/form.styles';
+import React from 'react';
+import { useFormField } from '@/components/forms/FormFiieldWrapper';
 
 const SCInput = styled.input`
   margin: 4px 0;
@@ -24,66 +23,33 @@ const SCInput = styled.input`
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  &[aria-invalid='true'] {
+    border-color: #b00020;
+    background-color: #fff5f5;
+  }
 `;
 
-const SCLabel = styled.label`
-  font-size: 14px;
-  display: inline-flex;
-  align-items: baseline;
-`;
+export const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>((props, ref) => {
+  const { id: contextId, hasError, errorId, labelId } = useFormField();
 
-type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  label?: React.ReactNode;
-  error?: React.ReactNode;
-};
+  const id = props.id ?? contextId;
+  const isInvalid = props['aria-invalid'] ?? hasError;
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
-  const { label, error, ...rest } = props;
-  const autoId = useId();
+  const describedBy =
+    [props['aria-describedby'], hasError ? errorId : undefined].filter(Boolean).join(' ') || undefined;
 
-  const {
-    id,
-    ['aria-describedby']: ariaDescribedBy,
-    ['aria-labelledby']: ariaLabelledByProp,
-    ['aria-invalid']: ariaInvalidProp,
-    ...inputRest
-  } = rest;
-
-  const inputId = id ?? autoId;
-  const isRequiredField = Boolean(rest.required);
-  const labelId = `${inputId}-label`;
-  const errorId = `${inputId}-error`;
-
-  const describedByParts = [ariaDescribedBy, error ? errorId : undefined].filter(
-    (val): val is string => Boolean(val),
-  );
-  const mergedAriaDescribedBy = describedByParts.length ? describedByParts.join(' ') : undefined;
-
-  const labelledByParts = [ariaLabelledByProp, label ? labelId : undefined].filter(
-    (val): val is string => Boolean(val),
-  );
-  const mergedAriaLabelledBy = labelledByParts.length ? labelledByParts.join(' ') : undefined;
-
-  const mergedAriaInvalid = typeof ariaInvalidProp !== 'undefined' ? ariaInvalidProp : error ? true : undefined;
+  const labelledBy = [props['aria-labelledby'], labelId].filter(Boolean).join(' ') || undefined;
 
   return (
-    <>
-      {label && (
-        <SCLabel id={labelId} htmlFor={inputId}>
-          {label}
-          {isRequiredField && <RequiredMark aria-hidden='true'>*</RequiredMark>}
-        </SCLabel>
-      )}
-      <SCInput
-        ref={ref}
-        id={inputId}
-        aria-describedby={mergedAriaDescribedBy}
-        aria-labelledby={mergedAriaLabelledBy}
-        aria-invalid={mergedAriaInvalid}
-        {...inputRest}
-      />
-      {error && <ErrorText id={errorId}>{error}</ErrorText>}
-    </>
+    <SCInput
+      ref={ref}
+      id={id}
+      aria-invalid={isInvalid}
+      aria-describedby={describedBy}
+      aria-labelledby={labelledBy}
+      {...props}
+    />
   );
 });
 

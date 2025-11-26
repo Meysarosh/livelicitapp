@@ -1,11 +1,11 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getUserAuctions } from '@/data-access/auctions';
+import { getAuctionsByUser } from '@/data-access/auctions';
 import { AuctionsList } from '@/components/auctions/AuctionsList';
 
 export default async function MyAuctionsPage() {
   const user = await getAuthUser();
 
-  const auctions = await getUserAuctions(user.id);
+  const auctions = await getAuctionsByUser(user.id);
 
   return (
     <div>

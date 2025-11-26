@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { createAuctionInDb } from '@/data-access/auctions';
+import { createAuction } from '@/data-access/auctions';
 import {
   CreateAuctionFormSchema,
   durationDayOptions,
@@ -10,8 +10,9 @@ import {
 } from '@/services/zodValidation-service';
 import { DEFAULT_CURRENCY } from '@/lib/constants';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
+import { AuctionStatus } from '@prisma/client';
 
-export async function createAuction(
+export async function auctionCreate(
   _prevState: CreateAuctionFormState,
   formData: FormData
 ): Promise<CreateAuctionFormState> {
@@ -59,8 +60,70 @@ export async function createAuction(
     };
   }
 
+  const {
+    title,
+    description,
+    startingPrice,
+    minIncrement,
+    durationDays,
+    currency,
+    startMode,
+    startAt: startAtRaw,
+    imageUrls,
+  } = parsed.data;
+
+  const toMinor = (v: string) => Math.round(Number(v) * 100);
+  const startPriceMinor = toMinor(startingPrice);
+  const minIncrementMinor = toMinor(minIncrement);
+
+  const now = new Date(Date.now());
+  let startAt: Date;
+
+  if (startMode === 'future' && startAtRaw) {
+    startAt = new Date(startAtRaw);
+  } else {
+    startAt = now;
+  }
+
+  let durationMs: number;
+  if (durationDays === 'test') {
+    // 1 minute duration for testing/demo
+    durationMs = 1 * 60 * 1000;
+  } else {
+    const days = Number(durationDays) || 7;
+    durationMs = days * 24 * 60 * 60 * 1000;
+  }
+  const endAt = new Date(startAt.getTime() + durationMs);
+
+  //TODO update after implementation of image uploading
+  const parsedImageUrls: string[] = (imageUrls ?? '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  const data = {
+    ownerId: user.id,
+    title,
+    description,
+    startPriceMinor,
+    minIncrementMinor,
+    currentPriceMinor: startPriceMinor,
+    currency,
+    status: 'ACTIVE' as AuctionStatus,
+    startAt,
+    endAt,
+    images: parsedImageUrls.length
+      ? {
+          create: parsedImageUrls.map((url, index) => ({
+            url,
+            position: index,
+          })),
+        }
+      : undefined,
+  };
+
   try {
-    await createAuctionInDb(parsed.data, user.id);
+    await createAuction(data);
   } catch (err) {
     console.error('APP/ACTIONS/CREATE_AUCTION:', err);
 
