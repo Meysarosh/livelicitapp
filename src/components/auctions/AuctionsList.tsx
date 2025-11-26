@@ -9,9 +9,19 @@ import { ActiveAuctions } from '@/data-access/auctions';
 
 import { List, Item, Thumb, Body, ItemTitle, MetaRow, MetaPiece } from './AuctionsList.styles';
 
+type AuctionsListPage = 'public' | 'watchlist' | 'account' | 'won' | 'sold';
+
 type Props = {
   auctions: ActiveAuctions;
-  page: string;
+  page: AuctionsListPage;
+};
+
+const pageRoutes: Record<AuctionsListPage, (id: string) => Route> = {
+  public: (id) => `/auctions/${id}`,
+  watchlist: (id) => `/auctions/${id}`,
+  account: (id) => `/account/auctions/${id}`,
+  won: (id) => `/account/deals/${id}`,
+  sold: (id) => `/account/deals/${id}`,
 };
 
 export function AuctionsList({ auctions, page }: Props) {
@@ -19,38 +29,31 @@ export function AuctionsList({ auctions, page }: Props) {
     return <p>No auctions found.</p>;
   }
 
-  const items = auctions.map((a) => {
-    const firstImage = a.images[0]?.url;
-    const effectiveStatus = getEffectiveAuctionStatus(a);
+    const items = auctions.map((a) => {
+      const firstImage = a.images[0]?.url;
+      const effectiveStatus = getEffectiveAuctionStatus(a);
 
-    const isLive = effectiveStatus === 'LIVE';
-    const isScheduled = effectiveStatus === 'SCHEDULED';
+      const isLive = effectiveStatus === 'LIVE';
+      const isScheduled = effectiveStatus === 'SCHEDULED';
 
-    const priceLabel = isLive ? 'Current bid' : 'Starting price';
-    const priceValue = isLive ? a.currentPriceMinor : a.startPriceMinor;
+      const priceLabel = isLive ? 'Current bid' : 'Starting price';
+      const priceValue = isLive ? a.currentPriceMinor : a.startPriceMinor;
 
-    const [metaLabel, metaDate] = isScheduled ? ['Starts', a.startAt] : ['Ends', a.endAt];
+      const [metaLabel, metaDate] = isScheduled ? ['Starts', a.startAt] : ['Ends', a.endAt];
 
-    const href =
-      {
-        public: `/auctions/${a.id}`,
-        watchlist: `/auctions/${a.id}`,
-        account: `/account/auctions/${a.id}`,
-        won: `/account/deals/${a.id}`,
-        sold: `/account/deals/${a.id}`,
-      }[page] ?? `/auctions/${a.id}`;
+      const href = pageRoutes[page](a.id);
 
-    return {
-      id: a.id,
-      title: a.title,
-      href: href as Route,
-      imageUrl: firstImage || undefined,
-      priceLabel,
-      priceText: formatPrice(priceValue, a.currency),
-      metaLabel,
-      metaText: formatDateTime(metaDate),
-    };
-  });
+      return {
+        id: a.id,
+        title: a.title,
+        href,
+        imageUrl: firstImage || undefined,
+        priceLabel,
+        priceText: formatPrice(priceValue, a.currency),
+        metaLabel,
+        metaText: formatDateTime(metaDate),
+      };
+    });
 
   return (
     <List>
