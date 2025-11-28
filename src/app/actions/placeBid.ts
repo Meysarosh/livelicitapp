@@ -3,10 +3,11 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { PlaceBidFormSchema, type PlaceBidFormState } from '@/services/zodValidation-service';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
-import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { getAuction, updateAuctionBid } from '@/data-access/auctions';
 import { createBid } from '@/data-access/bids';
+import { getPusherServer } from '@/lib/realtime/pusher-server';
+import { TIME_EXTEND_AFTER_BID } from '@/lib/constants';
 
 export async function placeBid(_prevState: PlaceBidFormState, formData: FormData): Promise<PlaceBidFormState> {
   const user = await getAuthUser();
@@ -30,10 +31,12 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
   }
 
   const { auctionId, amount } = parsed.data;
+  const toMinor = (v: string) => Math.round(Number(v) * 100);
 
   try {
     const transactionResult = await prisma.$transaction(async (tx) => {
       const auction = await getAuction(auctionId, tx);
+      const now = new Date();
 
       if (!auction) {
         return {
@@ -44,8 +47,6 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
           },
         };
       }
-
-      const now = new Date();
       if (auction.status === 'CANCELLED') {
         return {
           kind: 'error',
@@ -64,7 +65,6 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
           state: { message: 'This auction has already ended.', values: { amount } },
         };
       }
-
       if (auction.ownerId === user!.id) {
         return {
           kind: 'error',
@@ -72,16 +72,15 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
         };
       }
 
-      const minAllowed = auction.currentPriceMinor + auction.minIncrementMinor;
-      const toMinor = (v: string) => Math.round(Number(v) * 100);
+      const minAllowedBidMinor = auction.currentPriceMinor + auction.minIncrementMinor;
       const bidAmountMinor = toMinor(amount);
 
-      if (bidAmountMinor < minAllowed) {
+      if (bidAmountMinor < minAllowedBidMinor) {
         return {
           kind: 'error',
           state: {
             errors: {
-              amount: [`Your bid must be at least ${(minAllowed / 100).toFixed(0)} ${auction.currency}.`],
+              amount: [`Your bid must be at least ${(minAllowedBidMinor / 100).toFixed(0)} ${auction.currency}.`],
             },
             values: { amount },
           },
@@ -90,7 +89,23 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
 
       await createBid(auction.id, user.id, bidAmountMinor, tx);
 
-      const updateResult = await updateAuctionBid(auction.id, auction.version, bidAmountMinor, user.id, tx);
+      // const FIVE_MINUTES_MS = 5 * 60 * 1000;
+      const timeRemaining = auction.endAt.getTime() - now.getTime();
+      let newEndAt = auction.endAt;
+
+      if (timeRemaining < TIME_EXTEND_AFTER_BID) {
+        newEndAt = new Date(now.getTime() + TIME_EXTEND_AFTER_BID);
+      }
+
+      const dataToUpdate = {
+        id: auction.id,
+        version: auction.version,
+        currentPriceMinor: bidAmountMinor,
+        highestBidderId: user.id,
+        endAt: newEndAt,
+      };
+
+      const updateResult = await updateAuctionBid(dataToUpdate, tx);
 
       if (updateResult.count === 0) {
         return {
@@ -102,17 +117,44 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
         };
       }
 
-      return { kind: 'success', auctionId: auction.id };
+      return {
+        kind: 'success',
+        data: {
+          ...auction,
+          currentPriceMinor: bidAmountMinor,
+          highestBidderId: user.id,
+          endAt: newEndAt ? newEndAt.toISOString() : auction.endAt.toISOString(),
+        },
+      };
     });
+
     if (transactionResult.kind === 'error') {
       return transactionResult.state;
     }
 
     if (transactionResult.kind === 'success') {
-      redirect(`/auctions/${transactionResult.auctionId}`);
+      const { id, currentPriceMinor, highestBidderId, endAt, _count } = transactionResult.data!;
+
+      try {
+        const pusherServer = getPusherServer();
+        await pusherServer.trigger(`auction-${id}`, 'bid-placed', {
+          pusherCurrentPriceMinor: currentPriceMinor,
+          pusherHighestBidderId: highestBidderId,
+          pusherEndAt: endAt,
+          pusherBidsCount: _count.bids + 1,
+        });
+      } catch (pusherErr) {
+        console.error('Pusher trigger failed:', pusherErr);
+      }
+
+      return {
+        message: 'Bid placed successfully!',
+        values: { amount },
+      };
     }
   } catch (err) {
     if (isNextRedirectError(err)) throw err;
+
     console.error('APP/ACTIONS/PLACE_BID:', err);
 
     return {

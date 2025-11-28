@@ -45,6 +45,12 @@ export async function getWatchlistByUser(userId: string) {
           images: {
             orderBy: { position: 'asc' },
           },
+          _count: {
+            select: {
+              bids: true,
+              watchlistedBy: true,
+            },
+          },
           owner: {
             select: {
               id: true,

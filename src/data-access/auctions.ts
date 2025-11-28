@@ -14,15 +14,26 @@ export async function createAuction(
 
 //READ ONE AUCTION
 
-export async function getAuction(id: string, tx: DbClient = prisma): Promise<Auction | null> {
+export async function getAuction(id: string, tx: DbClient = prisma) {
   return tx.auction.findUnique({
     where: { id },
+    include: {
+      _count: {
+        select: {
+          bids: true,
+        },
+      },
+    },
   });
 }
 
 export type AuctionWithOwnerAndImages = Auction & {
   images: AuctionImage[];
   owner: Pick<User, 'id' | 'nickname' | 'ratingAvg' | 'ratingCount'>;
+  _count: {
+    bids: number;
+    watchlistedBy: number;
+  };
 };
 
 export async function getAuctionDetailsForPublic(id: string): Promise<AuctionWithOwnerAndImages | null> {
@@ -40,16 +51,36 @@ export async function getAuctionDetailsForPublic(id: string): Promise<AuctionWit
           ratingCount: true,
         },
       },
+      _count: {
+        select: {
+          bids: true,
+          watchlistedBy: true,
+        },
+      },
     },
   });
 }
 
-export async function getAuctionDetailsForOwner(id: string) {
+export type AuctionWithImages = Auction & {
+  images: AuctionImage[];
+  _count: {
+    bids: number;
+    watchlistedBy: number;
+  };
+};
+
+export async function getAuctionDetailsForOwner(id: string): Promise<AuctionWithImages | null> {
   return prisma.auction.findUnique({
     where: { id },
     include: {
       images: {
         orderBy: { position: 'asc' },
+      },
+      _count: {
+        select: {
+          bids: true,
+          watchlistedBy: true,
+        },
       },
     },
   });
@@ -71,22 +102,35 @@ export async function updateAuction(id: string, data: Partial<Auction>, tx: DbCl
 }
 
 export async function updateAuctionBid(
-  id: string,
-  version: number,
-  currentPriceMinor: number,
-  highestBidderId: string,
+  data: {
+    id: string;
+    version: number;
+    currentPriceMinor: number;
+    highestBidderId: string;
+    endAt: Date;
+  },
   tx: DbClient = prisma
 ): Promise<Prisma.BatchPayload> {
+  const { id, version, currentPriceMinor, highestBidderId, endAt } = data;
   return await tx.auction.updateMany({
     where: { id, version },
     data: {
       currentPriceMinor,
       highestBidderId,
       version: { increment: 1 },
+      endAt,
     },
   });
 }
 //READ ACTIVE AUCTIONS
+
+export type AuctionForLists = Auction & {
+  images: AuctionImage[];
+  _count: {
+    bids: number;
+    watchlistedBy: number;
+  };
+};
 
 export async function getActiveAuctions() {
   const now = new Date();
@@ -99,6 +143,12 @@ export async function getActiveAuctions() {
     orderBy: { startAt: 'asc' },
     include: {
       images: { orderBy: { position: 'asc' }, take: 1 },
+      _count: {
+        select: {
+          bids: true,
+          watchlistedBy: true,
+        },
+      },
     },
   });
 }
@@ -111,6 +161,12 @@ export async function getAuctionsByUser(userId: string) {
     include: {
       images: {
         orderBy: { position: 'asc' },
+      },
+      _count: {
+        select: {
+          bids: true,
+          watchlistedBy: true,
+        },
       },
     },
   });
