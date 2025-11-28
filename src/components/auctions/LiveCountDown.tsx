@@ -19,9 +19,12 @@ function formatTime(diff: number) {
 
 export function LiveCountdown() {
   const { endAt } = useAuctionRealtime();
-  const now = new Date();
-  const diff = endAt.getTime() - now.getTime();
-  const [timeLeft, setTimeLeft] = useState(formatTime(diff));
+
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const now = new Date();
+    const diff = endAt.getTime() - now.getTime();
+    return formatTime(diff);
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {

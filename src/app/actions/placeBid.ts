@@ -6,7 +6,7 @@ import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
 import { prisma } from '@/lib/db';
 import { getAuction, updateAuctionBid } from '@/data-access/auctions';
 import { createBid } from '@/data-access/bids';
-import { pusherServer } from '@/lib/realtime/pusher-server';
+import { getPusherServer } from '@/lib/realtime/pusher-server';
 import { TIME_EXTEND_AFTER_BID } from '@/lib/constants';
 
 export async function placeBid(_prevState: PlaceBidFormState, formData: FormData): Promise<PlaceBidFormState> {
@@ -91,7 +91,7 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
 
       // const FIVE_MINUTES_MS = 5 * 60 * 1000;
       const timeRemaining = auction.endAt.getTime() - now.getTime();
-      let newEndAt: Date | undefined = undefined;
+      let newEndAt = auction.endAt;
 
       if (timeRemaining < TIME_EXTEND_AFTER_BID) {
         newEndAt = new Date(now.getTime() + TIME_EXTEND_AFTER_BID);
@@ -102,7 +102,7 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
         version: auction.version,
         currentPriceMinor: bidAmountMinor,
         highestBidderId: user.id,
-        endAt: newEndAt ? newEndAt : auction.endAt,
+        endAt: newEndAt,
       };
 
       const updateResult = await updateAuctionBid(dataToUpdate, tx);
@@ -136,6 +136,7 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
       const { id, currentPriceMinor, highestBidderId, endAt, _count } = transactionResult.data!;
 
       try {
+        const pusherServer = getPusherServer();
         await pusherServer.trigger(`auction-${id}`, 'bid-placed', {
           pusherCurrentPriceMinor: currentPriceMinor,
           pusherHighestBidderId: highestBidderId,
