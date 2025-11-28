@@ -4,24 +4,28 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { ImageWithSkeleton } from '@/components/ui';
 import { getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
-import { formatDateTime, formatPrice } from '@/services/format-service';
-import { ActiveAuctions } from '@/data-access/auctions';
+import { formatDateTime } from '@/services/format-service';
+import { AuctionForLists } from '@/data-access/auctions';
 
 import { List, Item, Thumb, Body, ItemTitle, MetaRow, MetaPiece } from './AuctionsList.styles';
+import { LivePrice } from './LivePrice';
+import { AuctionRealtimeProvider } from './AuctionRealtimeProvider';
+import { LiveCountdown } from './LiveCountDown';
+import { LiveBidsCount } from './LiveBidsCount';
 
 type AuctionsListPage = 'public' | 'watchlist' | 'account' | 'won' | 'sold';
 
 type Props = {
-  auctions: ActiveAuctions;
+  auctions: AuctionForLists[];
   page: AuctionsListPage;
 };
 
 const pageRoutes: Record<AuctionsListPage, (id: string) => Route> = {
-  public: (id) => `/auctions/${id}`,
-  watchlist: (id) => `/auctions/${id}`,
-  account: (id) => `/account/auctions/${id}`,
-  won: (id) => `/account/deals/${id}`,
-  sold: (id) => `/account/deals/${id}`,
+  public: (id) => `/auctions/${id}` as Route,
+  watchlist: (id) => `/auctions/${id}` as Route,
+  account: (id) => `/account/auctions/${id}` as Route,
+  won: (id) => `/account/deals/${id}` as Route,
+  sold: (id) => `/account/deals/${id}` as Route,
 };
 
 export function AuctionsList({ auctions, page }: Props) {
@@ -29,66 +33,44 @@ export function AuctionsList({ auctions, page }: Props) {
     return <p>No auctions found.</p>;
   }
 
-    const items = auctions.map((a) => {
-      const firstImage = a.images[0]?.url;
-      const effectiveStatus = getEffectiveAuctionStatus(a);
+  const items = auctions.map((a) => {
+    const firstImage = a.images[0]?.url;
+    const isScheduled = getEffectiveAuctionStatus(a) === 'SCHEDULED';
+    const [metaLabel, metaDate] = isScheduled
+      ? ['Starts', <span key={a.id}>{formatDateTime(a.startAt)}</span>]
+      : ['Ends in: ', <LiveCountdown key={a.id} />];
+    const href = pageRoutes[page](a.id);
 
-      const isLive = effectiveStatus === 'LIVE';
-      const isScheduled = effectiveStatus === 'SCHEDULED';
-
-      const priceLabel = isLive ? 'Current bid' : 'Starting price';
-      const priceValue = isLive ? a.currentPriceMinor : a.startPriceMinor;
-
-      const [metaLabel, metaDate] = isScheduled ? ['Starts', a.startAt] : ['Ends', a.endAt];
-
-      const href = pageRoutes[page](a.id);
-
-      return {
-        id: a.id,
-        title: a.title,
-        href,
-        imageUrl: firstImage || undefined,
-        priceLabel,
-        priceText: formatPrice(priceValue, a.currency),
-        metaLabel,
-        metaText: formatDateTime(metaDate),
-      };
-    });
-
-  return (
-    <List>
-      {items.map((item) => (
-        <Item key={item.id}>
-          <Link href={item.href}>
+    return (
+      <AuctionRealtimeProvider key={a.id} auction={a}>
+        <Item>
+          <Link href={href}>
             <Thumb>
-              <ImageWithSkeleton src={item.imageUrl} alt={item.title} />
+              <ImageWithSkeleton src={firstImage || undefined} alt={a.title} />
             </Thumb>
           </Link>
-
           <Body>
-            <Link href={item.href}>
-              <ItemTitle>{item.title}</ItemTitle>
+            <Link href={href}>
+              <ItemTitle>{a.title}</ItemTitle>
             </Link>
-
-            {(item.priceText || item.metaText) && (
-              <MetaRow>
-                {item.priceText && (
-                  <MetaPiece>
-                    {item.priceLabel && <strong>{item.priceLabel}:</strong>}
-                    <span>{item.priceText}</span>
-                  </MetaPiece>
-                )}
-                {item.metaText && (
-                  <MetaPiece>
-                    {item.metaLabel && <strong>{item.metaLabel}:</strong>}
-                    <span>{item.metaText}</span>
-                  </MetaPiece>
-                )}
-              </MetaRow>
-            )}
+            <MetaRow>
+              <MetaPiece>
+                <strong>Current Price:</strong>
+                <LivePrice />
+              </MetaPiece>
+              <MetaPiece>
+                <LiveBidsCount />
+              </MetaPiece>
+              <MetaPiece>
+                <strong>{metaLabel}:</strong>
+                <span>{metaDate}</span>
+              </MetaPiece>
+            </MetaRow>
           </Body>
         </Item>
-      ))}
-    </List>
-  );
+      </AuctionRealtimeProvider>
+    );
+  });
+
+  return <List>{items}</List>;
 }

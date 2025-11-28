@@ -10,14 +10,14 @@ interface WatchlistButtonProps {
   disabled?: boolean;
 }
 
-export function WatchlistButton({ auctionId, initialInWatchlist, disabled }: WatchlistButtonProps) {
+export function WatchlistButton({ auctionId, initialInWatchlist }: WatchlistButtonProps) {
   const [inWatchlist, setInWatchlist] = useState(initialInWatchlist);
   const [isPending, startTransition] = useTransition();
 
   return (
     <Button
       type='button'
-      disabled={disabled || isPending}
+      disabled={isPending}
       onClick={() => {
         startTransition(async () => {
           try {

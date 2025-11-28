@@ -4,19 +4,19 @@ import { Auction } from '@prisma/client';
 import { User } from '@prisma/client';
 
 interface AuctionMetaDataProps {
-  auction: Auction;
-  owner: Pick<User, 'id' | 'nickname' | 'ratingAvg' | 'ratingCount'>;
+  auction: Auction & { owner: Pick<User, 'nickname' | 'ratingAvg' | 'ratingCount'> };
 }
 
-export function AuctionMetaData({ auction, owner }: AuctionMetaDataProps) {
+export function AuctionMetaData({ auction }: AuctionMetaDataProps) {
   const effectiveStatus: EffectiveAuctionStatus = getEffectiveAuctionStatus(auction);
   const statusTone = effectiveStatus === 'LIVE' ? 'success' : effectiveStatus === 'CANCELLED' ? 'danger' : 'neutral';
+
   return (
     <MetaRow>
       <Badge $tone={statusTone}>{effectiveStatus}</Badge>
-      <span>Seller: {owner.nickname}</span>
+      <span>Seller: {auction.owner.nickname}</span>
       <span>
-        Rating: {owner.ratingCount > 0 ? owner.ratingAvg.toFixed(1) : '—'} ({owner.ratingCount})
+        Rating: {auction.owner.ratingCount > 0 ? auction.owner.ratingAvg.toFixed(1) : '—'} ({auction.owner.ratingCount})
       </span>
     </MetaRow>
   );
