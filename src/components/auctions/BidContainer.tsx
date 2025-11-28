@@ -10,12 +10,12 @@ import { AuctionWithOwnerAndImages } from '@/data-access/auctions';
 import { FormFieldWrapper } from '../forms/FormFiieldWrapper';
 import { useAuctionRealtime } from './AuctionRealtimeProvider';
 
-interface BidActionsProps {
+interface BidContainerProps {
   auction: AuctionWithOwnerAndImages;
   userId?: string;
 }
 
-export function BidContainer({ auction, userId }: BidActionsProps) {
+export function BidContainer({ auction, userId }: BidContainerProps) {
   const { currentPriceMinor, highestBidderId } = useAuctionRealtime();
   const [state, action, pending] = useActionState<PlaceBidFormState, FormData>(placeBid, undefined);
 

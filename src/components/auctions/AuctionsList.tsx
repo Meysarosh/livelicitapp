@@ -37,8 +37,8 @@ export function AuctionsList({ auctions, page }: Props) {
     const firstImage = a.images[0]?.url;
     const isScheduled = getEffectiveAuctionStatus(a) === 'SCHEDULED';
     const [metaLabel, metaDate] = isScheduled
-      ? ['Starts', <span key={a.id}>{formatDateTime(a.startAt)}</span>]
-      : ['Ends in: ', <LiveCountdown key={a.id} />];
+      ? ['Starts:', formatDateTime(a.startAt)]
+      : ['Ends in:', <LiveCountdown key={a.id} />];
     const href = pageRoutes[page](a.id);
 
     return (
@@ -55,14 +55,14 @@ export function AuctionsList({ auctions, page }: Props) {
             </Link>
             <MetaRow>
               <MetaPiece>
-                <strong>Current Price:</strong>
+                <strong>{isScheduled ? 'Starting price:' : 'Current Price:'}</strong>
                 <LivePrice />
               </MetaPiece>
               <MetaPiece>
                 <LiveBidsCount />
               </MetaPiece>
               <MetaPiece>
-                <strong>{metaLabel}:</strong>
+                <strong>{metaLabel}</strong>
                 <span>{metaDate}</span>
               </MetaPiece>
             </MetaRow>

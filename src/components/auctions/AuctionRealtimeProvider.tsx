@@ -49,9 +49,6 @@ export function AuctionRealtimeProvider({ auction, children }: ProviderProps) {
         setHighestBidderId(data.pusherHighestBidderId);
         setEndAt(new Date(data.pusherEndAt));
         setBidsCount(data.pusherBidsCount);
-        // if (data.pusherEndAt !== endAt.toISOString()) {
-        //   setEndAt(new Date(data.pusherEndAt));
-        // }
       }
     );
 
@@ -59,7 +56,7 @@ export function AuctionRealtimeProvider({ auction, children }: ProviderProps) {
       channel.unbind_all();
       pusherClient.unsubscribe(`auction-${auction.id}`);
     };
-  }, [auction.id]);
+  }, [auction]);
 
   return (
     <AuctionContext.Provider

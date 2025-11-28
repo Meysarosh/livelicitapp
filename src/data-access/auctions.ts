@@ -21,7 +21,6 @@ export async function getAuction(id: string, tx: DbClient = prisma) {
       _count: {
         select: {
           bids: true,
-          // watchlistedBy: true,
         },
       },
     },

@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db';
 import { getAuction, updateAuctionBid } from '@/data-access/auctions';
 import { createBid } from '@/data-access/bids';
 import { pusherServer } from '@/lib/realtime/pusher-server';
+import { TIME_EXTEND_AFTER_BID } from '@/lib/constants';
 
 export async function placeBid(_prevState: PlaceBidFormState, formData: FormData): Promise<PlaceBidFormState> {
   const user = await getAuthUser();
@@ -88,12 +89,12 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
 
       await createBid(auction.id, user.id, bidAmountMinor, tx);
 
-      const FIVE_MINUTES_MS = 5 * 60 * 1000;
+      // const FIVE_MINUTES_MS = 5 * 60 * 1000;
       const timeRemaining = auction.endAt.getTime() - now.getTime();
       let newEndAt: Date | undefined = undefined;
 
-      if (timeRemaining < FIVE_MINUTES_MS) {
-        newEndAt = new Date(now.getTime() + FIVE_MINUTES_MS);
+      if (timeRemaining < TIME_EXTEND_AFTER_BID) {
+        newEndAt = new Date(now.getTime() + TIME_EXTEND_AFTER_BID);
       }
 
       const dataToUpdate = {
@@ -134,12 +135,21 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
     if (transactionResult.kind === 'success') {
       const { id, currentPriceMinor, highestBidderId, endAt, _count } = transactionResult.data!;
 
-      await pusherServer.trigger(`auction-${id}`, 'bid-placed', {
-        pusherCurrentPriceMinor: currentPriceMinor,
-        pusherHighestBidderId: highestBidderId,
-        pusherEndAt: endAt,
-        pusherBidsCount: _count.bids + 1,
-      });
+      try {
+        await pusherServer.trigger(`auction-${id}`, 'bid-placed', {
+          pusherCurrentPriceMinor: currentPriceMinor,
+          pusherHighestBidderId: highestBidderId,
+          pusherEndAt: endAt,
+          pusherBidsCount: _count.bids + 1,
+        });
+      } catch (pusherErr) {
+        console.error('Pusher trigger failed:', pusherErr);
+      }
+
+      return {
+        message: 'Bid placed successfully!',
+        values: { amount },
+      };
     }
   } catch (err) {
     if (isNextRedirectError(err)) throw err;

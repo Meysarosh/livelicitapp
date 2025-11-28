@@ -5,6 +5,11 @@ import PusherClient from 'pusher-js';
 const key = process.env.NEXT_PUBLIC_PUSHER_KEY!;
 const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER!;
 
+if (!key || !cluster) {
+  console.warn('Pusher client credentials are not fully set. Realtime features will not work.');
+  throw new Error('Pusher client credentials are not fully set.');
+}
+
 let _client: PusherClient | null = null;
 
 export function getPusherClient() {
