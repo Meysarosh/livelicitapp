@@ -12,9 +12,17 @@ export async function createAuction(
   });
 }
 
-//READ ONE AUCTION
+//READ AUCTION
+type AuctionForBidTransaction = Auction & {
+  _count: {
+    bids: number;
+  };
+};
 
-export async function getAuction(id: string, tx: DbClient = prisma) {
+export async function getAuctionForBidTransaction(
+  id: string,
+  tx: DbClient = prisma
+): Promise<AuctionForBidTransaction | null> {
   return tx.auction.findUnique({
     where: { id },
     include: {
@@ -27,7 +35,7 @@ export async function getAuction(id: string, tx: DbClient = prisma) {
   });
 }
 
-export type AuctionWithOwnerAndImages = Auction & {
+export type AuctionDetailForPublic = Auction & {
   images: AuctionImage[];
   owner: Pick<User, 'id' | 'nickname' | 'ratingAvg' | 'ratingCount'>;
   _count: {
@@ -36,7 +44,7 @@ export type AuctionWithOwnerAndImages = Auction & {
   };
 };
 
-export async function getAuctionDetailsForPublic(id: string): Promise<AuctionWithOwnerAndImages | null> {
+export async function getAuctionDetailsForPublic(id: string): Promise<AuctionDetailForPublic | null> {
   return prisma.auction.findUnique({
     where: { id },
     include: {
@@ -93,35 +101,6 @@ export async function getAuctionWithDeal(id: string, tx: DbClient = prisma) {
   });
 }
 
-//UPDATE AUCTION
-export async function updateAuction(id: string, data: Partial<Auction>, tx: DbClient = prisma): Promise<Auction> {
-  return await tx.auction.update({
-    where: { id },
-    data,
-  });
-}
-
-export async function updateAuctionBid(
-  data: {
-    id: string;
-    version: number;
-    currentPriceMinor: number;
-    highestBidderId: string;
-    endAt: Date;
-  },
-  tx: DbClient = prisma
-): Promise<Prisma.BatchPayload> {
-  const { id, version, currentPriceMinor, highestBidderId, endAt } = data;
-  return await tx.auction.updateMany({
-    where: { id, version },
-    data: {
-      currentPriceMinor,
-      highestBidderId,
-      version: { increment: 1 },
-      endAt,
-    },
-  });
-}
 //READ ACTIVE AUCTIONS
 
 export type AuctionForLists = Auction & {
@@ -182,5 +161,35 @@ export async function getAuctionsToFinalize(limit: number): Promise<Pick<Auction
     },
     select: { id: true },
     take: limit,
+  });
+}
+//UPDATE AUCTION
+export async function updateAuction(id: string, data: Partial<Auction>, tx: DbClient = prisma): Promise<Auction> {
+  return await tx.auction.update({
+    where: { id },
+    data,
+  });
+}
+
+//UPDATE AUCTION inside bid placement transaction with version check
+export async function updateAuctionBid(
+  data: {
+    id: string;
+    version: number;
+    currentPriceMinor: number;
+    highestBidderId: string;
+    endAt: Date;
+  },
+  tx: DbClient = prisma
+): Promise<Prisma.BatchPayload> {
+  const { id, version, currentPriceMinor, highestBidderId, endAt } = data;
+  return await tx.auction.updateMany({
+    where: { id, version },
+    data: {
+      currentPriceMinor,
+      highestBidderId,
+      version: { increment: 1 },
+      endAt,
+    },
   });
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import StyledComponentsRegistry from '@/lib/styled-registry';
-import ClientThemeProvider from '@/lib/themeProvider';
+import StyledComponentsRegistry from '@/styles/styled-registry';
+import ClientThemeProvider from '@/styles/themeProvider';
 import { auth } from '@/lib/auth';
 import Header from '@/components/header/Header';
 

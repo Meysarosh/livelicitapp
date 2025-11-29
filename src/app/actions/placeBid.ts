@@ -4,7 +4,7 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { PlaceBidFormSchema, type PlaceBidFormState } from '@/services/zodValidation-service';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
 import { prisma } from '@/lib/db';
-import { getAuction, updateAuctionBid } from '@/data-access/auctions';
+import { getAuctionForBidTransaction, updateAuctionBid } from '@/data-access/auctions';
 import { createBid } from '@/data-access/bids';
 import { getPusherServer } from '@/lib/realtime/pusher-server';
 import { TIME_EXTEND_AFTER_BID } from '@/lib/constants';
@@ -35,7 +35,8 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
 
   try {
     const transactionResult = await prisma.$transaction(async (tx) => {
-      const auction = await getAuction(auctionId, tx);
+      // Refresh auction data within transaction
+      const auction = await getAuctionForBidTransaction(auctionId, tx);
       const now = new Date();
 
       if (!auction) {
@@ -87,7 +88,13 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
         };
       }
 
-      await createBid(auction.id, user.id, bidAmountMinor, tx);
+      const bid = await createBid(auction.id, user.id, bidAmountMinor, tx);
+      if (!bid) {
+        return {
+          kind: 'error',
+          state: { message: 'Failed to create bid.', values: { amount } },
+        };
+      }
 
       // const FIVE_MINUTES_MS = 5 * 60 * 1000;
       const timeRemaining = auction.endAt.getTime() - now.getTime();

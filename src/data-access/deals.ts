@@ -1,6 +1,6 @@
 import type { Deal, PrismaClient, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db';
-import type { AuctionWithOwnerAndImages } from './auctions';
+import type { AuctionDetailForPublic } from './auctions';
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -29,7 +29,7 @@ export async function createDeal(
 
 // GET DEALS AS SELLER AND BUYER
 export type DealWithAuction = Deal & {
-  auction: AuctionWithOwnerAndImages;
+  auction: AuctionDetailForPublic;
 };
 
 export async function getDealsAsSeller(userId: string): Promise<DealWithAuction[]> {
@@ -49,6 +49,12 @@ export async function getDealsAsSeller(userId: string): Promise<DealWithAuction[
               nickname: true,
               ratingAvg: true,
               ratingCount: true,
+            },
+          },
+          _count: {
+            select: {
+              bids: true,
+              watchlistedBy: true,
             },
           },
         },
@@ -75,6 +81,12 @@ export async function getDealsAsBuyer(userId: string): Promise<DealWithAuction[]
               nickname: true,
               ratingAvg: true,
               ratingCount: true,
+            },
+          },
+          _count: {
+            select: {
+              bids: true,
+              watchlistedBy: true,
             },
           },
         },

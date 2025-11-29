@@ -19,7 +19,6 @@ function formatTime(diff: number) {
 
 export function LiveCountdown() {
   const { endAt } = useAuctionRealtime();
-
   const [timeLeft, setTimeLeft] = useState(() => {
     const now = new Date();
     const diff = endAt.getTime() - now.getTime();

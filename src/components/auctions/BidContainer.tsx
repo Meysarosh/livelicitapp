@@ -6,12 +6,12 @@ import type { PlaceBidFormState } from '@/services/zodValidation-service';
 import { Form } from '@/components/forms/form.styles';
 import { Button, Input, Note } from '@/components/ui';
 import { getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
-import { AuctionWithOwnerAndImages } from '@/data-access/auctions';
+import { AuctionDetailForPublic } from '@/data-access/auctions';
 import { FormFieldWrapper } from '../forms/FormFiieldWrapper';
 import { useAuctionRealtime } from './AuctionRealtimeProvider';
 
 interface BidContainerProps {
-  auction: AuctionWithOwnerAndImages;
+  auction: AuctionDetailForPublic;
   userId?: string;
 }
 
