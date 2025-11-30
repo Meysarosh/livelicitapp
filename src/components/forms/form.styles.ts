@@ -5,36 +5,61 @@ import Link from 'next/link';
 
 export const Form = styled.form`
   display: grid;
-  gap: 14px;
+  gap: ${({ theme }) => theme.spacing(3)};
 `;
+
 export const FormField = styled.div`
   display: grid;
-  /* gap: 6px; */
+  gap: ${({ theme }) => theme.spacing(1)};
 `;
+
 export const Label = styled.label`
-  font-size: 14px;
+  font-size: ${({ theme }) => theme.typography.pSmallSize};
   display: inline-flex;
   align-items: baseline;
+  color: ${({ theme }) => theme.colors.text};
 `;
+
 export const RequiredMark = styled.abbr.attrs({ title: 'required' })`
-  color: #b00020;
+  color: ${({ theme }) => theme.colors.danger};
   text-decoration: none;
-  font-weight: 700;
-  margin-left: 4px; /* as requested */
+  font-weight: ${({ theme }) => theme.typography.fontWeightBold};
+  margin-left: ${({ theme }) => theme.spacing(0.5)};
 `;
+
 export const SCLink = styled(Link)`
   text-decoration: underline;
-  color: inherit;
+  color: ${({ theme }) => theme.colors.primary};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primaryHover};
+    text-decoration: underline;
+  }
 `;
+
 export const Summary = styled.div`
-  border: 1px solid #b00020;
+  border: 1px solid ${({ theme }) => theme.colors.danger};
   background: #fff5f5;
   color: #3d0c0c;
-  padding: 12px;
-  border-radius: 8px;
+  padding: ${({ theme }) => theme.spacing(2.5)};
+  border-radius: ${({ theme }) => theme.radii.md};
 `;
+
 export const SummaryList = styled.ul`
-  margin: 0;
-  padding-left: 18px;
-  font-size: 14px;
+  margin: ${({ theme }) => theme.spacing(1)} 0 0 0;
+  padding-left: ${({ theme }) => theme.spacing(3)};
+  font-size: ${({ theme }) => theme.typography.pSmallSize};
+`;
+
+export const Divider = styled.div`
+  margin: ${({ theme }) => theme.spacing(4)} 0;
+  text-align: center;
+  font-size: ${({ theme }) => theme.typography.pSmallSize};
+  color: ${({ theme }) => theme.colors.textMuted};
+`;
+
+export const CenteredRow = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: ${({ theme }) => theme.spacing(2)};
 `;

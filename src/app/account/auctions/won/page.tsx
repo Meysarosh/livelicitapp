@@ -1,6 +1,8 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { getDealsAsBuyer } from '@/data-access/deals';
 import { AuctionsList } from '@/components/auctions/AuctionsList';
+import { PageSection } from '@/components/layout/primitives';
+import { Title } from '@/components/ui';
 
 export default async function WonAuctionsPage() {
   const user = await getAuthUser();
@@ -8,9 +10,9 @@ export default async function WonAuctionsPage() {
   const auctions = deals.map((d) => d.auction);
 
   return (
-    <div>
-      <h1>Won auctions</h1>
+    <PageSection>
+      <Title>Won auctions</Title>
       <AuctionsList auctions={auctions} page='won' />
-    </div>
+    </PageSection>
   );
 }

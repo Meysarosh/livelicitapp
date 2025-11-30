@@ -1,48 +1,66 @@
 'use client';
-import { Bar, Wrap, Brand, Nav, Right, Hello } from './header.styles';
-import { Button, LinkButton } from '@/components/ui';
+import {
+  Header,
+  HeaderInner,
+  Brand,
+  Logo,
+  BrandText,
+  BrandTitle,
+  BrandSubtitle,
+  Nav,
+  NavLink,
+  AuthBlock,
+} from './header.styles';
+import { Button, Paragraph } from '@/components/ui';
+import { useThemeMode } from '@/styles/themeProvider';
 import { signOut } from 'next-auth/react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 type HeaderUser = { id: string; nickname: string; role: string } | null;
 
-export default function Header({ user }: { user: HeaderUser }) {
+export default function AppHeader({ user }: { user: HeaderUser }) {
   const pathname = usePathname();
   const authPaths = ['/login', '/register'];
   const onAuthPage = authPaths.includes(pathname);
+
+  const { mode, toggleMode } = useThemeMode();
 
   function handleClickSignOut() {
     signOut({ callbackUrl: '/auctions' });
   }
 
   return (
-    <Bar>
-      <Wrap>
+    <Header>
+      <HeaderInner>
         <Brand>
-          <Link href='/auctions'>🧭 Live Licit App</Link>
+          <Logo />
+          <BrandText>
+            <BrandTitle>Live Licit</BrandTitle>
+            <BrandSubtitle>Real-time auctions & deals</BrandSubtitle>
+          </BrandText>
         </Brand>
-
-        <Nav aria-label='Primary'>
-          <Link href='/auctions'>Auctions</Link>
-          <Link href='/account'>Account</Link>
+        <Nav>
+          <NavLink href='/auctions'>Auctions</NavLink>
+          {user && <NavLink href='/account'>Account</NavLink>}
         </Nav>
-
-        <Right>
+        <AuthBlock>
+          <Button type='button' onClick={toggleMode}>
+            {mode === 'light' ? '🌙 Dark' : '☀️ Light'}
+          </Button>
           {user ? (
             <>
-              <Hello>Hello, {user.nickname}</Hello>
-              <LinkButton href='/account/profile'>Profile</LinkButton>
+              <Paragraph>Hello, {user.nickname}</Paragraph>
+              <NavLink href='/account/profile'>Profile</NavLink>
               <Button onClick={handleClickSignOut}>Sign out</Button>
             </>
           ) : onAuthPage ? null : (
             <>
-              <LinkButton href='/login'>Sign in</LinkButton>
-              <LinkButton href='/register'>Sign up</LinkButton>
+              <NavLink href='/login'>Sign in</NavLink>
+              <NavLink href='/register'>Sign up</NavLink>
             </>
           )}
-        </Right>
-      </Wrap>
-    </Bar>
+        </AuthBlock>
+      </HeaderInner>
+    </Header>
   );
 }

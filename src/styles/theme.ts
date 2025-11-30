@@ -32,6 +32,12 @@ export const baseTheme = {
     fontWeightRegular: 400,
     fontWeightMedium: 500,
     fontWeightBold: 600,
+    h1Size: '24px',
+    h2Size: '18px',
+    pSize: '15px',
+    pSmallSize: '14px',
+    smallSize: '13px',
+    spanSize: '12px',
   },
 };
 
@@ -39,7 +45,7 @@ export const lightTheme = {
   ...baseTheme,
   colors: {
     bg: '#f3f4f6',
-    bgElevated: '#ffffff',
+    bgElevated: '#f4f4f4ff',
     border: '#e5e7eb',
     text: '#111827',
     textMuted: '#6b7280',
