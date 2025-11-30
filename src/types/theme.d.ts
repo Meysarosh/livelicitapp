@@ -1,15 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { DefaultTheme } from 'styled-components';
+import 'styled-components';
+import type { AppTheme } from '@/styles/theme';
 
 declare module 'styled-components' {
-  export interface DefaultTheme {
-    colors: {
-      bg: string;
-      text: string;
-      primary: string;
-    };
-    radii: {
-      md: string;
-    };
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  export interface DefaultTheme extends AppTheme {}
 }

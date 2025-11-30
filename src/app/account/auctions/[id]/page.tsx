@@ -23,9 +23,5 @@ export default async function MyAuctionDetailsPage({ params }: { params: Promise
     </div>
   );
 
-  return (
-    <div style={{ padding: '20px 0' }}>
-      <AuctionDetailsView auction={auction} actions={actions} />
-    </div>
-  );
+  return <AuctionDetailsView auction={auction} actions={actions} />;
 }

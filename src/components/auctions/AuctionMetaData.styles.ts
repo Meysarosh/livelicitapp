@@ -1,12 +1,13 @@
 'use client';
+
 import styled from 'styled-components';
 
 export const MetaRow = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  font-size: 14px;
-  color: #4b5563;
+  gap: ${({ theme }) => theme.spacing(1.5)};
+  font-size: ${({ theme }) => theme.typography.smallSize};
+  color: ${({ theme }) => theme.colors.textMuted};
 `;
 
 export const Badge = styled.span<{ $tone?: 'success' | 'danger' | 'neutral' }>`
@@ -17,6 +18,14 @@ export const Badge = styled.span<{ $tone?: 'success' | 'danger' | 'neutral' }>`
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: ${({ $tone }) => ($tone === 'success' ? '#ecfdf3' : $tone === 'danger' ? '#fef2f2' : '#e5e7eb')};
-  color: ${({ $tone }) => ($tone === 'success' ? '#166534' : $tone === 'danger' ? '#b91c1c' : '#374151')};
+
+  background: ${({ $tone }) =>
+    $tone === 'success'
+      ? 'rgba(34, 197, 94, 0.12)'
+      : $tone === 'danger'
+      ? 'rgba(249, 115, 22, 0.12)'
+      : 'rgba(148, 163, 184, 0.15)'};
+
+  color: ${({ theme, $tone }) =>
+    $tone === 'success' ? theme.colors.accent : $tone === 'danger' ? theme.colors.danger : theme.colors.textMuted};
 `;

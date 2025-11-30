@@ -2,7 +2,7 @@
 
 import { login } from '@/app/actions/login';
 import { signIn } from 'next-auth/react';
-import { Form, Summary, SCLink } from './form.styles';
+import { Form, Summary, SCLink, Divider, CenteredRow } from './form.styles';
 import { Button, Title, Note } from '@/components/ui';
 import { useActionState, useEffect, useRef } from 'react';
 import { FormFieldWrapper } from './FormFiieldWrapper';
@@ -50,11 +50,9 @@ export default function LoginForm() {
         New here? <SCLink href='/register'>Create an account</SCLink>
       </Note>
 
-      <div style={{ margin: '1.5rem 0', textAlign: 'center' }}>
-        <span>or</span>
-      </div>
+      <Divider>or</Divider>
 
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <CenteredRow>
         <Button
           type='button'
           onClick={() =>
@@ -65,7 +63,7 @@ export default function LoginForm() {
         >
           Continue with Auth0
         </Button>
-      </div>
+      </CenteredRow>
     </>
   );
 }

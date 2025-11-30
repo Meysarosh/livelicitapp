@@ -4,49 +4,63 @@ export const List = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
+  display: grid;
+  gap: ${({ theme }) => theme.spacing(2)};
 `;
 
 export const Item = styled.li`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  &:not(:last-child) {
-    margin-bottom: 8px;
+  gap: ${({ theme }) => theme.spacing(2)};
+  padding: ${({ theme }) => theme.spacing(2.5)} ${({ theme }) => theme.spacing(3)};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  background-color: ${({ theme }) => theme.colors.bgElevated};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.bgElevated};
+    border-color: ${({ theme }) => theme.colors.primary};
+    transform: translateY(-1px);
   }
 `;
 
 export const Thumb = styled.div`
-  position: relative;
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
+  flex: 0 0 112px;
+  height: 80px;
+  width: 112px;
+  border-radius: ${({ theme }) => theme.radii.md};
   overflow: hidden;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.05);
+  background-color: ${({ theme }) => theme.colors.bgElevated};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const Body = styled.div`
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1;
+  gap: ${({ theme }) => theme.spacing(1)};
 `;
 
 export const ItemTitle = styled.h3`
-  font-size: 14px;
-  font-weight: 600;
   margin: 0;
+  font-size: ${({ theme }) => theme.typography.pSize};
+  font-weight: ${({ theme }) => theme.typography.fontWeightBold};
+  color: ${({ theme }) => theme.colors.text};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const MetaRow = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  font-size: 12px;
+  gap: ${({ theme }) => theme.spacing(1.5)};
+  font-size: ${({ theme }) => theme.typography.spanSize};
   opacity: 0.85;
 `;
 

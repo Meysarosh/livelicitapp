@@ -1,5 +1,4 @@
 export * from './Button';
-export * from './LinkButton';
 export * from './Input';
 export * from './Typography';
 export * from './TextArea';

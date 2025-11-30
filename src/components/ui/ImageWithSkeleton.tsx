@@ -9,71 +9,75 @@ const shimmer = keyframes`
   100% { background-position: 200% 0; }
 `;
 
-const Skeleton = styled.div<{ rounded?: boolean }>`
+const Wrapper = styled.div<{ rounded?: boolean }>`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: ${({ rounded }) => (rounded ? '50%' : 'inherit')};
+`;
+
+const Skeleton = styled.div<{ $visible: boolean }>`
   position: absolute;
   inset: 0;
-  border-radius: ${({ rounded }) => (rounded ? '50%' : 'inherit')};
+  border-radius: inherit;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.4) 0%,
-    rgba(255, 255, 255, 0.6) 50%,
-    rgba(255, 255, 255, 0.4) 100%
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.32) 50%,
+    rgba(255, 255, 255, 0.18) 100%
   );
   background-size: 200% 100%;
   animation: ${shimmer} 1.2s ease-in-out infinite;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  transition: opacity 0.25s ease-out;
+  pointer-events: none;
 `;
 
-const FadeIn = styled.div<{ $visible: boolean }>`
-  position: relative;
-  height: 100%;
-  width: 100%;
+const StyledImage = styled(Image)<{ $visible: boolean; $contain?: boolean }>`
+  object-fit: ${({ $contain }) => ($contain ? 'contain' : 'cover')};
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   transition: opacity 0.35s ease-in-out;
+`;
+
+const NoImageFallback = styled.div`
+  font-size: 10px;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 `;
 
 type Props = {
   src?: string | null;
   alt: string;
-  rounded?: boolean; // for avatars
-  contain?: boolean; // if some images should use object-fit: contain
-  className?: string; // allow styling from parent
+  rounded?: boolean;
+  contain?: boolean;
+  className?: string;
 };
 
 export function ImageWithSkeleton({ src, alt, rounded, contain, className }: Props) {
   const [loaded, setLoaded] = useState(false);
 
   if (!src) {
-    return (
-      <div
-        style={{
-          fontSize: '10px',
-          opacity: 0.7,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          height: '100%',
-        }}
-      >
-        No image
-      </div>
-    );
+    return <NoImageFallback>No image</NoImageFallback>;
   }
 
   return (
-    <>
-      {!loaded && <Skeleton rounded={rounded} />}
+    <Wrapper rounded={rounded} className={className}>
+      <Skeleton $visible={!loaded} />
 
-      <FadeIn $visible={loaded} className={className}>
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          sizes='100%'
-          style={{ objectFit: contain ? 'contain' : 'cover' }}
-          onLoad={() => setLoaded(true)}
-        />
-      </FadeIn>
-    </>
+      <StyledImage
+        src={src}
+        alt={alt}
+        fill
+        sizes='100%'
+        $visible={loaded}
+        $contain={contain}
+        onLoad={() => setLoaded(true)}
+      />
+    </Wrapper>
   );
 }

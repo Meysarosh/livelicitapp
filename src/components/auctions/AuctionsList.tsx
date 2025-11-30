@@ -59,6 +59,7 @@ export function AuctionsList({ auctions, page }: Props) {
                 <LivePrice />
               </MetaPiece>
               <MetaPiece>
+                <strong>Bids:</strong>
                 <LiveBidsCount />
               </MetaPiece>
               <MetaPiece>

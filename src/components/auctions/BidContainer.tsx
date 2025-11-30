@@ -1,30 +1,36 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { placeBid } from '@/app/actions/placeBid';
 import type { PlaceBidFormState } from '@/services/zodValidation-service';
 import { Form } from '@/components/forms/form.styles';
 import { Button, Input, Note } from '@/components/ui';
 import { getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
-import { AuctionWithOwnerAndImages } from '@/data-access/auctions';
+import { AuctionDetailForPublic } from '@/data-access/auctions';
 import { FormFieldWrapper } from '../forms/FormFiieldWrapper';
 import { useAuctionRealtime } from './AuctionRealtimeProvider';
 
 interface BidContainerProps {
-  auction: AuctionWithOwnerAndImages;
+  auction: AuctionDetailForPublic;
   userId?: string;
 }
 
 export function BidContainer({ auction, userId }: BidContainerProps) {
   const { currentPriceMinor, highestBidderId } = useAuctionRealtime();
+
   const [state, action, pending] = useActionState<PlaceBidFormState, FormData>(placeBid, undefined);
 
   const { id: auctionId, currency, minIncrementMinor, owner } = auction;
 
+  const [minNextPrice, setMinNextPrice] = useState<number>((currentPriceMinor + minIncrementMinor) / 100);
+
+  useEffect(() => {
+    setMinNextPrice((currentPriceMinor + minIncrementMinor) / 100);
+  }, [currentPriceMinor, minIncrementMinor]);
+
   const effectiveStatus = getEffectiveAuctionStatus(auction);
   const isOwner = owner.id === userId;
 
-  // Decide if current user can bid
   let canBid = false;
   let reasonIfCannotBid: string | undefined;
 
@@ -45,8 +51,6 @@ export function BidContainer({ auction, userId }: BidContainerProps) {
     return <Note role='status'>{reasonIfCannotBid || 'Bidding is not available for this auction.'}</Note>;
   }
 
-  const minNextPrice = (currentPriceMinor + minIncrementMinor) / 100;
-
   return (
     <>
       {state?.message && (
@@ -64,7 +68,8 @@ export function BidContainer({ auction, userId }: BidContainerProps) {
             type='number'
             min={minNextPrice}
             step={minIncrementMinor / 100}
-            defaultValue={state?.values?.amount ?? minNextPrice}
+            value={minNextPrice}
+            onChange={(e) => setMinNextPrice(Number(e.target.value))}
           />
         </FormFieldWrapper>
 

@@ -6,11 +6,12 @@ import { ServerStyleSheet, StyleSheetManager } from 'styled-components';
 
 export default function StyledComponentsRegistry({ children }: { children: React.ReactNode }) {
   // Create the server sheet lazily (server only)
-  const [sheet] = useState(() => new ServerStyleSheet());
+  const [styledComponentsStyleSheet] = useState(() => new ServerStyleSheet());
 
   useServerInsertedHTML(() => {
     // Inject collected styles into the stream on the server
-    const styles = sheet.getStyleElement();
+    const styles = styledComponentsStyleSheet.getStyleElement();
+    styledComponentsStyleSheet.instance.clearTag();
     return <>{styles}</>;
   });
 
@@ -20,5 +21,5 @@ export default function StyledComponentsRegistry({ children }: { children: React
   }
 
   // On the server, wrap so styled-components writes into our sheet
-  return <StyleSheetManager sheet={sheet.instance}>{children}</StyleSheetManager>;
+  return <StyleSheetManager sheet={styledComponentsStyleSheet.instance}>{children}</StyleSheetManager>;
 }

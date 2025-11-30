@@ -19,27 +19,28 @@ function formatTime(diff: number) {
 
 export function LiveCountdown() {
   const { endAt } = useAuctionRealtime();
-
-  const [timeLeft, setTimeLeft] = useState(() => {
-    const now = new Date();
-    const diff = endAt.getTime() - now.getTime();
-    return formatTime(diff);
-  });
+  const [timeLeft, setTimeLeft] = useState<string>('');
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    function update(interval?: NodeJS.Timeout) {
       const now = new Date();
       const diff = endAt.getTime() - now.getTime();
 
       if (diff <= 0) {
         setTimeLeft('Ended');
-        clearInterval(interval);
+        if (interval) {
+          clearInterval(interval);
+        }
         return;
       }
 
-      const formattedTime = formatTime(diff);
+      setTimeLeft(formatTime(diff));
+    }
 
-      setTimeLeft(formattedTime);
+    update();
+
+    const interval = setInterval(() => {
+      update(interval);
     }, 1000);
 
     return () => clearInterval(interval);

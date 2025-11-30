@@ -7,7 +7,8 @@ import {
   MenuList,
   Sidebar,
   SidebarTitle,
-} from '@/components/layouts/AccountLayout/styles';
+  SidebarUserInfo,
+} from '@/components/layout/AccountLayout/styles';
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const user = await getAuthUser();
@@ -16,9 +17,10 @@ export default async function AccountLayout({ children }: { children: React.Reac
     <LayoutWrapper>
       <Sidebar>
         <SidebarTitle>My account</SidebarTitle>
-        <p style={{ fontSize: 13, marginTop: 0, marginBottom: 12 }}>
+        <SidebarUserInfo>
           Logged in as <strong>{user.nickname ?? user.email}</strong>
-        </p>
+        </SidebarUserInfo>
+
         <MenuList>
           <MenuItem>
             <MenuLink href='/account/auctions'>My auctions</MenuLink>
@@ -40,6 +42,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
           </MenuItem>
         </MenuList>
       </Sidebar>
+
       <Content>{children}</Content>
     </LayoutWrapper>
   );

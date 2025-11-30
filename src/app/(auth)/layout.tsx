@@ -1,5 +1,9 @@
-import { Main } from '../../components/layouts/Auth/styles';
+import { FormSection, Container } from '@/components/layout/primitives';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  return <Main>{children}</Main>;
+  return (
+    <FormSection>
+      <Container maxwidth='sm'>{children}</Container>
+    </FormSection>
+  );
 }

@@ -1,28 +1,35 @@
+'use client';
+
 import React from 'react';
 import styled from 'styled-components';
 import { useFormField } from '../forms/FormFiieldWrapper';
 
 const SCTextArea = styled.textarea`
-  margin: 4px 0;
-  padding: 10px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 14px;
+  margin: ${({ theme }) => theme.spacing(1)} 0;
+  padding: ${({ theme }) => theme.spacing(2.5)} ${({ theme }) => theme.spacing(3)};
+  border: 1px solid ${({ theme }) => theme.colors.inputBorder};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: ${({ theme }) => theme.typography.pSmallSize};
   line-height: 1.4;
   min-height: 120px;
   resize: vertical;
-  background: white;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  background: ${({ theme }) => theme.colors.inputBg};
+  color: ${({ theme }) => theme.colors.text};
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 
   &:focus-visible {
     outline: none;
-    border-color: #737373;
-    box-shadow: 0 0 0 1px #848484;
+    border-color: ${({ theme }) => theme.colors.inputFocus};
+    box-shadow: 0 0 0 1px ${({ theme }) => theme.colors.inputFocus};
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: ${({ theme }) => theme.colors.danger};
   }
 `;
 
