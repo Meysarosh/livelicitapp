@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import StyledComponentsRegistry from '@/styles/styled-registry';
 import ClientThemeProvider from '@/styles/themeProvider';
 import { auth } from '@/lib/auth';
-import Header from '@/components/header/AppHeader';
+import AppHeader from '@/components/header/AppHeader';
 import { ShellWrapper, Main, ContentContainer, Footer, FooterInner } from '@/components/layout/RootLayout/styles';
 
 export const metadata: Metadata = { title: 'Live Licit App', description: 'Real-time auctions' };
@@ -24,7 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <StyledComponentsRegistry>
           <ClientThemeProvider initialMode={initialMode}>
             <ShellWrapper>
-              <Header user={sessionUser} />
+              <AppHeader user={sessionUser} />
               <Main>
                 <ContentContainer>{children}</ContentContainer>
               </Main>
