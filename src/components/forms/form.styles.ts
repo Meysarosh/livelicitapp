@@ -39,8 +39,8 @@ export const SCLink = styled(Link)`
 
 export const Summary = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.danger};
-  background: #fff5f5;
-  color: #3d0c0c;
+  background: rgba(220, 38, 38, 0.1);
+  color: ${({ theme }) => theme.colors.danger};
   padding: ${({ theme }) => theme.spacing(2.5)};
   border-radius: ${({ theme }) => theme.radii.md};
 `;

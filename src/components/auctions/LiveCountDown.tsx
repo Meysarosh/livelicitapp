@@ -19,38 +19,28 @@ function formatTime(diff: number) {
 
 export function LiveCountdown() {
   const { endAt } = useAuctionRealtime();
-
-  // 1) Stable initial value: same on server + client
-  const [timeLeft, setTimeLeft] = useState<string>(''); // or '...'
+  const [timeLeft, setTimeLeft] = useState<string>('');
 
   useEffect(() => {
-    function update() {
+    function update(interval?: NodeJS.Timeout) {
       const now = new Date();
       const diff = endAt.getTime() - now.getTime();
 
       if (diff <= 0) {
         setTimeLeft('Ended');
+        if (interval) {
+          clearInterval(interval);
+        }
         return;
       }
 
       setTimeLeft(formatTime(diff));
     }
 
-    // 2) Compute immediately on mount
     update();
 
-    // 3) Then update every second
     const interval = setInterval(() => {
-      const now = new Date();
-      const diff = endAt.getTime() - now.getTime();
-
-      if (diff <= 0) {
-        setTimeLeft('Ended');
-        clearInterval(interval);
-        return;
-      }
-
-      setTimeLeft(formatTime(diff));
+      update(interval);
     }, 1000);
 
     return () => clearInterval(interval);

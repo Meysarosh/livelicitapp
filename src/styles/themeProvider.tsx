@@ -33,8 +33,6 @@ type ClientThemeProviderProps = {
 
 export default function ClientThemeProvider({ children, initialMode }: ClientThemeProviderProps) {
   const [mode, setMode] = useState<ThemeMode>(initialMode);
-  // const [isHydrated, setIsHydrated] = useState(false);
-
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
@@ -52,14 +50,14 @@ export default function ClientThemeProvider({ children, initialMode }: ClientThe
     } catch {
       // ignore
     }
-    // we intentionally do NOT depend on `mode` here, to avoid loops
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     try {
       window.localStorage.setItem(STORAGE_KEY, mode);
-      // simple cookie for server to read
+
       document.cookie = `ll-theme=${mode}; path=/; max-age=31536000`;
     } catch {
       // ignore

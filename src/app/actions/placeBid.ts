@@ -88,13 +88,7 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
         };
       }
 
-      const bid = await createBid(auction.id, user.id, bidAmountMinor, tx);
-      if (!bid) {
-        return {
-          kind: 'error',
-          state: { message: 'Failed to create bid.', values: { amount } },
-        };
-      }
+      await createBid(auction.id, user.id, bidAmountMinor, tx);
 
       // const FIVE_MINUTES_MS = 5 * 60 * 1000;
       const timeRemaining = auction.endAt.getTime() - now.getTime();

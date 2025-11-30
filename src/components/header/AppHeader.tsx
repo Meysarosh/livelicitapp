@@ -10,8 +10,8 @@ import {
   Nav,
   NavLink,
   AuthBlock,
-} from './header.styles';
-import { Button, Paragraph } from '@/components/ui';
+} from './appHeader.styles';
+import { Button, Muted } from '@/components/ui';
 import { useThemeMode } from '@/styles/themeProvider';
 import { signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
@@ -49,7 +49,7 @@ export default function AppHeader({ user }: { user: HeaderUser }) {
           </Button>
           {user ? (
             <>
-              <Paragraph>Hello, {user.nickname}</Paragraph>
+              <Muted>Hello, {user.nickname}</Muted>
               <NavLink href='/account/profile'>Profile</NavLink>
               <Button onClick={handleClickSignOut}>Sign out</Button>
             </>

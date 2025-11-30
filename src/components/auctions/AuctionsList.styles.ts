@@ -28,7 +28,7 @@ export const Item = styled.li`
 export const Thumb = styled.div`
   flex: 0 0 112px;
   height: 80px;
-  width: 80px;
+  width: 112px;
   border-radius: ${({ theme }) => theme.radii.md};
   overflow: hidden;
   background-color: ${({ theme }) => theme.colors.bgElevated};

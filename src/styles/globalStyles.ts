@@ -31,7 +31,7 @@ export const GlobalStyle = createGlobalStyle`
     font-family: inherit; 
   }
 
-   input, textarea, select {
+  input, textarea, select {
     font-family: inherit;
     font-size: inherit;
   }

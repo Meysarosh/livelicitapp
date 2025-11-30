@@ -36,7 +36,6 @@ export const ImagesWrapper = styled.div`
 
 export const MainImageBox = styled.div`
   flex: 0 0 280px;
-  height: 220px;
   border-radius: ${({ theme }) => theme.radii.lg};
   overflow: hidden;
   background-color: ${({ theme }) => theme.colors.bgElevated};

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import StyledComponentsRegistry from '@/styles/styled-registry';
 import ClientThemeProvider from '@/styles/themeProvider';
 import { auth } from '@/lib/auth';
-import Header from '@/components/header/Header';
+import Header from '@/components/header/AppHeader';
 import { ShellWrapper, Main, ContentContainer, Footer, FooterInner } from '@/components/layout/RootLayout/styles';
 
 export const metadata: Metadata = { title: 'Live Licit App', description: 'Real-time auctions' };
