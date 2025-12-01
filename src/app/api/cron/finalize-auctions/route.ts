@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { finalizeAuction } from '@/services/finalizeAuction';
+import { finalizeAuction } from '@/app/actions/finalizeAuction';
 import { getAuctionsToFinalize } from '@/data-access/auctions';
 
 const BATCH_LIMIT = 100;

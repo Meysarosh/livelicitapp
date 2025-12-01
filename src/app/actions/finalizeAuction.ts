@@ -1,11 +1,10 @@
 import { getAuctionWithDeal, updateAuction } from '@/data-access/auctions';
-import { createConversation, getConversationByAuctionAndUsers } from '@/data-access/conversations';
+import { upsertConversation } from '@/data-access/conversations';
 import { createDeal } from '@/data-access/deals';
 import { createMessage } from '@/data-access/messages';
 import { type Prisma, DealStatus } from '@prisma/client';
 
 export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: string) {
-  // Re-fetch auction inside the transaction for safety
   const auction = await getAuctionWithDeal(auctionId, tx);
 
   if (!auction) return null;
@@ -14,7 +13,6 @@ export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: s
     return auction.deal;
   }
 
-  // Update auction status to ENDED
   await updateAuction(auction.id, { status: 'ENDED' }, tx);
 
   if (!auction.highestBidderId) {
@@ -35,23 +33,8 @@ export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: s
     currency: auction.currency,
   };
 
-  // Create deal
   const deal = await createDeal(dealData, tx);
-
-  // Check for existing conversation
-  let conversation = await getConversationByAuctionAndUsers(auction.id, sellerId, buyerId, tx);
-
-  if (!conversation) {
-    //If no conversation exists, create one between buyer and seller
-    conversation = await createConversation(
-      {
-        auctionId: auction.id,
-        userAId: sellerId,
-        userBId: buyerId,
-      },
-      tx
-    );
-  }
+  const conversation = await upsertConversation(auction.id, sellerId, buyerId, tx);
 
   const messageData = {
     conversationId: conversation.id,
@@ -60,7 +43,6 @@ export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: s
     body: `Auction "${auction.title}" has ended and a deal has been created.`,
   };
 
-  // Create system message in the conversation
   await createMessage(messageData, tx);
 
   return deal;
