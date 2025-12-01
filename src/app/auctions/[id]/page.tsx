@@ -6,6 +6,7 @@ import { getAuctionDetailsForPublic } from '@/data-access/auctions';
 import { AuctionMetaData } from '@/components/auctions/AuctionMetaData';
 import { WatchlistButton } from '@/components/auctions/WatchlistButton';
 import { getWatchlistEntry } from '@/data-access/watchlist';
+import { AskSellerButton } from '@/components/conversations/AskSellerButton';
 
 interface PageProps {
   id: string;
@@ -26,7 +27,12 @@ export default async function AuctionDetailsPage({ params }: { params: Promise<P
   const inWatchlist = userId ? !!(await getWatchlistEntry(userId, auction.id)) : false;
   const isOwner = userId === auction.ownerId;
 
-  const actions = <BidContainer auction={auction} userId={userId} />;
+  const actions = (
+    <>
+      <BidContainer auction={auction} userId={userId} />
+      <AskSellerButton auctionId={auction.id} disabled={isOwner} />
+    </>
+  );
   const metadata = <AuctionMetaData auction={auction} />;
   const watchlistButton = <WatchlistButton auctionId={auction.id} initialInWatchlist={inWatchlist} />;
 

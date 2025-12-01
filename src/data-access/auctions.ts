@@ -13,6 +13,12 @@ export async function createAuction(
 }
 
 //READ AUCTION
+export async function getAuctionById(id: string, tx: DbClient = prisma): Promise<Auction | null> {
+  return tx.auction.findUnique({
+    where: { id },
+  });
+}
+
 type AuctionForBidTransaction = Auction & {
   _count: {
     bids: number;

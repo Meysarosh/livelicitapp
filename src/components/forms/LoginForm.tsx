@@ -5,7 +5,7 @@ import { signIn } from 'next-auth/react';
 import { Form, Summary, SCLink, Divider, CenteredRow } from './form.styles';
 import { Button, Title, Note } from '@/components/ui';
 import { useActionState, useEffect, useRef } from 'react';
-import { FormFieldWrapper } from './FormFiieldWrapper';
+import { FormFieldWrapper } from './FormFieldWrapper';
 import { Input } from '@/components/ui';
 
 export default function LoginForm() {

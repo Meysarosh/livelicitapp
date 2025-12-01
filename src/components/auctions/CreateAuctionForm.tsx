@@ -7,7 +7,7 @@ import { Button, Title, Note } from '@/components/ui';
 import { Input, TextArea, Select } from '@/components/ui';
 import { DEFAULT_CURRENCY, SUPPORTED_CURRENCIES } from '@/lib/constants';
 import type { CreateAuctionFormState } from '@/services/zodValidation-service';
-import { FormFieldWrapper } from '../forms/FormFiieldWrapper';
+import { FormFieldWrapper } from '../forms/FormFieldWrapper';
 import { isoToLocalForInput } from '@/services/format-service';
 
 export default function CreateAuctionForm() {
