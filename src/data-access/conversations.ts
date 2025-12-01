@@ -52,11 +52,7 @@ export async function getConversationForUser(conversationId: string, userId: str
   const convo = await prisma.conversation.findUnique({
     where: { id: conversationId },
     include: {
-      auction: {
-        // include: {
-        //   images: { orderBy: { position: 'asc' }, take: 1 },
-        // },
-      },
+      auction: {},
       userA: true,
       userB: true,
       messages: {

@@ -6,7 +6,7 @@ import { sendMessage } from '@/app/actions/sendMessage';
 import { Button, TextArea, Paragraph, Muted } from '@/components/ui';
 import { formatDateTime } from '@/services/format-service';
 import { Form } from '../forms/form.styles';
-import { FormFieldWrapper } from '../forms/FormFiieldWrapper';
+import { FormFieldWrapper } from '../forms/FormFieldWrapper';
 import { MessagesBox, MessageRow, Bubble, MetaLine } from './ConversationsView.styles';
 
 type ConversationWithRelations = Conversation & {

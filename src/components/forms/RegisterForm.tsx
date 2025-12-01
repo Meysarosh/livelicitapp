@@ -7,7 +7,7 @@ import { buildErrorSummary } from '@/services/errorSummary-service';
 import { SCLink, Summary, SummaryList, RequiredMark, Form } from './form.styles';
 import { Button, Title, SubTitle, Note } from '@/components/ui';
 import { Input } from '@/components/ui';
-import { FormFieldWrapper } from './FormFiieldWrapper';
+import { FormFieldWrapper } from './FormFieldWrapper';
 
 type RegisterField = 'nickname' | 'email' | 'password' | 'confirmPassword';
 

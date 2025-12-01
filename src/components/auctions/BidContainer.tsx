@@ -7,7 +7,7 @@ import { Form } from '@/components/forms/form.styles';
 import { Button, Input, Note } from '@/components/ui';
 import { getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
 import { AuctionDetailForPublic } from '@/data-access/auctions';
-import { FormFieldWrapper } from '../forms/FormFiieldWrapper';
+import { FormFieldWrapper } from '../forms/FormFieldWrapper';
 import { useAuctionRealtime } from './AuctionRealtimeProvider';
 
 interface BidContainerProps {

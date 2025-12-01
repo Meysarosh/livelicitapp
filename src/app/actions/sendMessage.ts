@@ -69,6 +69,8 @@ export async function sendMessage(_prevState: SendMessageFormState, formData: Fo
       };
 
       await updateConversation(convo.id, conversationUpdateData, tx);
+
+      return { message: 'Message sent successfully!' };
     });
   } catch (err) {
     console.error('APP/ACTIONS/SEND_MESSAGE:', err);

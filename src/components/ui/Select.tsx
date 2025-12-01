@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { useFormField } from '../forms/FormFiieldWrapper';
+import { useFormField } from '../forms/FormFieldWrapper';
 
 const SCSelect = styled.select`
   margin: ${({ theme }) => theme.spacing(1)} 0;

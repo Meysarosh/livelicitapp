@@ -2,7 +2,7 @@
 
 import styled from 'styled-components';
 import React from 'react';
-import { useFormField } from '@/components/forms/FormFiieldWrapper';
+import { useFormField } from '@/components/forms/FormFieldWrapper';
 
 const SCInput = styled.input`
   margin: ${({ theme }) => theme.spacing(1)} 0;

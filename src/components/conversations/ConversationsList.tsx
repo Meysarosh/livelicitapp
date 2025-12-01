@@ -33,7 +33,7 @@ export function ConversationsList({ conversations, currentUserId }: Props) {
         const lastSnippet = lastMsg?.body ?? '(no messages yet)';
         const lastSenderLabel = lastMsg?.senderId === currentUserId ? 'You' : lastMsg?.sender?.nickname ?? 'System';
 
-        const firstImage = c.auction.images[0];
+        const firstImage = c.auction.images?.[0];
 
         return (
           <Item key={c.id}>

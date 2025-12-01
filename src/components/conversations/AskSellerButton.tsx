@@ -7,7 +7,7 @@ import { useActionState } from 'react';
 import { startConversation } from '@/app/actions/startConversation';
 import { Button, TextArea, Muted } from '@/components/ui';
 import { Form } from '../forms/form.styles';
-import { FormFieldWrapper } from '../forms/FormFiieldWrapper';
+import { FormFieldWrapper } from '../forms/FormFieldWrapper';
 
 type StartConversationFormState =
   | {
@@ -58,6 +58,10 @@ export function AskSellerButton({ auctionId, disabled }: Props) {
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState<StartConversationFormState, FormData>(startConversation, undefined);
 
+  const handleSubbmit = () => {
+    //TODO close only on success after short delay with success message shown
+    setOpen(false);
+  };
   return (
     <>
       <Button type='button' disabled={disabled} onClick={() => setOpen(true)}>
@@ -68,7 +72,7 @@ export function AskSellerButton({ auctionId, disabled }: Props) {
         <Overlay>
           <Dialog>
             <DialogTitle>Ask the seller</DialogTitle>
-            <Form action={action} onSubmit={() => setOpen(false)}>
+            <Form action={action} onSubmit={handleSubbmit}>
               <input type='hidden' name='auctionId' value={auctionId} />
 
               <FormFieldWrapper required error={state?.errors?.body}>

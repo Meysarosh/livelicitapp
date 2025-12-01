@@ -81,6 +81,8 @@ export async function startConversation(
       };
 
       await updateConversation(convo.id, conversationUpdateData, tx);
+
+      return { message: 'Message sent successfully!' };
     });
   } catch (err) {
     console.error('APP/ACTIONS/START_CONVERSATION:', err);
