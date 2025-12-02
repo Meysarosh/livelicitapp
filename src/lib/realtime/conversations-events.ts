@@ -36,8 +36,10 @@ export async function emitConversationUpdatedForUsers(params: {
   const pusher = getPusherServer();
   const { conversationId, userAId, userBId } = params;
 
-  await pusher.trigger(userChannel(userAId), 'conversation:updated', { conversationId });
-  await pusher.trigger(userChannel(userBId), 'conversation:updated', { conversationId });
+  await pusher.triggerBatch([
+    { channel: userChannel(userAId), name: 'conversation:updated', data: { conversationId } },
+    { channel: userChannel(userBId), name: 'conversation:updated', data: { conversationId } },
+  ]);
 }
 
 export async function emitConversationRead(params: { conversationId: string; readerId: string; readAt: Date }) {
