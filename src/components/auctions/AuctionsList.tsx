@@ -12,12 +12,16 @@ import { LivePrice } from './LivePrice';
 import { AuctionRealtimeProvider } from './AuctionRealtimeProvider';
 import { LiveCountdown } from './LiveCountDown';
 import { LiveBidsCount } from './LiveBidsCount';
+import { DealWithAuction } from '@/data-access/deals';
+import { getDealStatusChip } from '@/services/dealStatus-service';
+import { StatusChip } from '../ui/StatusChip';
 
 type AuctionsListPage = 'public' | 'watchlist' | 'account' | 'won' | 'sold';
 
 type Props = {
   auctions: AuctionForLists[];
   page: AuctionsListPage;
+  deals?: DealWithAuction[];
 };
 
 const pageRoutes: Record<AuctionsListPage, (id: string) => Route> = {
@@ -28,12 +32,12 @@ const pageRoutes: Record<AuctionsListPage, (id: string) => Route> = {
   sold: (id) => `/account/deals/${id}` as Route,
 };
 
-export function AuctionsList({ auctions, page }: Props) {
+export function AuctionsList({ auctions, page, deals }: Props) {
   if (auctions.length === 0) {
     return <p>No auctions found.</p>;
   }
 
-  const items = auctions.map((a) => {
+  const items = auctions.map((a, idx) => {
     const firstImage = a.images[0]?.url;
     const isScheduled = getEffectiveAuctionStatus(a) === 'SCHEDULED';
     const [metaLabel, metaDate] = isScheduled
@@ -66,6 +70,14 @@ export function AuctionsList({ auctions, page }: Props) {
                 <strong>{metaLabel}</strong>
                 {metaDate}
               </MetaPiece>
+              {deals && (
+                <MetaPiece>
+                  {(() => {
+                    const { label, tone } = getDealStatusChip(deals[idx].status);
+                    return <StatusChip $tone={tone}>{label}</StatusChip>;
+                  })()}
+                </MetaPiece>
+              )}
             </MetaRow>
           </Body>
         </Item>

@@ -1,7 +1,6 @@
 export const baseTheme = {
   spacing: (factor: number) => `${factor * 4}px`,
 
-  // breakpoints
   breakpoints: {
     sm: '640px',
     md: '768px',
@@ -9,7 +8,6 @@ export const baseTheme = {
     xl: '1280px',
   },
 
-  // border radii
   radii: {
     sm: '4px',
     md: '8px',
@@ -18,13 +16,11 @@ export const baseTheme = {
     pill: '9999px',
   },
 
-  // shadows
   shadows: {
     subtle: '0 1px 3px rgba(15, 23, 42, 0.08)',
     medium: '0 10px 25px rgba(15, 23, 42, 0.12)',
   },
 
-  // typography
   typography: {
     fontFamily: `'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`,
     fontSizeBase: '16px',
@@ -41,45 +37,88 @@ export const baseTheme = {
   },
 };
 
+// --------------------
+// LIGHT THEME
+// --------------------
 export const lightTheme = {
   ...baseTheme,
   colors: {
     bg: '#f3f4f6',
-    bgElevated: '#f4f4f4ff',
+    bgElevated: '#ffffff',
     border: '#e5e7eb',
     text: '#111827',
     textMuted: '#6b7280',
+
     primary: '#2563eb',
     primaryHover: '#1d4ed8',
+
     danger: '#dc2626',
     dangerHover: '#b91c1c',
+
     accent: '#f97316',
-    // surfaces
+
+    // NEW: semantic tones for StatusChip
+    successSoft: '#dcfce7', // green-100
+    successStrong: '#15803d', // green-700
+
+    warningSoft: '#fef9c3', // yellow-100
+    warningStrong: '#92400e', // yellow-700
+
+    dangerSoft: '#fee2e2', // red-100
+    dangerStrong: '#b91c1c', // red-700
+
+    accentSoft: '#ffedd5', // orange-100
+
+    // Surfaces
     headerBg: '#ffffff',
     footerBg: '#f9fafb',
-    // forms
+
+    // Forms
     inputBg: '#ffffff',
     inputBorder: '#d1d5db',
     inputFocus: '#2563eb',
   },
 };
 
+// --------------------
+// DARK THEME
+// --------------------
 export const darkTheme = {
   ...baseTheme,
   colors: {
     bg: '#020617',
-    bgElevated: '#020617',
+    bgElevated: '#0f172a',
     border: '#1f2937',
+
     text: '#e5e7eb',
     textMuted: '#9ca3af',
+
     primary: '#3b82f6',
     primaryHover: '#2563eb',
+
     danger: '#f97316',
     dangerHover: '#ea580c',
+
     accent: '#22c55e',
+
+    // NEW: semantic tones for StatusChip in dark mode
+    successSoft: 'rgba(34,197,94,0.15)', // soft green bg
+    successStrong: '#4ade80', // green-400
+
+    warningSoft: 'rgba(250,204,21,0.12)', // yellow bg soft
+    warningStrong: '#facc15', // yellow-400
+
+    dangerSoft: 'rgba(239,68,68,0.15)', // red bg soft
+    dangerStrong: '#f87171', // red-400
+
+    accentSoft: 'rgba(249,115,22,0.15)', // orange soft
+
+    // Surfaces
     headerBg: '#020617',
     footerBg: '#020617',
-    inputBg: '#020617',
+
+    // Forms
+    inputBg: '#0f172a',
     inputBorder: '#374151',
     inputFocus: '#3b82f6',
   },

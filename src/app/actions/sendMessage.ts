@@ -3,7 +3,6 @@
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { redirect } from 'next/navigation';
-import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
 import { MessageKind } from '@prisma/client';
 import { getConversationById, updateConversation } from '@/data-access/conversations';
 import { createMessage } from '@/data-access/messages';
@@ -110,7 +109,6 @@ export async function sendMessage(_prevState: SendMessageFormState, formData: Fo
     };
   } catch (err) {
     console.error('APP/ACTIONS/SEND_MESSAGE:', err);
-    if (isNextRedirectError(err)) throw err;
 
     if (err instanceof Error && err.message === 'Conversation not found') {
       return { message: 'Conversation not found.', values: { body } };

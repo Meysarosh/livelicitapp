@@ -140,7 +140,7 @@ export function ConversationView({ conversation, currentUserId, counterpart }: P
 
         {messages.map((m) => {
           const own = m.senderId === currentUserId;
-          const senderLabel = own ? 'You' : counterpart.nickname ?? counterpart.email ?? 'System';
+          const senderLabel = m.senderId ? (own ? 'You' : counterpart.nickname ?? counterpart.email) : 'System';
 
           const isSeenHere = own && seenOutgoingIds.has(m.id);
 
@@ -150,7 +150,8 @@ export function ConversationView({ conversation, currentUserId, counterpart }: P
                 <Paragraph as='div'>{m.body}</Paragraph>
               </Bubble>
               <MetaLine>
-                {senderLabel} • {formatDateTime(m.createdAt)}{isSeenHere && ' • Seen'}
+                {senderLabel} • {formatDateTime(m.createdAt)}
+                {isSeenHere && ' • Seen'}
               </MetaLine>
             </MessageRow>
           );

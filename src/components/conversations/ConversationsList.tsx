@@ -18,6 +18,7 @@ import { formatDateTime } from '@/services/format-service';
 import { useEffect, useState, useTransition } from 'react';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
 import { refreshConversations } from '@/app/actions/refreshConversations';
+import type { Route } from 'next';
 
 type Props = {
   conversations: ConversationWithRelations[];
@@ -72,12 +73,7 @@ export function ConversationsList({ conversations, currentUserId }: Props) {
 
         return (
           <Item key={c.id}>
-            <ItemLink
-              href={{
-                pathname: '/account/conversations/[id]',
-                query: { id: c.id },
-              }}
-            >
+            <ItemLink href={`/account/conversations/${c.id}` as Route}>
               <ThumbWrapper>
                 <ImageWithSkeleton src={firstImage?.url ?? null} alt={c.auction.title} contain={false} />
               </ThumbWrapper>

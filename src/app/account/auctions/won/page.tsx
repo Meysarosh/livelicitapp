@@ -12,7 +12,7 @@ export default async function WonAuctionsPage() {
   return (
     <PageSection>
       <Title>Won auctions</Title>
-      <AuctionsList auctions={auctions} page='won' />
+      <AuctionsList auctions={auctions} page='won' deals={deals} />
     </PageSection>
   );
 }
