@@ -57,7 +57,6 @@ export async function getConversationForUser(conversationId: string, userId: str
       userB: true,
       messages: {
         orderBy: { createdAt: 'asc' },
-        include: { sender: true },
       },
     },
   });

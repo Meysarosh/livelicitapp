@@ -13,9 +13,10 @@ export async function createAuction(
 }
 
 //READ AUCTION
-export async function getAuctionById(id: string, tx: DbClient = prisma): Promise<Auction | null> {
+export async function getAuctionForConversationTransaction(id: string, tx: DbClient = prisma) {
   return tx.auction.findUnique({
     where: { id },
+    include: { images: { orderBy: { position: 'asc' } } },
   });
 }
 

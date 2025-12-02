@@ -1,3 +1,5 @@
+'use server';
+
 import { getAuctionWithDeal, updateAuction } from '@/data-access/auctions';
 import { upsertConversation } from '@/data-access/conversations';
 import { createDeal } from '@/data-access/deals';

@@ -3,7 +3,9 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { getConversationForUser } from '@/data-access/conversations';
 import { Title, Note } from '@/components/ui';
 import { PageSection } from '@/components/layout';
-import { ConversationView } from '@/components/conversations/ConverstionView';
+import { ConversationView } from '@/components/conversations/ConversationView';
+import { markConversationRead } from '@/app/actions/markConversationRead';
+import Link from 'next/link';
 
 interface PageProps {
   id: string;
@@ -18,6 +20,8 @@ export default async function ConversationPage({ params }: { params: Promise<Pag
     notFound();
   }
 
+  await markConversationRead(conversation.id);
+
   const isA = conversation.userAId === user.id;
   const counterpart = isA ? conversation.userB : conversation.userA;
 
@@ -25,11 +29,11 @@ export default async function ConversationPage({ params }: { params: Promise<Pag
     <PageSection>
       <Title>Conversation</Title>
       <Note>
-        Auction: <a href={`/auctions/${conversation.auctionId}`}>{conversation.auction.title}</a> <br />
-        With: <strong>{counterpart.nickname ?? counterpart.email}</strong>
+        Auction: <Link href={`/auctions/${conversation.auctionId}`}>{conversation.auction.title}</Link> <br />
+        With: {counterpart.nickname ?? counterpart.email}
       </Note>
 
-      <ConversationView conversation={conversation} currentUserId={user.id} />
+      <ConversationView conversation={conversation} currentUserId={user.id} counterpart={counterpart} />
     </PageSection>
   );
 }

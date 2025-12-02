@@ -13,8 +13,11 @@ import {
   LastLine,
   Badge,
 } from './ConversationsList.styles';
-import { ConversationWithRelations } from '@/data-access/conversations';
+import type { ConversationWithRelations } from '@/data-access/conversations';
 import { formatDateTime } from '@/services/format-service';
+import { useEffect, useState, useTransition } from 'react';
+import { getPusherClient } from '@/lib/realtime/pusher-client';
+import { refreshConversations } from '@/app/actions/refreshConversations';
 
 type Props = {
   conversations: ConversationWithRelations[];
@@ -22,22 +25,59 @@ type Props = {
 };
 
 export function ConversationsList({ conversations, currentUserId }: Props) {
+  const [items, setItems] = useState(conversations);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setItems(conversations);
+  }, [conversations]);
+
+  useEffect(() => {
+    const pusher = getPusherClient();
+    const channelName = `private-user-${currentUserId}`;
+    const channel = pusher.subscribe(channelName);
+
+    const handleConversationUpdated = () => {
+      startTransition(() => {
+        void refreshConversations().then((fresh) => {
+          if (!fresh) return;
+          setItems(fresh);
+        });
+      });
+    };
+
+    channel.bind('conversation:updated', handleConversationUpdated);
+
+    return () => {
+      channel.unbind('conversation:updated', handleConversationUpdated);
+      pusher.unsubscribe(channelName);
+    };
+  }, [currentUserId]);
+
   return (
     <List>
-      {conversations.map((c) => {
+      {items.map((c) => {
         const isA = c.userAId === currentUserId;
         const counterpart = isA ? c.userB : c.userA;
         const unreadCount = isA ? c.unreadCountA : c.unreadCountB;
 
         const lastMsg = c.messages[0];
         const lastSnippet = lastMsg?.body ?? '(no messages yet)';
-        const lastSenderLabel = lastMsg?.senderId === currentUserId ? 'You' : lastMsg?.sender?.nickname ?? 'System';
-
+        const lastSenderLabel = lastMsg
+          ? lastMsg.senderId === currentUserId
+            ? 'You'
+            : lastMsg.sender?.nickname ?? 'System'
+          : '';
         const firstImage = c.auction.images?.[0];
 
         return (
           <Item key={c.id}>
-            <ItemLink href={`/account/conversations/${c.id}`}>
+            <ItemLink
+              href={{
+                pathname: '/account/conversations/[id]',
+                query: { id: c.id },
+              }}
+            >
               <ThumbWrapper>
                 <ImageWithSkeleton src={firstImage?.url ?? null} alt={c.auction.title} contain={false} />
               </ThumbWrapper>
@@ -49,7 +89,13 @@ export function ConversationsList({ conversations, currentUserId }: Props) {
                 </TitleRow>
 
                 <Paragraph>
-                  <strong>{lastSenderLabel}:</strong> {lastSnippet}
+                  {lastMsg ? (
+                    <>
+                      <strong>{lastSenderLabel}:</strong> {lastSnippet}
+                    </>
+                  ) : (
+                    <Muted>(no messages yet)</Muted>
+                  )}
                 </Paragraph>
 
                 <LastLine>
@@ -61,6 +107,11 @@ export function ConversationsList({ conversations, currentUserId }: Props) {
           </Item>
         );
       })}
+      {isPending && (
+        <li>
+          <Muted>Updating…</Muted>
+        </li>
+      )}
     </List>
   );
 }

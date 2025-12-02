@@ -24,20 +24,6 @@ export function getPusherServer() {
   return globalThis.pusher;
 }
 
-// export const pusherServer =
-// globalThis.pusher ??
-//   new Pusher({
-//     appId,
-//     key,
-//     secret,
-//     cluster,
-//     useTLS: true,
-//   });
-
-// if (process.env.NODE_ENV !== 'production') {
-//   globalThis.pusher = pusherServer;
-// }
-
 declare global {
   var pusher: Pusher | undefined;
 }
