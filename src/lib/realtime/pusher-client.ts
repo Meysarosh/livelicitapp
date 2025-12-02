@@ -15,16 +15,8 @@ export function getPusherClient() {
   if (!_client) {
     _client = new PusherClient(key, {
       cluster,
+      authEndpoint: '/api/pusher/auth',
     });
   }
   return _client;
 }
-
-// This is an example of wrong implementation that creates a new Pusher client on every import
-//
-// import Pusher from 'pusher-js';
-//
-// // Create the client instance once, outside of any component
-// export const pusherClient = new Pusher(key, {
-//   cluster,
-// });

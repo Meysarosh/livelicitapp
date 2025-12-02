@@ -1,24 +1,27 @@
 'use client';
 
-import type { Conversation, Message, User, Auction } from '@prisma/client';
-import { useActionState, useRef, useEffect } from 'react';
+import type { Conversation, Message, User, Auction, MessageKind } from '@prisma/client';
+import { useActionState, useRef, useEffect, useState, useMemo } from 'react';
 import { sendMessage } from '@/app/actions/sendMessage';
 import { Button, TextArea, Paragraph, Muted } from '@/components/ui';
 import { formatDateTime } from '@/services/format-service';
 import { Form } from '../forms/form.styles';
 import { FormFieldWrapper } from '../forms/FormFieldWrapper';
-import { MessagesBox, MessageRow, Bubble, MetaLine } from './ConversationsView.styles';
+import { MessagesBox, MessageRow, Bubble, MetaLine } from './ConversationView.styles';
+import { getPusherClient } from '@/lib/realtime/pusher-client';
+import { markConversationRead } from '@/app/actions/markConversationRead';
 
 type ConversationWithRelations = Conversation & {
   auction: Auction;
   userA: User;
   userB: User;
-  messages: (Message & { sender: User | null })[];
+  messages: Message[];
 };
 
 type Props = {
   conversation: ConversationWithRelations;
   currentUserId: string;
+  counterpart: User;
 };
 
 type SendMessageFormState =
@@ -29,31 +32,125 @@ type SendMessageFormState =
     }
   | undefined;
 
-export function ConversationView({ conversation, currentUserId }: Props) {
+export function ConversationView({ conversation, currentUserId, counterpart }: Props) {
   const [state, action, pending] = useActionState<SendMessageFormState, FormData>(sendMessage, undefined);
+  const [messages, setMessages] = useState(conversation.messages);
+
+  const isUserA = conversation.userAId === currentUserId;
+  const initialUnreadForOther = isUserA ? conversation.unreadCountB : conversation.unreadCountA;
+
+  const [unreadForOther, setUnreadForOther] = useState<number>(initialUnreadForOther);
+
   const boxRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    // Scroll to bottom on new messages
     if (boxRef.current) {
       boxRef.current.scrollTop = boxRef.current.scrollHeight;
     }
-  }, [conversation.messages.length, state]);
+  }, [messages.length]);
+
+  useEffect(() => {
+    // Mark as read when new messages arrive from the other user and conversation is opened
+    if (!messages.length) return;
+
+    const last = messages[messages.length - 1];
+
+    if (!last.senderId || last.senderId === currentUserId) return;
+    if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+
+    void markConversationRead(conversation.id);
+  }, [messages.length, messages, currentUserId, conversation.id]);
+
+  useEffect(() => {
+    // Subscribe to real-time updates for this conversation
+    const pusher = getPusherClient();
+    const channelName = `private-conversation-${conversation.id}`;
+    const channel = pusher.subscribe(channelName);
+
+    const handleNewMessage = (payload: {
+      id: string;
+      conversationId: string;
+      body: string;
+      kind: string;
+      senderId: string | null;
+      createdAt: string;
+    }) => {
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === payload.id)) return prev;
+
+        const next = [
+          ...prev,
+          {
+            id: payload.id,
+            conversationId: payload.conversationId,
+            body: payload.body,
+            kind: payload.kind as MessageKind,
+            senderId: payload.senderId,
+            createdAt: new Date(payload.createdAt),
+            meta: null,
+          },
+        ];
+
+        return next;
+      });
+
+      if (payload.senderId === currentUserId) {
+        setUnreadForOther((prev) => prev + 1);
+      }
+    };
+
+    const handleRead = (payload: { conversationId: string; readerId: string; readAt: string }) => {
+      if (payload.readerId !== currentUserId) {
+        setUnreadForOther(0);
+      }
+    };
+
+    channel.bind('message:new', handleNewMessage);
+    channel.bind('conversation:read', handleRead);
+
+    return () => {
+      channel.unbind('message:new', handleNewMessage);
+      channel.unbind('conversation:read', handleRead);
+      pusher.unsubscribe(channelName);
+    };
+  }, [conversation.id, currentUserId]);
+
+  const seenOutgoingIds = useMemo(() => {
+    // collects Ids of messages sent by current user that have been seen by the counterpart
+    const outgoing = messages.filter((m) => m.senderId === currentUserId);
+
+    if (unreadForOther <= 0) {
+      return new Set(outgoing.map((m) => m.id));
+    }
+
+    const boundaryIndex = outgoing.length - unreadForOther;
+    if (boundaryIndex <= 0) {
+      return new Set<string>();
+    }
+
+    const seen = outgoing.slice(0, boundaryIndex).map((m) => m.id);
+    return new Set(seen);
+  }, [messages, currentUserId, unreadForOther]);
 
   return (
     <>
       <MessagesBox ref={boxRef}>
-        {conversation.messages.length === 0 && <Muted>No messages yet.</Muted>}
+        {messages.length === 0 && <Muted>No messages yet.</Muted>}
 
-        {conversation.messages.map((m) => {
+        {messages.map((m) => {
           const own = m.senderId === currentUserId;
-          const senderLabel = own ? 'You' : m.sender?.nickname ?? 'System';
+          const senderLabel = own ? 'You' : counterpart.nickname ?? counterpart.email ?? 'System';
+
+          const isSeenHere = own && seenOutgoingIds.has(m.id);
+
           return (
             <MessageRow key={m.id} $own={own}>
               <Bubble $own={own}>
                 <Paragraph as='div'>{m.body}</Paragraph>
               </Bubble>
               <MetaLine>
-                {senderLabel} • {formatDateTime(m.createdAt)}
+                {senderLabel} • {formatDateTime(m.createdAt)}{isSeenHere && ' • Seen'}
               </MetaLine>
             </MessageRow>
           );

@@ -6,8 +6,8 @@ import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
 import { prisma } from '@/lib/db';
 import { getAuctionForBidTransaction, updateAuctionBid } from '@/data-access/auctions';
 import { createBid } from '@/data-access/bids';
-import { getPusherServer } from '@/lib/realtime/pusher-server';
 import { TIME_EXTEND_AFTER_BID } from '@/lib/constants';
+import { emitBidPlaced } from '@/lib/realtime/auctions-events';
 
 export async function placeBid(_prevState: PlaceBidFormState, formData: FormData): Promise<PlaceBidFormState> {
   const user = await getAuthUser();
@@ -41,7 +41,7 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
 
       if (!auction) {
         return {
-          kind: 'error',
+          kind: 'error' as const,
           state: {
             message: 'Auction not found.',
             values: { amount },
@@ -50,25 +50,25 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
       }
       if (auction.status === 'CANCELLED') {
         return {
-          kind: 'error',
+          kind: 'error' as const,
           state: { message: 'This auction has been cancelled.', values: { amount } },
         };
       }
       if (!auction.startAt || !auction.endAt || now < auction.startAt) {
         return {
-          kind: 'error',
+          kind: 'error' as const,
           state: { message: 'This auction has not started yet.', values: { amount } },
         };
       }
       if (now >= auction.endAt) {
         return {
-          kind: 'error',
+          kind: 'error' as const,
           state: { message: 'This auction has already ended.', values: { amount } },
         };
       }
       if (auction.ownerId === user!.id) {
         return {
-          kind: 'error',
+          kind: 'error' as const,
           state: { message: 'You cannot bid on your own auction.', values: { amount } },
         };
       }
@@ -78,7 +78,7 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
 
       if (bidAmountMinor < minAllowedBidMinor) {
         return {
-          kind: 'error',
+          kind: 'error' as const,
           state: {
             errors: {
               amount: [`Your bid must be at least ${(minAllowedBidMinor / 100).toFixed(0)} ${auction.currency}.`],
@@ -90,7 +90,6 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
 
       await createBid(auction.id, user.id, bidAmountMinor, tx);
 
-      // const FIVE_MINUTES_MS = 5 * 60 * 1000;
       const timeRemaining = auction.endAt.getTime() - now.getTime();
       let newEndAt = auction.endAt;
 
@@ -110,7 +109,7 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
 
       if (updateResult.count === 0) {
         return {
-          kind: 'error',
+          kind: 'error' as const,
           state: {
             message: 'Someone placed a bid just before you. Please try again with a higher amount.',
             values: { amount },
@@ -119,7 +118,7 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
       }
 
       return {
-        kind: 'success',
+        kind: 'success' as const,
         data: {
           ...auction,
           currentPriceMinor: bidAmountMinor,
@@ -137,12 +136,12 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
       const { id, currentPriceMinor, highestBidderId, endAt, _count } = transactionResult.data!;
 
       try {
-        const pusherServer = getPusherServer();
-        await pusherServer.trigger(`auction-${id}`, 'bid-placed', {
-          pusherCurrentPriceMinor: currentPriceMinor,
-          pusherHighestBidderId: highestBidderId,
-          pusherEndAt: endAt,
-          pusherBidsCount: _count.bids + 1,
+        await emitBidPlaced({
+          auctionId: id,
+          currentPriceMinor,
+          highestBidderId: highestBidderId!,
+          endAtIso: endAt,
+          bidsCount: _count.bids + 1,
         });
       } catch (pusherErr) {
         console.error('Pusher trigger failed:', pusherErr);
@@ -153,6 +152,11 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
         values: { amount },
       };
     }
+
+    return {
+      message: 'Unexpected error. Please try again.',
+      values: { amount },
+    };
   } catch (err) {
     if (isNextRedirectError(err)) throw err;
 

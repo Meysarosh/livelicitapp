@@ -28,6 +28,9 @@ export const Bubble = styled.div<{ $own: boolean }>`
 
 export const MetaLine = styled.div`
   margin-top: 2px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   font-size: ${({ theme }) => theme.typography.smallSize};
   color: ${({ theme }) => theme.colors.textMuted};
   text-align: right;
