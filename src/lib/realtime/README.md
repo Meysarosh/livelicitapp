@@ -58,3 +58,60 @@ Payload:
   "pusherBidsCount": 7 // total bids for this auction
 }
 ```
+
+### `private-user-{userId}`
+
+#### Event: `conversation:updated`
+
+Payload:
+
+```jsonc
+{
+  "conversationId": "conv_cuid", // ID of the updated conversation
+  "lastMessage": {
+    "id": "msg_cuid",
+    "text": "Hey, are you available?",
+    "sentAt": "2025-11-25T10:15:00.000Z", // ISO string
+    "senderId": "user_cuid"
+  },
+  "unreadCount": 2, // number of unread messages for this user
+  "participants": [
+    {
+      "id": "user_cuid",
+      "name": "Alice"
+    },
+    {
+      "id": "user_cuid",
+      "name": "Bob"
+    }
+  ]
+}
+```
+
+### `private-conversation-{conversationId}`
+
+#### Event: `message:new`
+
+Payload:
+
+```jsonc
+{
+  "id": "msg_cuid", // message ID
+  "text": "Hello, how are you?",
+  "sentAt": "2025-11-25T10:15:00.000Z", // ISO string
+  "senderId": "user_cuid",
+  "conversationId": "conv_cuid"
+}
+```
+
+#### Event: `conversation:read`
+
+Payload:
+
+```jsonc
+{
+  "conversationId": "conv_cuid",
+  "readerId": "user_cuid", // user who read the conversation
+  "readAt": "2025-11-25T10:16:00.000Z" // ISO string
+}
+```

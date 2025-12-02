@@ -2,7 +2,7 @@
 
 import { getConversationById, updateConversation } from '@/data-access/conversations';
 import { auth } from '@/lib/auth';
-import { getPusherServer } from '@/lib/realtime/pusher-server';
+import { emitConversationRead } from '@/lib/realtime/conversations-events';
 
 export async function markConversationRead(conversationId: string) {
   const session = await auth();
@@ -31,10 +31,9 @@ export async function markConversationRead(conversationId: string) {
 
   await updateConversation(convo.id, dataUpdate);
 
-  const pusherServer = getPusherServer();
-  await pusherServer.trigger(`private-conversation-${convo.id}`, 'conversation:read', {
+  await emitConversationRead({
     conversationId: convo.id,
     readerId: userId,
-    readAt: now.toISOString(),
+    readAt: now,
   });
 }

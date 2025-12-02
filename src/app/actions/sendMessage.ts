@@ -83,22 +83,26 @@ export async function sendMessage(_prevState: SendMessageFormState, formData: Fo
       };
     });
 
-    await emitNewMessageEvent({
-      conversationId: conversation.id,
-      message: {
-        id: message.id,
-        body: message.body,
-        kind: message.kind,
-        senderId: message.senderId,
-        createdAt: message.createdAt,
-      },
-    });
+    try {
+      await emitNewMessageEvent({
+        conversationId: conversation.id,
+        message: {
+          id: message.id,
+          body: message.body,
+          kind: message.kind,
+          senderId: message.senderId,
+          createdAt: message.createdAt,
+        },
+      });
 
-    await emitConversationUpdatedForUsers({
-      conversationId: conversation.id,
-      userAId: conversation.userAId,
-      userBId: conversation.userBId,
-    });
+      await emitConversationUpdatedForUsers({
+        conversationId: conversation.id,
+        userAId: conversation.userAId,
+        userBId: conversation.userBId,
+      });
+    } catch (pusherErr) {
+      console.error('Pusher trigger failed:', pusherErr);
+    }
 
     return {
       message: 'Message sent successfully.',
