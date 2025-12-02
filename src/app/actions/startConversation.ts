@@ -90,11 +90,15 @@ export async function startConversation(
       };
     });
 
-    await emitConversationUpdatedForUsers({
-      conversationId: conversation.id,
-      userAId: conversation.userAId,
-      userBId: conversation.userBId,
-    });
+    try {
+      await emitConversationUpdatedForUsers({
+        conversationId: conversation.id,
+        userAId: conversation.userAId,
+        userBId: conversation.userBId,
+      });
+    } catch (emitErr) {
+      console.error('Failed to emit conversation update:', emitErr);
+    }
 
     return { message: 'Message sent successfully!' };
   } catch (err) {
