@@ -150,7 +150,7 @@ export function ConversationView({ conversation, currentUserId, counterpart }: P
                 <Paragraph as='div'>{m.body}</Paragraph>
               </Bubble>
               <MetaLine>
-                {senderLabel} • {formatDateTime(m.createdAt)} • {isSeenHere && 'Seen'}
+                {senderLabel} • {formatDateTime(m.createdAt)}{isSeenHere && ' • Seen'}
               </MetaLine>
             </MessageRow>
           );
