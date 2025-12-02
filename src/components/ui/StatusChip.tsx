@@ -2,7 +2,7 @@
 
 import styled, { css } from 'styled-components';
 
-type StatusTone = 'default' | 'success' | 'warning' | 'danger' | 'info';
+export type StatusTone = 'default' | 'success' | 'warning' | 'danger' | 'info';
 
 export const StatusChip = styled.span<{ $tone?: StatusTone }>`
   display: inline-flex;

@@ -37,13 +37,16 @@ export function AuctionsList({ auctions, page, deals }: Props) {
     return <p>No auctions found.</p>;
   }
 
-  const items = auctions.map((a, idx) => {
+  const dealsMap = deals ? new Map(deals.map((d) => [d.auctionId, d])) : null;
+
+  const items = auctions.map((a) => {
     const firstImage = a.images[0]?.url;
     const isScheduled = getEffectiveAuctionStatus(a) === 'SCHEDULED';
     const [metaLabel, metaDate] = isScheduled
       ? ['Starts:', <span key={a.id}>{formatDateTime(a.startAt)}</span>]
       : ['Ends in:', <LiveCountdown key={a.id} />];
     const href = pageRoutes[page](a.id);
+    const deal = dealsMap?.get(a.id);
 
     return (
       <AuctionRealtimeProvider key={a.id} auction={a}>
@@ -73,7 +76,8 @@ export function AuctionsList({ auctions, page, deals }: Props) {
               {deals && (
                 <MetaPiece>
                   {(() => {
-                    const { label, tone } = getDealStatusChip(deals[idx].status);
+                    if (!deal) return null;
+                    const { label, tone } = getDealStatusChip(deal.status);
                     return <StatusChip $tone={tone}>{label}</StatusChip>;
                   })()}
                 </MetaPiece>

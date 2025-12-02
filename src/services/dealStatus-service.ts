@@ -1,8 +1,7 @@
 import type { DealStatus } from '@prisma/client';
+import type { StatusTone } from '@/components/ui/StatusChip';
 
-export type DealStatusChipTone = 'default' | 'success' | 'warning' | 'danger' | 'info';
-
-export function getDealStatusChip(status: DealStatus): { label: string; tone: DealStatusChipTone } {
+export function getDealStatusChip(status: DealStatus): { label: string; tone: StatusTone } {
   switch (status) {
     case 'CREATED':
     case 'AWAITING_PAYMENT':

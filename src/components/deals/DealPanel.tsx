@@ -11,6 +11,7 @@ import { markDealShipped } from '@/app/actions/markDealShipped';
 import { markDealReceived } from '@/app/actions/markDealReceived';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
 import { DealUpdatedPayload } from '@/lib/realtime/deals-events';
+import { getDealStatusChip } from '@/services/dealStatus-service';
 
 type DealWithUsers = Deal & {
   buyer: User;
@@ -62,14 +63,16 @@ export function DealPanel({ deal: initialDeal, currentUserId }: Props) {
   if (!isBuyer && !isSeller) return null;
 
   const canMarkPaid = isBuyer && (deal.status === 'CREATED' || deal.status === 'AWAITING_PAYMENT');
-  const canMarkShipped = isSeller && (deal.status === 'PAID' || deal.status === 'AWAITING_PAYMENT');
-  const canMarkReceived = isBuyer && (deal.status === 'SHIPPED' || deal.status === 'PAID');
+  const canMarkShipped = isSeller && deal.status === 'PAID';
+  const canMarkReceived = isBuyer && deal.status === 'SHIPPED';
+
+  const { label } = getDealStatusChip(deal.status);
 
   return (
     <section style={{ marginTop: 24 }}>
       <SubTitle>Deal</SubTitle>
       <Paragraph>
-        Status: <strong>{deal.status}</strong>
+        Status: <strong>{label}</strong>
       </Paragraph>
 
       {isBuyer && <Paragraph>Seller: {deal.seller.nickname ?? deal.seller.email}</Paragraph>}

@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 export default async function DealDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await getAuthUser();
-  const currentUserId = user?.id;
+  const currentUserId = user.id;
 
   const auction = await getAuctionWithDeal(id);
   if (!auction || !auction.deal) {

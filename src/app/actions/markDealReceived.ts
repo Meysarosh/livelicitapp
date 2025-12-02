@@ -39,7 +39,7 @@ export async function markDealReceived(
         throw new Error('You are not the buyer for this deal.');
       }
 
-      if (deal.status !== DealStatus.SHIPPED && deal.status !== DealStatus.PAID) {
+      if (deal.status !== DealStatus.SHIPPED) {
         throw new Error('This deal cannot be marked as received.');
       }
 

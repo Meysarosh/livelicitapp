@@ -38,8 +38,8 @@ export async function markDealShipped(_prev: MarkDealShippedState, formData: For
   const trackingNumber = typeof trackingRaw === 'string' ? trackingRaw.trim() : '';
 
   const errors = {
-    shippingCompany: !shippingCompany ? ['Please enter shipping company.'] : undefined,
-    trackingNumber: !trackingNumber ? ['Please enter tracking number.'] : undefined,
+    shippingCompany: !shippingCompany ? ['Shipping company is required.'] : undefined,
+    trackingNumber: !trackingNumber ? ['Tracking number is required.'] : undefined,
   };
   if (errors.shippingCompany || errors.trackingNumber) {
     return { errors, values: { shippingCompany, trackingNumber } };
@@ -58,7 +58,7 @@ export async function markDealShipped(_prev: MarkDealShippedState, formData: For
         throw new Error('You are not the seller for this deal.');
       }
 
-      if (deal.status !== DealStatus.PAID && deal.status !== DealStatus.AWAITING_PAYMENT) {
+      if (deal.status !== DealStatus.PAID) {
         throw new Error('This deal cannot be marked as shipped.');
       }
 
