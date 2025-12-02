@@ -2,7 +2,6 @@
 
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { PlaceBidFormSchema, type PlaceBidFormState } from '@/services/zodValidation-service';
-import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
 import { prisma } from '@/lib/db';
 import { getAuctionForBidTransaction, updateAuctionBid } from '@/data-access/auctions';
 import { createBid } from '@/data-access/bids';
@@ -158,8 +157,6 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
       values: { amount },
     };
   } catch (err) {
-    if (isNextRedirectError(err)) throw err;
-
     console.error('APP/ACTIONS/PLACE_BID:', err);
 
     return {

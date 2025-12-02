@@ -3,7 +3,6 @@
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { redirect } from 'next/navigation';
-import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
 import { getAuctionForConversationTransaction } from '@/data-access/auctions';
 import { updateConversation, upsertConversation } from '@/data-access/conversations';
 import { MessageKind } from '@prisma/client';
@@ -103,7 +102,6 @@ export async function startConversation(
     return { message: 'Message sent successfully!' };
   } catch (err) {
     console.error('APP/ACTIONS/START_CONVERSATION:', err);
-    if (isNextRedirectError(err)) throw err;
 
     if (err instanceof Error && err.message === 'Auction not found') {
       return { message: 'Auction not found.', values: { body } };

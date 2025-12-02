@@ -29,7 +29,16 @@ export default async function ConversationPage({ params }: { params: Promise<Pag
     <PageSection>
       <Title>Conversation</Title>
       <Note>
-        Auction: <Link href={`/auctions/${conversation.auctionId}`}>{conversation.auction.title}</Link> <br />
+        {conversation.auction.deal ? (
+          <>
+            Deal: <Link href={`/account/deals/${conversation.auctionId}`}>{conversation.auction.title}</Link>
+          </>
+        ) : (
+          <>
+            Auction: <Link href={`/auctions/${conversation.auctionId}`}>{conversation.auction.title}</Link>
+          </>
+        )}
+        <br />
         With: {counterpart.nickname ?? counterpart.email}
       </Note>
 

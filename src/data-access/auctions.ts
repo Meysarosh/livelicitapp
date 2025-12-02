@@ -104,7 +104,17 @@ export async function getAuctionDetailsForOwner(id: string): Promise<AuctionWith
 export async function getAuctionWithDeal(id: string, tx: DbClient = prisma) {
   return tx.auction.findUnique({
     where: { id },
-    include: { deal: true },
+    include: {
+      owner: true,
+      images: { orderBy: { position: 'asc' } },
+      _count: { select: { bids: true, watchlistedBy: true } },
+      deal: {
+        include: {
+          buyer: true,
+          seller: true,
+        },
+      },
+    },
   });
 }
 

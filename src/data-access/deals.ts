@@ -1,4 +1,4 @@
-import type { Deal, PrismaClient, Prisma } from '@prisma/client';
+import type { Deal, PrismaClient, Prisma, Auction, User } from '@prisma/client';
 import { prisma } from '@/lib/db';
 import type { AuctionDetailForPublic } from './auctions';
 
@@ -24,6 +24,36 @@ export async function createDeal(
 ): Promise<Deal> {
   return await tx.deal.create({
     data,
+  });
+}
+
+// READ DEALS
+
+export type DealWithRelations = Deal & {
+  auction: Auction;
+  seller: User;
+  buyer: User;
+};
+
+export async function getDealById(dealId: string, tx: DbClient = prisma): Promise<DealWithRelations | null> {
+  return tx.deal.findUnique({
+    where: { id: dealId },
+    include: {
+      auction: true,
+      seller: true,
+      buyer: true,
+    },
+  });
+}
+
+export async function getDealForAuction(auctionId: string, tx: DbClient = prisma): Promise<DealWithRelations | null> {
+  return tx.deal.findUnique({
+    where: { auctionId },
+    include: {
+      auction: true,
+      seller: true,
+      buyer: true,
+    },
   });
 }
 
@@ -93,5 +123,13 @@ export async function getDealsAsBuyer(userId: string): Promise<DealWithAuction[]
       },
     },
     orderBy: { createdAt: 'desc' },
+  });
+}
+
+// UPDATE DEAL
+export async function updateDeal(dealId: string, data: Prisma.DealUpdateInput, tx: DbClient = prisma) {
+  return tx.deal.update({
+    where: { id: dealId },
+    data,
   });
 }

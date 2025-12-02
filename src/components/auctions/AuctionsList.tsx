@@ -12,12 +12,16 @@ import { LivePrice } from './LivePrice';
 import { AuctionRealtimeProvider } from './AuctionRealtimeProvider';
 import { LiveCountdown } from './LiveCountDown';
 import { LiveBidsCount } from './LiveBidsCount';
+import { DealWithAuction } from '@/data-access/deals';
+import { getDealStatusChip } from '@/services/dealStatus-service';
+import { StatusChip } from '../ui/StatusChip';
 
 type AuctionsListPage = 'public' | 'watchlist' | 'account' | 'won' | 'sold';
 
 type Props = {
   auctions: AuctionForLists[];
   page: AuctionsListPage;
+  deals?: DealWithAuction[];
 };
 
 const pageRoutes: Record<AuctionsListPage, (id: string) => Route> = {
@@ -28,10 +32,12 @@ const pageRoutes: Record<AuctionsListPage, (id: string) => Route> = {
   sold: (id) => `/account/deals/${id}` as Route,
 };
 
-export function AuctionsList({ auctions, page }: Props) {
+export function AuctionsList({ auctions, page, deals }: Props) {
   if (auctions.length === 0) {
     return <p>No auctions found.</p>;
   }
+
+  const dealsMap = deals ? new Map(deals.map((d) => [d.auctionId, d])) : null;
 
   const items = auctions.map((a) => {
     const firstImage = a.images[0]?.url;
@@ -40,6 +46,7 @@ export function AuctionsList({ auctions, page }: Props) {
       ? ['Starts:', <span key={a.id}>{formatDateTime(a.startAt)}</span>]
       : ['Ends in:', <LiveCountdown key={a.id} />];
     const href = pageRoutes[page](a.id);
+    const deal = dealsMap?.get(a.id);
 
     return (
       <AuctionRealtimeProvider key={a.id} auction={a}>
@@ -66,6 +73,15 @@ export function AuctionsList({ auctions, page }: Props) {
                 <strong>{metaLabel}</strong>
                 {metaDate}
               </MetaPiece>
+              {deals && (
+                <MetaPiece>
+                  {(() => {
+                    if (!deal) return null;
+                    const { label, tone } = getDealStatusChip(deal.status);
+                    return <StatusChip $tone={tone}>{label}</StatusChip>;
+                  })()}
+                </MetaPiece>
+              )}
             </MetaRow>
           </Body>
         </Item>
