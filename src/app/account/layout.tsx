@@ -9,6 +9,7 @@ import {
   SidebarTitle,
   SidebarUserInfo,
 } from '@/components/layout/AccountLayout/styles';
+import UnreadMessagesCount from '@/components/layout/AccountLayout/UnreadMessagesCount';
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const user = await getAuthUser();
@@ -38,7 +39,9 @@ export default async function AccountLayout({ children }: { children: React.Reac
             <MenuLink href='/account/watchlist'>Watchlist</MenuLink>
           </MenuItem>
           <MenuItem>
-            <MenuLink href='/account/conversations'>Conversations</MenuLink>
+            <MenuLink href='/account/conversations'>
+              Conversations <UnreadMessagesCount userId={user.id} />
+            </MenuLink>
           </MenuItem>
         </MenuList>
       </Sidebar>

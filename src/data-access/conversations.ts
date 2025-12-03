@@ -107,6 +107,19 @@ export async function getUserConversations(userId: string): Promise<Conversation
   });
 }
 
+export async function getUnreadMessagesCountForUser(userId: string, tx: DbClient = prisma) {
+  return await Promise.all([
+    tx.conversation.aggregate({
+      _sum: { unreadCountA: true },
+      where: { userAId: userId },
+    }),
+    tx.conversation.aggregate({
+      _sum: { unreadCountB: true },
+      where: { userBId: userId },
+    }),
+  ]);
+}
+
 //UPDATE CONVERSATION
 export async function updateConversation(
   conversationId: string,

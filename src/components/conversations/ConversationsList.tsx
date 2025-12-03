@@ -51,7 +51,7 @@ export function ConversationsList({ conversations, currentUserId }: Props) {
 
     return () => {
       channel.unbind('conversation:updated', handleConversationUpdated);
-      pusher.unsubscribe(channelName);
+      // pusher.unsubscribe(channelName);
     };
   }, [currentUserId]);
 
