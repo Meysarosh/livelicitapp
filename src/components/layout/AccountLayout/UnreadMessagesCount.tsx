@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
 import { getUnreadMessagesCount } from '@/app/actions/getUnreadMessagesCount';
 
 import styled from 'styled-components';
 
 const UnreadMessagesPill = styled.span`
-  background-color: red;
+  background-color: ${({ theme }) => theme.colors.danger};
   color: white;
   border-radius: 12px;
   padding: 0 8px;
@@ -22,7 +22,6 @@ type Props = {
 
 export default function UnreadMessagesCount({ userId }: Props) {
   const [unreadCount, setUnreadCount] = useState(0);
-  const [, startTransition] = useTransition();
 
   useEffect(() => {
     // Initial fetch
@@ -39,12 +38,10 @@ export default function UnreadMessagesCount({ userId }: Props) {
     const channel = pusher.subscribe(channelName);
 
     const handleConversationUpdated = () => {
-      startTransition(() => {
-        void getUnreadMessagesCount().then((count) => {
-          if (typeof count === 'number') {
-            setUnreadCount(count);
-          }
-        });
+      void getUnreadMessagesCount().then((count) => {
+        if (typeof count === 'number') {
+          setUnreadCount(count);
+        }
       });
     };
 
@@ -56,5 +53,11 @@ export default function UnreadMessagesCount({ userId }: Props) {
     };
   }, [userId]);
 
-  return <>{unreadCount > 0 && <UnreadMessagesPill>{unreadCount}</UnreadMessagesPill>}</>;
+  return (
+    <>
+      {unreadCount > 0 && (
+        <UnreadMessagesPill aria-label={`${unreadCount} unread messages`}>{unreadCount}</UnreadMessagesPill>
+      )}
+    </>
+  );
 }

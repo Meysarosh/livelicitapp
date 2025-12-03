@@ -15,10 +15,10 @@ import {
 } from './ConversationsList.styles';
 import type { ConversationWithRelations } from '@/data-access/conversations';
 import { formatDateTime } from '@/services/format-service';
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect } from 'react';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
-import { refreshConversations } from '@/app/actions/refreshConversations';
 import type { Route } from 'next';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   conversations: ConversationWithRelations[];
@@ -26,38 +26,27 @@ type Props = {
 };
 
 export function ConversationsList({ conversations, currentUserId }: Props) {
-  const [items, setItems] = useState(conversations);
-  const [isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    setItems(conversations);
-  }, [conversations]);
+  const router = useRouter();
 
   useEffect(() => {
     const pusher = getPusherClient();
     const channelName = `private-user-${currentUserId}`;
     const channel = pusher.subscribe(channelName);
 
-    const handleConversationUpdated = () => {
-      startTransition(() => {
-        void refreshConversations().then((fresh) => {
-          if (!fresh) return;
-          setItems(fresh);
-        });
-      });
+    const handleUpdate = () => {
+      router.refresh();
     };
 
-    channel.bind('conversation:updated', handleConversationUpdated);
+    channel.bind('conversation:updated', handleUpdate);
 
     return () => {
-      channel.unbind('conversation:updated', handleConversationUpdated);
-      // pusher.unsubscribe(channelName);
+      channel.unbind('conversation:updated', handleUpdate);
     };
-  }, [currentUserId]);
+  }, [currentUserId, router]);
 
   return (
     <List>
-      {items.map((c) => {
+      {conversations.map((c) => {
         const isA = c.userAId === currentUserId;
         const counterpart = isA ? c.userB : c.userA;
         const unreadCount = isA ? c.unreadCountA : c.unreadCountB;
@@ -103,11 +92,11 @@ export function ConversationsList({ conversations, currentUserId }: Props) {
           </Item>
         );
       })}
-      {isPending && (
+      {/* {isPending && (
         <li>
           <Muted>Updating…</Muted>
         </li>
-      )}
+      )} */}
     </List>
   );
 }
