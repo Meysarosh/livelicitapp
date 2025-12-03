@@ -154,6 +154,13 @@ export async function createAuction(
       });
     } catch (err) {
       console.error('Error uploading image file:', err);
+      return {
+        message: `Failed to upload image "${file.name}". Please try again.`,
+        values: {
+          ...parsed.data,
+          imageUrls: parsed.data.imageUrls ?? '',
+        },
+      };
     }
   }
 

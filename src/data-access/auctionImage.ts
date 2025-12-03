@@ -7,6 +7,7 @@ export async function createImage(
   auctionId: string,
   url: string,
   pathname: string,
+  position: number = 0,
   tx: DbClient = prisma
 ): Promise<AuctionImage> {
   return tx.auctionImage.create({
@@ -14,6 +15,7 @@ export async function createImage(
       auctionId,
       url,
       pathname,
+      position,
     },
   });
 }

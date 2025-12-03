@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   typedRoutes: true,
   experimental: {
     serverActions: {
-      bodySizeLimit: '5mb',
+      bodySizeLimit: '45mb',
     },
   },
   images: {

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   return {
     title: `${auction.title} | Live Licit`,
-    description: auction.description.substring(0, 150),
+    description: auction.description?.substring(0, 150),
   };
 }
 

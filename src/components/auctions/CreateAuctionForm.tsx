@@ -10,7 +10,7 @@ import {
   RemoveImageButton,
   ImageIndexBadge,
 } from '@/components/forms/form.styles';
-import { Button, Title, Note } from '@/components/ui';
+import { Button, Title, Note, Muted } from '@/components/ui';
 import { Input, TextArea, Select } from '@/components/ui';
 import { DEFAULT_CURRENCY, MAX_IMAGES, SUPPORTED_CURRENCIES } from '@/lib/constants';
 import type { CreateAuctionFormState } from '@/services/zodValidation-service';
@@ -124,8 +124,17 @@ export default function CreateAuctionForm() {
 
   const handleRemoveImage = (id: string) => {
     setImageFiles((prev) => {
-      const remaining = prev.filter((item) => item.id !== id);
-      const removed = prev.filter((item) => item.id === id);
+      const { remaining, removed } = prev.reduce(
+        (acc, item) => {
+          if (item.id === id) {
+            acc.removed.push(item);
+          } else {
+            acc.remaining.push(item);
+          }
+          return acc;
+        },
+        { remaining: [] as ImageFileItem[], removed: [] as ImageFileItem[] }
+      );
       removed.forEach((item) => URL.revokeObjectURL(item.previewUrl));
 
       syncInputFilesFromState(remaining);
@@ -170,7 +179,7 @@ export default function CreateAuctionForm() {
         </Note>
       )}
 
-      <Form action={action} encType='multipart/form-data'>
+      <Form action={action}>
         <FormFieldWrapper label='Title' required error={state?.errors?.title?.[0]}>
           <Input name='title' type='text' defaultValue={state?.values?.title ?? ''} />
         </FormFieldWrapper>
@@ -184,7 +193,7 @@ export default function CreateAuctionForm() {
           error={state?.errors?.imageUrls?.[0]} // shows server-side validation
         >
           <input ref={fileInputRef} type='file' name='images' accept='image/*' multiple onChange={handleImagesChange} />
-          <p style={{ fontSize: 12, marginTop: 4 }}>You can upload up to {MAX_IMAGES} images. Max size 5 MB each.</p>
+          <Muted>You can upload up to {MAX_IMAGES} images. Max size 5 MB each.</Muted>
 
           {imageFiles.length > 0 && (
             <ImagePreviewGrid>

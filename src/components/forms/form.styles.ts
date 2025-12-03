@@ -68,7 +68,7 @@ export const ImagePreviewGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: ${({ theme }) => theme.spacing(1)};
 `;
 
 export const ImagePreviewItem = styled.div`
@@ -77,7 +77,7 @@ export const ImagePreviewItem = styled.div`
   height: 96px;
   overflow: hidden;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
 export const ImagePreviewImg = styled.img`
