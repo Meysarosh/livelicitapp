@@ -136,6 +136,8 @@ model AuctionImage {
   auctionId String
   url       String
   position  Int      @default(0)
+  pathname  String?
+  createdAt DateTime @default(now())
 }
 
 model Bid {

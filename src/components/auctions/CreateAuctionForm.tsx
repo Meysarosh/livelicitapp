@@ -1,14 +1,27 @@
 'use client';
 
-import { useActionState, useMemo, useState } from 'react';
+import { useActionState, useMemo, useState, useRef, useEffect } from 'react';
 import { createAuction } from '@/app/actions/createAuction';
-import { Form } from '@/components/forms/form.styles';
-import { Button, Title, Note } from '@/components/ui';
+import {
+  Form,
+  ImagePreviewGrid,
+  ImagePreviewItem,
+  ImagePreviewImg,
+  RemoveImageButton,
+  ImageIndexBadge,
+} from '@/components/forms/form.styles';
+import { Button, Title, Note, Muted } from '@/components/ui';
 import { Input, TextArea, Select } from '@/components/ui';
-import { DEFAULT_CURRENCY, SUPPORTED_CURRENCIES } from '@/lib/constants';
+import { DEFAULT_CURRENCY, MAX_IMAGES, SUPPORTED_CURRENCIES } from '@/lib/constants';
 import type { CreateAuctionFormState } from '@/services/zodValidation-service';
 import { FormFieldWrapper } from '../forms/FormFieldWrapper';
 import { isoToLocalForInput } from '@/services/format-service';
+
+type ImageFileItem = {
+  id: string;
+  file: File;
+  previewUrl: string;
+};
 
 export default function CreateAuctionForm() {
   const [state, action, pending] = useActionState<CreateAuctionFormState, FormData>(createAuction, undefined);
@@ -41,11 +54,14 @@ export default function CreateAuctionForm() {
     []
   );
 
-  const [startMode, setStartMode] = useState<'now' | 'future'>(state?.values?.startMode ?? 'now');
-
-  const [isoStartAt, setIsoStartAt] = useState(state?.values?.startAt ?? '');
-
   const initialLocalStartAt = useMemo(() => isoToLocalForInput(state?.values?.startAt), [state?.values?.startAt]);
+
+  const [startMode, setStartMode] = useState<'now' | 'future'>(state?.values?.startMode ?? 'now');
+  const [isoStartAt, setIsoStartAt] = useState(state?.values?.startAt ?? '');
+  const [imageFiles, setImageFiles] = useState<ImageFileItem[]>([]);
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const dragItemIdRef = useRef<string | null>(null);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -54,7 +70,6 @@ export default function CreateAuctionForm() {
       setIsoStartAt('');
       return;
     }
-
     const date = new Date(val);
     setIsoStartAt(date.toISOString());
   };
@@ -64,6 +79,95 @@ export default function CreateAuctionForm() {
     const iso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
     return iso;
   });
+
+  useEffect(() => {
+    return () => {
+      imageFiles.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+    };
+  }, [imageFiles]);
+
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+
+    setImageFiles((prev) => {
+      // append new files to existing ones
+      const remainingSlots = MAX_IMAGES - prev.length;
+      const toAdd = files.slice(0, Math.max(0, remainingSlots));
+
+      const newItems: ImageFileItem[] = toAdd.map((file) => ({
+        id: crypto.randomUUID(),
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }));
+
+      const updated = [...prev, ...newItems];
+
+      // sync <input type="file"> files
+      syncInputFilesFromState(updated);
+
+      return updated;
+    });
+
+    // clear the actual input so user can choose the same file again if they want
+    e.target.value = '';
+  };
+
+  const syncInputFilesFromState = (items: ImageFileItem[]) => {
+    if (!fileInputRef.current) return;
+    const dt = new DataTransfer();
+    for (const item of items) {
+      dt.items.add(item.file);
+    }
+    fileInputRef.current.files = dt.files;
+  };
+
+  const handleRemoveImage = (id: string) => {
+    setImageFiles((prev) => {
+      const { remaining, removed } = prev.reduce(
+        (acc, item) => {
+          if (item.id === id) {
+            acc.removed.push(item);
+          } else {
+            acc.remaining.push(item);
+          }
+          return acc;
+        },
+        { remaining: [] as ImageFileItem[], removed: [] as ImageFileItem[] }
+      );
+      removed.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+
+      syncInputFilesFromState(remaining);
+      return remaining;
+    });
+  };
+
+  const handleDragStart = (id: string) => {
+    dragItemIdRef.current = id;
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (targetId: string) => {
+    const sourceId = dragItemIdRef.current;
+    dragItemIdRef.current = null;
+    if (!sourceId || sourceId === targetId) return;
+
+    setImageFiles((prev) => {
+      const sourceIndex = prev.findIndex((i) => i.id === sourceId);
+      const targetIndex = prev.findIndex((i) => i.id === targetId);
+      if (sourceIndex === -1 || targetIndex === -1) return prev;
+
+      const newArr = [...prev];
+      const [moved] = newArr.splice(sourceIndex, 1);
+      newArr.splice(targetIndex, 0, moved);
+
+      syncInputFilesFromState(newArr);
+      return newArr;
+    });
+  };
 
   return (
     <>
@@ -84,12 +188,32 @@ export default function CreateAuctionForm() {
           <TextArea name='description' defaultValue={state?.values?.description ?? ''} />
         </FormFieldWrapper>
 
-        <FormFieldWrapper label='Image URLs (one per line)' error={state?.errors?.imageUrls?.[0]}>
-          <TextArea
-            name='imageUrls'
-            placeholder={'https://example.com/image1.jpg\nhttps://example.com/image2.jpg'}
-            defaultValue={state?.values?.imageUrls ?? ''}
-          />
+        <FormFieldWrapper
+          label='Images'
+          error={state?.errors?.imageUrls?.[0]} // shows server-side validation
+        >
+          <input ref={fileInputRef} type='file' name='images' accept='image/*' multiple onChange={handleImagesChange} />
+          <Muted>You can upload up to {MAX_IMAGES} images. Max size 5 MB each.</Muted>
+
+          {imageFiles.length > 0 && (
+            <ImagePreviewGrid>
+              {imageFiles.map((item, index) => (
+                <ImagePreviewItem
+                  key={item.id}
+                  draggable
+                  onDragStart={() => handleDragStart(item.id)}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop(item.id)}
+                >
+                  <ImagePreviewImg src={item.previewUrl} alt={`Selected image ${index + 1}`} />
+                  <RemoveImageButton type='button' onClick={() => handleRemoveImage(item.id)} aria-label='Remove image'>
+                    ×
+                  </RemoveImageButton>
+                  <ImageIndexBadge>{index + 1}</ImageIndexBadge>
+                </ImagePreviewItem>
+              ))}
+            </ImagePreviewGrid>
+          )}
         </FormFieldWrapper>
 
         <FormFieldWrapper label='Starting price' required error={state?.errors?.startingPrice?.[0]}>

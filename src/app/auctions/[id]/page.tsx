@@ -7,6 +7,19 @@ import { AuctionMetaData } from '@/components/auctions/AuctionMetaData';
 import { WatchlistButton } from '@/components/auctions/WatchlistButton';
 import { getWatchlistEntry } from '@/data-access/watchlist';
 import { AskSellerButton } from '@/components/conversations/AskSellerButton';
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const auction = await getAuctionDetailsForPublic(id);
+
+  if (!auction) return { title: 'Auction Not Found' };
+
+  return {
+    title: `${auction.title} | Live Licit`,
+    description: auction.description?.substring(0, 150),
+  };
+}
 
 interface PageProps {
   id: string;
