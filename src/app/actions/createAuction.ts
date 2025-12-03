@@ -10,6 +10,7 @@ import {
 } from '@/services/zodValidation-service';
 import { DEFAULT_CURRENCY, MAX_FILE_SIZE, MAX_IMAGES } from '@/lib/constants';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
+import { validateImageFile } from '@/lib/utils/validateImageFile';
 import { AuctionStatus } from '@prisma/client';
 import { put } from '@vercel/blob';
 
@@ -84,6 +85,22 @@ export async function createAuction(
         imageUrls: '',
       },
     };
+  }
+
+  // Validate image file types and content
+  for (const file of imageFiles) {
+    const validation = await validateImageFile(file);
+    if (!validation.valid) {
+      return {
+        errors: {
+          imageUrls: [validation.error || 'Invalid image file.'],
+        },
+        values: {
+          ...parsed.data,
+          imageUrls: '',
+        },
+      };
+    }
   }
 
   const {
