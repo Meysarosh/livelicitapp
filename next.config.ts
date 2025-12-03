@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   compiler: { styledComponents: true },
   typedRoutes: true,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '5mb',
+    },
+  },
   images: {
     //TODO: restrict it later, specify exact CDNs (e.g. S3, Cloudinary).
     remotePatterns: [

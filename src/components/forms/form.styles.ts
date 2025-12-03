@@ -63,3 +63,49 @@ export const CenteredRow = styled.div`
   justify-content: center;
   margin-top: ${({ theme }) => theme.spacing(2)};
 `;
+
+export const ImagePreviewGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+`;
+
+export const ImagePreviewItem = styled.div`
+  position: relative;
+  width: 96px;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+`;
+
+export const ImagePreviewImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+export const RemoveImageButton = styled.button`
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  border: none;
+  border-radius: 999px;
+  padding: 0 6px;
+  font-size: 12px;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+`;
+
+export const ImageIndexBadge = styled.span`
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 999px;
+  padding: 0 6px;
+  font-size: 11px;
+`;

@@ -5,7 +5,14 @@ type DbClient = PrismaClient | Prisma.TransactionClient;
 
 //CREATE AUCTION
 export async function createAuction(
-  data: Omit<Auction, 'id' | 'highestBidderId' | 'cancelledReason' | 'createdAt' | 'updatedAt' | 'version'>
+  data: Omit<Auction, 'id' | 'highestBidderId' | 'cancelledReason' | 'createdAt' | 'updatedAt' | 'version'> & {
+    images?: {
+      create: {
+        url: string;
+        position: number;
+      }[];
+    };
+  }
 ): Promise<Auction> {
   return await prisma.auction.create({
     data,

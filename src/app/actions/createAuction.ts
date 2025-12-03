@@ -8,9 +8,10 @@ import {
   durationDayOptions,
   type CreateAuctionFormState,
 } from '@/services/zodValidation-service';
-import { DEFAULT_CURRENCY } from '@/lib/constants';
+import { DEFAULT_CURRENCY, MAX_FILE_SIZE, MAX_IMAGES } from '@/lib/constants';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
 import { AuctionStatus } from '@prisma/client';
+import { put } from '@vercel/blob';
 
 export async function createAuction(
   _prevState: CreateAuctionFormState,
@@ -27,8 +28,9 @@ export async function createAuction(
     currency: formData.get('currency') ?? DEFAULT_CURRENCY,
     startMode: formData.get('startMode') ?? 'now',
     startAt: formData.get('startAt'),
-    imageUrls: formData.get('imageUrls'),
   };
+
+  const imageFiles = formData.getAll('images').filter((v): v is File => v instanceof File && v.size > 0);
 
   const parsed = CreateAuctionFormSchema.safeParse(raw);
 
@@ -55,7 +57,31 @@ export async function createAuction(
         currency: (raw.currency as string | null) ?? undefined,
         startMode: (raw.startMode as 'now' | 'future') ?? 'now',
         startAt: (raw.startAt as string | null) ?? undefined,
-        imageUrls: (raw.imageUrls as string | null) ?? undefined,
+      },
+    };
+  }
+
+  if (imageFiles.length > MAX_IMAGES) {
+    return {
+      errors: {
+        imageUrls: [`You can upload at most ${MAX_IMAGES} images.`],
+      },
+      values: {
+        ...parsed.data,
+        imageUrls: '',
+      },
+    };
+  }
+
+  const tooBig = imageFiles.find((file) => file.size > MAX_FILE_SIZE);
+  if (tooBig) {
+    return {
+      errors: {
+        imageUrls: [`Each image must be at most 5 MB.`],
+      },
+      values: {
+        ...parsed.data,
+        imageUrls: '',
       },
     };
   }
@@ -69,7 +95,6 @@ export async function createAuction(
     currency,
     startMode,
     startAt: startAtRaw,
-    imageUrls,
   } = parsed.data;
 
   const toMinor = (v: string) => Math.round(Number(v) * 100);
@@ -95,11 +120,25 @@ export async function createAuction(
   }
   const endAt = new Date(startAt.getTime() + durationMs);
 
-  //TODO update after implementation of image uploading
-  const parsedImageUrls: string[] = (imageUrls ?? '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+  const imageCreates: { url: string; position: number }[] = [];
+
+  for (let i = 0; i < imageFiles.length; i++) {
+    const file = imageFiles[i];
+    const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+
+    try {
+      const blob = await put(`auctions/${user.id}/${crypto.randomUUID()}-${safeName}`, file, {
+        access: 'public',
+      });
+
+      imageCreates.push({
+        url: blob.url,
+        position: i,
+      });
+    } catch (err) {
+      console.error('Error uploading image file:', err);
+    }
+  }
 
   const data = {
     ownerId: user.id,
@@ -112,12 +151,9 @@ export async function createAuction(
     status: 'ACTIVE' as AuctionStatus,
     startAt,
     endAt,
-    images: parsedImageUrls.length
+    images: imageCreates.length
       ? {
-          create: parsedImageUrls.map((url, index) => ({
-            url,
-            position: index,
-          })),
+          create: imageCreates,
         }
       : undefined,
   };
