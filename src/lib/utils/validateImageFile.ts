@@ -7,9 +7,13 @@ import { ALLOWED_IMAGE_TYPES, IMAGE_MAGIC_BYTES } from '@/lib/constants';
  */
 type AllowedImageType = (typeof ALLOWED_IMAGE_TYPES)[number];
 
+function isAllowedImageType(type: string): type is AllowedImageType {
+  return ALLOWED_IMAGE_TYPES.some((allowedType) => allowedType === type);
+}
+
 export async function validateImageFile(file: File): Promise<{ valid: boolean; error?: string }> {
   // Validate MIME type
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type as AllowedImageType)) {
+  if (!isAllowedImageType(file.type)) {
     return {
       valid: false,
       error: `Invalid file type: ${file.type}. Allowed types: JPEG, PNG, GIF, WebP.`,
@@ -40,12 +44,27 @@ export async function validateImageFile(file: File): Promise<{ valid: boolean; e
 }
 
 /**
+ * Get minimum byte length required for validating a specific image format
+ */
+function getMinByteLength(mimeType: string): number {
+  switch (mimeType) {
+    case 'image/jpeg':
+      return 3;
+    case 'image/webp':
+      return 12;
+    case 'image/png':
+    case 'image/gif':
+    default:
+      return 4;
+  }
+}
+
+/**
  * Validates file content by checking magic bytes (file signature)
  */
 function validateMagicBytes(bytes: Uint8Array, mimeType: string): boolean {
   // Check minimum length based on format requirements
-  const minLength = mimeType === 'image/webp' ? 12 : mimeType === 'image/jpeg' ? 3 : 4;
-  if (bytes.length < minLength) {
+  if (bytes.length < getMinByteLength(mimeType)) {
     return false;
   }
 
@@ -58,14 +77,13 @@ function validateMagicBytes(bytes: Uint8Array, mimeType: string): boolean {
       return matchesSignature(bytes, IMAGE_MAGIC_BYTES.gif);
     case 'image/webp':
       // WebP has RIFF at start and WEBP at offset 8
-      if (!matchesSignature(bytes, IMAGE_MAGIC_BYTES.webp)) {
-        return false;
-      }
-      // Check for WEBP signature at offset 8
-      if (bytes.length < 12) {
-        return false;
-      }
-      return bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+      return (
+        matchesSignature(bytes, IMAGE_MAGIC_BYTES.webp) &&
+        bytes[8] === 0x57 &&
+        bytes[9] === 0x45 &&
+        bytes[10] === 0x42 &&
+        bytes[11] === 0x50
+      );
     default:
       return false;
   }
