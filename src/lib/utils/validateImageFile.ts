@@ -5,9 +5,11 @@ import { ALLOWED_IMAGE_TYPES, IMAGE_MAGIC_BYTES } from '@/lib/constants';
  * 1. MIME type
  * 2. Magic bytes (file signature)
  */
+type AllowedImageType = (typeof ALLOWED_IMAGE_TYPES)[number];
+
 export async function validateImageFile(file: File): Promise<{ valid: boolean; error?: string }> {
   // Validate MIME type
-  if (!(ALLOWED_IMAGE_TYPES as readonly string[]).includes(file.type)) {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type as AllowedImageType)) {
     return {
       valid: false,
       error: `Invalid file type: ${file.type}. Allowed types: JPEG, PNG, GIF, WebP.`,
@@ -41,7 +43,9 @@ export async function validateImageFile(file: File): Promise<{ valid: boolean; e
  * Validates file content by checking magic bytes (file signature)
  */
 function validateMagicBytes(bytes: Uint8Array, mimeType: string): boolean {
-  if (bytes.length < 4) {
+  // Check minimum length based on format requirements
+  const minLength = mimeType === 'image/webp' ? 12 : mimeType === 'image/jpeg' ? 3 : 4;
+  if (bytes.length < minLength) {
     return false;
   }
 
