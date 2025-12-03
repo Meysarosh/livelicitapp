@@ -2,7 +2,7 @@
 
 import { getConversationById, updateConversation } from '@/data-access/conversations';
 import { auth } from '@/lib/auth';
-import { emitConversationRead } from '@/lib/realtime/conversations-events';
+import { emitConversationRead, emitConversationUpdatedForUsers } from '@/lib/realtime/conversations-events';
 
 export async function markConversationRead(conversationId: string) {
   const session = await auth();
@@ -36,4 +36,6 @@ export async function markConversationRead(conversationId: string) {
     readerId: userId,
     readAt: now,
   });
+
+  await emitConversationUpdatedForUsers({ conversationId: convo.id, userAId: convo.userAId, userBId: convo.userBId });
 }
