@@ -76,13 +76,10 @@ function validateMagicBytes(bytes: Uint8Array, mimeType: string): boolean {
     case 'image/gif':
       return matchesSignature(bytes, IMAGE_MAGIC_BYTES.gif);
     case 'image/webp':
-      // WebP has RIFF at start and WEBP at offset 8
+      // WebP has RIFF at start and WEBP identifier at offset 8
       return (
         matchesSignature(bytes, IMAGE_MAGIC_BYTES.webp) &&
-        bytes[8] === 0x57 &&
-        bytes[9] === 0x45 &&
-        bytes[10] === 0x42 &&
-        bytes[11] === 0x50
+        matchesSignature(bytes.slice(8), IMAGE_MAGIC_BYTES.webpIdentifier)
       );
     default:
       return false;
