@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from 'react';
 import { updateShippingAddress } from '@/app/actions/updateShippingAddress';
 import type { ShippingAddressFormState } from '@/services/zodValidation-service';
-import { Form } from '@/components/forms/form.styles';
+import { Form, FormButtonRow } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
 import { Button, Title, Note, Input } from '@/components/ui';
 import { useRouter } from 'next/navigation';
@@ -112,14 +112,14 @@ export default function ShippingAddressForm({ address }: ShippingAddressFormProp
           />
         </FormFieldWrapper>
 
-        <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+        <FormButtonRow>
           <Button type='submit' disabled={pending || !isDirty}>
             {pending ? 'Saving…' : 'Save address'}
           </Button>
           <Button type='button' onClick={handleCancel} disabled={pending}>
             Cancel
           </Button>
-        </div>
+        </FormButtonRow>
       </Form>
     </>
   );

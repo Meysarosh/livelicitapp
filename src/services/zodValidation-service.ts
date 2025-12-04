@@ -251,3 +251,35 @@ export type ShippingAddressFormState =
       };
     }
   | undefined;
+
+// --- Change / Set Password ---
+
+export const PasswordFormSchema = z
+  .object({
+    // NOTE: currentPassword is only required if the user already has a password.
+    // This loose validation allows both "set password" and "change password" flows.
+    // The requirement is enforced server-side based on user state.
+    currentPassword: z.string().trim().optional().or(z.literal('')),
+    newPassword: z
+      .string()
+      .min(6, { message: 'At least 6 characters.' })
+      .regex(/[a-zA-Z]/, { message: 'Include a letter.' })
+      .regex(/[0-9]/, { message: 'Include a number.' })
+      .trim(),
+    confirmPassword: z.string().min(6, { message: 'At least 6 characters.' }).trim(),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match.',
+  });
+
+export type PasswordFormState =
+  | {
+      errors?: {
+        currentPassword?: string[];
+        newPassword?: string[];
+        confirmPassword?: string[];
+      };
+      message?: string;
+    }
+  | undefined;
