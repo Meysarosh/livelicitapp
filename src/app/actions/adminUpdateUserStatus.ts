@@ -19,6 +19,11 @@ export async function adminUpdateUserStatus(formData: FormData) {
     throw new Error('Invalid form data: userId and action must be strings.');
   }
 
+  // Validate action parameter to prevent security issues
+  if (action !== 'suspend' && action !== 'unsuspend') {
+    throw new Error('Invalid action: must be either "suspend" or "unsuspend".');
+  }
+
   // Prevent self-suspension (optional but sensible)
   if (userId === admin.id) {
     throw new Error('Admin cannot suspend themselves.');
