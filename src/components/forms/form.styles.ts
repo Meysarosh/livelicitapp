@@ -109,3 +109,19 @@ export const ImageIndexBadge = styled.span`
   padding: 0 6px;
   font-size: 11px;
 `;
+
+export const ExistingImageWrapper = styled(ImagePreviewItem)<{ $deleted?: boolean }>`
+  opacity: ${({ $deleted }) => ($deleted ? 0.4 : 1)};
+`;
+
+export const DeletedOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+`;

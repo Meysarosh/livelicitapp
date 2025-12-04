@@ -2,24 +2,20 @@ import { prisma } from '@/lib/db';
 import type { Auction, AuctionImage, Prisma, PrismaClient, User } from '@prisma/client';
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
-
 //CREATE AUCTION
-export async function createAuction(
-  data: Omit<Auction, 'id' | 'highestBidderId' | 'cancelledReason' | 'createdAt' | 'updatedAt' | 'version'> & {
-    images?: {
-      create: {
-        url: string;
-        position: number;
-      }[];
-    };
-  }
-): Promise<Auction> {
+export async function createAuction(data: Prisma.AuctionCreateInput): Promise<Auction> {
   return await prisma.auction.create({
     data,
   });
 }
 
 //READ AUCTION
+export async function getAuctionById(id: string): Promise<Auction | null> {
+  return prisma.auction.findUnique({
+    where: { id },
+  });
+}
+
 export async function getAuctionForConversationTransaction(id: string, tx: DbClient = prisma) {
   return tx.auction.findUnique({
     where: { id },
@@ -215,5 +211,17 @@ export async function updateAuctionBid(
       version: { increment: 1 },
       endAt,
     },
+  });
+}
+
+// UPDATE AUCTION EDIT FORM
+export async function updateAuctionWithImages(
+  id: string,
+  data: Prisma.AuctionUpdateInput,
+  tx: DbClient = prisma
+): Promise<Auction> {
+  return await tx.auction.update({
+    where: { id },
+    data,
   });
 }
