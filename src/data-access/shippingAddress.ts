@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db';
 
-//UPSERT SHIPPING ADDRESS
+// UPSERT SHIPPING ADDRESS
 
 export async function upsertShippingAddress(
   userId: string,
@@ -30,7 +30,7 @@ export async function upsertShippingAddress(
   });
 }
 
-//GET SHIPPING ADDRESS
+// GET SHIPPING ADDRESS
 export async function getShippingAddress(userId: string) {
   return await prisma.shippingAddress.findUnique({
     where: { userId },

@@ -1,11 +1,12 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { updateShippingAddress } from '@/app/actions/updateShippingAddress';
 import type { ShippingAddressFormState } from '@/services/zodValidation-service';
 import { Form } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
 import { Button, Title, Note, Input } from '@/components/ui';
+import { useRouter } from 'next/navigation';
 
 type ShippingAddressFormProps = {
   address: {
@@ -23,6 +24,8 @@ export default function ShippingAddressForm({ address }: ShippingAddressFormProp
     undefined
   );
 
+  const router = useRouter();
+
   const initialStreet = address?.street ?? '';
   const initialCity = address?.city ?? '';
   const initialState = address?.state ?? '';
@@ -34,6 +37,12 @@ export default function ShippingAddressForm({ address }: ShippingAddressFormProp
   const [stateField, setStateField] = useState(initialState);
   const [postalCode, setPostalCode] = useState(initialPostalCode);
   const [country, setCountry] = useState(initialCountry);
+
+  useEffect(() => {
+    if (state?.message === 'Shipping address saved successfully.') {
+      router.refresh();
+    }
+  }, [state?.message, router]);
 
   const isDirty =
     street !== initialStreet ||
@@ -99,6 +108,7 @@ export default function ShippingAddressForm({ address }: ShippingAddressFormProp
             value={country}
             onChange={(e) => setCountry(e.target.value.toUpperCase())}
             placeholder='HU'
+            maxLength={2}
           />
         </FormFieldWrapper>
 
