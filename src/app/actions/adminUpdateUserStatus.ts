@@ -26,13 +26,19 @@ export async function adminUpdateUserStatus(formData: FormData) {
 
   const newStatus = action === 'suspend' ? 'BANNED' : 'OK';
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      status: newStatus,
-      sessionVersion: { increment: 1 },
-    },
-  });
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        status: newStatus,
+        sessionVersion: { increment: 1 },
+      },
+    });
+  } catch (error) {
+    // Optionally log the error, e.g. console.error(error);
+    // Provide appropriate error feedback, e.g. return or redirect with error message
+    return;
+  }
 
   if (newStatus === 'BANNED') {
     await emitToUser(userId, 'user:suspended', {});
