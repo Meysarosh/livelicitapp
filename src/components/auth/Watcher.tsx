@@ -10,20 +10,29 @@ type Props = {
 
 export default function SuspensionWatcher({ userId }: Props) {
   useEffect(() => {
-    const pusher = getPusherClient();
+    let pusher: ReturnType<typeof getPusherClient> | undefined;
+    let channel: any;
     const channelName = `private-user-${userId}`;
-    const channel = pusher.subscribe(channelName);
 
     const handleSuspended = () => {
       alert('Your account has been suspended.');
       void signOut({ callbackUrl: '/login?error=Suspended' });
     };
 
-    channel.bind('user:suspended', handleSuspended);
+    try {
+      pusher = getPusherClient();
+      channel = pusher.subscribe(channelName);
+      channel.bind('user:suspended', handleSuspended);
+    } catch (error) {
+      console.error('Failed to initialize Pusher or subscribe:', error);
+      // Optionally, notify the user or handle gracefully here
+    }
 
     return () => {
-      channel.unbind('user:suspended', handleSuspended);
-      pusher.unsubscribe(channelName);
+      if (channel && pusher) {
+        channel.unbind('user:suspended', handleSuspended);
+        pusher.unsubscribe(channelName);
+      }
     };
   }, [userId]);
 
