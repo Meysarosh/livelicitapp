@@ -15,10 +15,19 @@ import { Button, Muted } from '@/components/ui';
 import { useThemeMode } from '@/styles/themeProvider';
 import { signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
+import { Avatar } from '../account/Avatar';
 
-type HeaderUser = { id: string; nickname: string; role: string } | null;
-
-export default function AppHeader({ user }: { user: HeaderUser }) {
+export default function AppHeader({
+  user,
+}: {
+  user: {
+    email: string;
+    nickname: string;
+    fullName: string | null;
+    phone: string | null;
+    avatarUrl: string | null;
+  } | null;
+}) {
   const pathname = usePathname();
   const authPaths = ['/login', '/register'];
   const onAuthPage = authPaths.includes(pathname);
@@ -50,7 +59,9 @@ export default function AppHeader({ user }: { user: HeaderUser }) {
           {user ? (
             <>
               <Muted>Hello, {user.nickname}</Muted>
-              <NavLink href='/account/profile'>Profile</NavLink>
+              <NavLink href='/account/profile'>
+                <Avatar src={user.avatarUrl} alt={user.nickname} />
+              </NavLink>
               <Button onClick={handleClickSignOut}>Sign out</Button>
             </>
           ) : onAuthPage ? null : (
