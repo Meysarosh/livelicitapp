@@ -208,3 +208,46 @@ export type ProfileFormState =
       message?: string;
     }
   | undefined;
+
+// --- Shipping Address ---
+
+export const ShippingAddressFormSchema = z.object({
+  street: z.string().trim().min(1, { message: 'Street is required.' }).max(255, { message: 'Street is too long.' }),
+
+  city: z.string().trim().min(1, { message: 'City is required.' }).max(100, { message: 'City is too long.' }),
+
+  state: z.string().trim().max(100, { message: 'State / region is too long.' }).optional(),
+
+  postalCode: z
+    .string()
+    .trim()
+    .min(1, { message: 'Postal code is required.' })
+    .max(20, { message: 'Postal code is too long.' }),
+
+  country: z
+    .string({ message: 'Country code is required.' })
+    .trim()
+    .regex(/^[A-Za-z]{2}$/, { message: 'Country code must consist of 2 letters (A-Z).' })
+    .length(2, { message: 'Country must be a 2-letter code, e.g. HU.' })
+    .transform((v) => v.toUpperCase()),
+});
+
+export type ShippingAddressFormState =
+  | {
+      errors?: {
+        street?: string[];
+        city?: string[];
+        state?: string[];
+        postalCode?: string[];
+        country?: string[];
+      };
+      message?: string;
+      values?: {
+        street?: string;
+        city?: string;
+        state?: string;
+        postalCode?: string;
+        country?: string;
+      };
+    }
+  | undefined;
