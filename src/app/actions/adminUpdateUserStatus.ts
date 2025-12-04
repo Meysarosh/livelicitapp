@@ -16,12 +16,12 @@ export async function adminUpdateUserStatus(formData: FormData) {
   const action = formData.get('action');
 
   if (typeof userId !== 'string' || typeof action !== 'string') {
-    return;
+    throw new Error('Invalid form data: userId and action must be strings.');
   }
 
   // Prevent self-suspension (optional but sensible)
   if (userId === admin.id) {
-    return;
+    throw new Error('Admin cannot suspend themselves.');
   }
 
   const newStatus = action === 'suspend' ? 'BANNED' : 'OK';
