@@ -14,7 +14,13 @@ export default async function DealDetailsPage({ params }: { params: Promise<{ id
     notFound();
   }
 
-  const actions = <DealPanel deal={auction.deal} currentUserId={currentUserId} />;
+  const actions = (
+    <DealPanel
+      deal={auction.deal}
+      currentUserId={currentUserId}
+      conversationId={auction.auctionForConversations[0].id}
+    />
+  );
 
   return (
     <div style={{ padding: '20px 0' }}>

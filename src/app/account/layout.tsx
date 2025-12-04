@@ -3,12 +3,12 @@ import {
   Content,
   LayoutWrapper,
   MenuItem,
-  MenuLink,
   MenuList,
   Sidebar,
   SidebarTitle,
   SidebarUserInfo,
 } from '@/components/layout/AccountLayout/styles';
+import AccountMenuLink from '@/components/account/AccountMenuLink';
 import UnreadMessagesCount from '@/components/layout/AccountLayout/UnreadMessagesCount';
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
@@ -24,24 +24,33 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
         <MenuList>
           <MenuItem>
-            <MenuLink href='/account/auctions'>My auctions</MenuLink>
+            <AccountMenuLink href='/account/auctions'>My auctions</AccountMenuLink>
           </MenuItem>
           <MenuItem>
-            <MenuLink href='/account/auctions/create'>Create auction</MenuLink>
+            <AccountMenuLink href='/account/auctions/create'>Create auction</AccountMenuLink>
           </MenuItem>
           <MenuItem>
-            <MenuLink href='/account/auctions/sold'>Sold auctions</MenuLink>
+            <AccountMenuLink href='/account/auctions/sold'>Sold auctions</AccountMenuLink>
           </MenuItem>
           <MenuItem>
-            <MenuLink href='/account/auctions/won'>Won auctions</MenuLink>
+            <AccountMenuLink href='/account/auctions/won'>Won auctions</AccountMenuLink>
           </MenuItem>
           <MenuItem>
-            <MenuLink href='/account/watchlist'>Watchlist</MenuLink>
+            <AccountMenuLink href='/account/watchlist'>Watchlist</AccountMenuLink>
           </MenuItem>
           <MenuItem>
-            <MenuLink href='/account/conversations'>
+            <AccountMenuLink href='/account/conversations'>
               Conversations <UnreadMessagesCount userId={user.id} />
-            </MenuLink>
+            </AccountMenuLink>
+          </MenuItem>
+          <MenuItem>
+            <AccountMenuLink href='/account/profile'>Profile</AccountMenuLink>
+          </MenuItem>
+          <MenuItem>
+            <AccountMenuLink href='/account/profile/address'>Shipping address</AccountMenuLink>
+          </MenuItem>
+          <MenuItem>
+            <AccountMenuLink href='/account/profile/password'>Password &amp; security</AccountMenuLink>
           </MenuItem>
         </MenuList>
       </Sidebar>

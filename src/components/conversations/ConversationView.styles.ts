@@ -24,6 +24,7 @@ export const Bubble = styled.div<{ $own: boolean }>`
   background: ${({ $own, theme }) => ($own ? theme.colors.primary : theme.colors.accent)};
   color: ${({ theme }) => theme.colors.text};
   font-size: ${({ theme }) => theme.typography.pSize};
+  white-space: pre-wrap;
 `;
 
 export const MetaLine = styled.div`

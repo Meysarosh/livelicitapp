@@ -61,6 +61,34 @@ export const MenuLink = styled(Link)`
   }
 `;
 
+export const StyledLink = styled(Link)<{ $active?: boolean }>`
+  display: block;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+
+  color: ${({ $active }) => ($active ? '#ffffff' : '#111827')};
+  background-color: ${({ $active }) => ($active ? '#2563eb' : 'transparent')};
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+
+  &:hover {
+    background-color: ${({ $active }) => ($active ? '#1d4ed8' : '#eff6ff')};
+  }
+`;
+
+export const ProfileLinks = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 16px;
+  font-size: 14px;
+
+  a {
+    text-decoration: underline;
+  }
+`;
+
 export const Content = styled.main`
   min-width: 0;
   display: flex;
