@@ -36,6 +36,10 @@ export async function handleAuth0SignIn({ user, account, profile }: SignInArgs) 
     });
   }
 
+  if (dbUser && dbUser.status !== 'OK') {
+    return false;
+  }
+
   const emailFromProfile =
     (profile && 'email' in profile && typeof profile.email === 'string' && profile.email) ||
     (user && typeof user.email === 'string' && user.email) ||

@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth';
 import AppHeader from '@/components/header/AppHeader';
 import { ShellWrapper, Main, ContentContainer, Footer, FooterInner } from '@/components/layout/RootLayout/styles';
 import { getUserProfile } from '@/data-access/user';
+import Watcher from '@/components/auth/Watcher';
 
 export const metadata: Metadata = { title: 'Live Licit App', description: 'Real-time auctions' };
 
@@ -23,6 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <StyledComponentsRegistry>
           <ClientThemeProvider initialMode={initialMode}>
             <ShellWrapper>
+              {session?.user && <Watcher userId={session.user.id} />}
               <AppHeader user={sessionUser} />
               <Main>
                 <ContentContainer>{children}</ContentContainer>
