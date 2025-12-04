@@ -4,9 +4,8 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { ProfileFormSchema, type ProfileFormState } from '@/services/zodValidation-service';
 import { del, put } from '@vercel/blob';
 import { MAX_FILE_SIZE } from '@/lib/constants';
-import { updateUserProfile } from '@/data-access/user';
-
-const MAX_AVATAR_SIZE = MAX_FILE_SIZE;
+import { getUserProfile, updateUserProfile } from '@/data-access/user';
+import { validateImageFile } from '@/services/validateImageFile';
 
 export async function updateProfile(_prevState: ProfileFormState, formData: FormData): Promise<ProfileFormState> {
   const user = await getAuthUser();
@@ -15,6 +14,8 @@ export async function updateProfile(_prevState: ProfileFormState, formData: Form
       message: 'You must be signed in to update your profile.',
     };
   }
+
+  const prevUserProfile = await getUserProfile(user.id);
 
   const raw = {
     fullName: formData.get('fullName'),
@@ -45,10 +46,23 @@ export async function updateProfile(_prevState: ProfileFormState, formData: Form
   let avatarUrl: string | undefined;
 
   if (avatar instanceof File && avatar.size > 0) {
-    if (avatar.size > MAX_AVATAR_SIZE) {
+    if (avatar.size > MAX_FILE_SIZE) {
       return {
         errors: {
           avatar: ['Avatar must be at most 5 MB.'],
+        },
+        values: {
+          fullName: parsed.data.fullName || undefined,
+          phone: parsed.data.phone || undefined,
+        },
+      };
+    }
+
+    const isValidImage = await validateImageFile(avatar);
+    if (!isValidImage.valid) {
+      return {
+        errors: {
+          avatar: [isValidImage.error || 'Invalid image file.'],
         },
         values: {
           fullName: parsed.data.fullName || undefined,
@@ -74,6 +88,11 @@ export async function updateProfile(_prevState: ProfileFormState, formData: Form
           phone: parsed.data.phone || undefined,
         },
       };
+    } finally {
+      // Delete previous avatar if it exists
+      if (prevUserProfile?.avatarUrl) {
+        await del(prevUserProfile.avatarUrl);
+      }
     }
   }
 

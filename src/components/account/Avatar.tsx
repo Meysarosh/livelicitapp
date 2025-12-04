@@ -6,10 +6,10 @@ const AvatarImage = styled(Image)`
   object-fit: cover;
 `;
 
-const AvatarImageContainer = styled.div`
+const AvatarImageContainer = styled.div<{ $size: number }>`
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: ${(props) => props.$size}px;
+  height: ${(props) => props.$size}px;
   display: grid;
   place-items: center;
   background-color: ${(props) => props.theme.colors.footerBg};
@@ -18,10 +18,11 @@ const AvatarImageContainer = styled.div`
   overflow: hidden;
 `;
 
-export function Avatar({ src, alt }: { src: string | null; alt: string }) {
+export function Avatar({ src, alt, preview }: { src: string | null; alt: string; preview?: boolean }) {
+  const size = preview ? 96 : 48;
   return (
-    <AvatarImageContainer>
-      {src ? <AvatarImage src={src} alt={alt} width={48} height={48} /> : <Muted>Profile</Muted>}
+    <AvatarImageContainer $size={size}>
+      {src ? <AvatarImage src={src} alt={alt} width={size} height={size} /> : <Muted>Profile</Muted>}
     </AvatarImageContainer>
   );
 }

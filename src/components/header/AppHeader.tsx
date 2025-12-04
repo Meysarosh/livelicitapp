@@ -59,7 +59,7 @@ export default function AppHeader({
           {user ? (
             <>
               <Muted>Hello, {user.nickname}</Muted>
-              <NavLink href='/account/profile'>
+              <NavLink href='/account/profile' aria-label='Profile'>
                 <Avatar src={user.avatarUrl} alt={user.nickname} />
               </NavLink>
               <Button onClick={handleClickSignOut}>Sign out</Button>

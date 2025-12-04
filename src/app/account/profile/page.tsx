@@ -6,5 +6,9 @@ export default async function ProfilePage() {
   const authUser = await getAuthUser();
   const user = await getUserProfile(authUser.id);
 
-  return <ProfileForm user={user!} />;
+  if (!user) {
+    return <div>User profile not found.</div>;
+  }
+
+  return <ProfileForm user={user} />;
 }

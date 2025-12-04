@@ -7,7 +7,7 @@ import type { ProfileFormState } from '@/services/zodValidation-service';
 import { Form } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
 import { Button, Title, Note, Input } from '@/components/ui';
-import { AvatarPreview } from '@/components/account/AvatarPreview';
+import { Avatar } from './Avatar';
 
 type ProfileFormProps = {
   user: {
@@ -132,10 +132,38 @@ export default function ProfileForm({ user }: ProfileFormProps) {
 
         <FormFieldWrapper label='Avatar'>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <AvatarPreview src={avatarPreview} alt='Avatar preview' />
+            <Avatar src={avatarPreview} alt='Avatar preview' preview />
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <input ref={avatarInputRef} type='file' name='avatar' accept='image/*' onChange={handleAvatarChange} />
+              <input
+                ref={avatarInputRef}
+                type='file'
+                name='avatar'
+                id='avatar-upload'
+                accept='image/*'
+                onChange={handleAvatarChange}
+                style={{
+                  position: 'absolute',
+                  width: '1px',
+                  height: '1px',
+                  padding: 0,
+                  margin: '-1px',
+                  overflow: 'hidden',
+                  clip: 'rect(0,0,0,0)',
+                  border: 0,
+                }}
+                aria-label='Upload avatar'
+              />
+              <label htmlFor='avatar-upload'>
+                <Button
+                  type='button'
+                  onClick={() => avatarInputRef.current && avatarInputRef.current.click()}
+                  tabIndex={0}
+                  aria-controls='avatar-upload'
+                >
+                  Choose avatar
+                </Button>
+              </label>
               {avatarFileName && <span style={{ fontSize: 12 }}>Selected: {avatarFileName}</span>}
               <Note>Max size 5 MB. Square images look best.</Note>
             </div>

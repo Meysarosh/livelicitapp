@@ -185,8 +185,13 @@ export type PlaceBidFormState =
 // --- PROFILE FORM ---
 
 export const ProfileFormSchema = z.object({
-  fullName: z.string().trim().max(100, 'Full name must be at most 100 characters').optional().or(z.literal('')),
-  phone: z.string().trim().max(30, 'Phone number must be at most 30 characters').optional().or(z.literal('')),
+  fullName: z.string().trim().max(100, 'Full name must be at most 100 characters').optional(),
+  phone: z
+    .string()
+    .trim()
+    .max(30, 'Phone number must be at most 30 characters')
+    .regex(/^[\d\s\-()+]+$/, 'Phone number must contain only digits, spaces, hyphens, parentheses, or plus sign')
+    .optional(),
 });
 
 export type ProfileFormState =
