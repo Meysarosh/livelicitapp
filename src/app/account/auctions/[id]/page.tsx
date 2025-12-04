@@ -9,17 +9,20 @@ interface RouteParams {
 
 export default async function MyAuctionDetailsPage({ params }: { params: Promise<RouteParams> }) {
   const { id } = await params;
+
   const auction = await getAuctionDetailsForOwner(id);
+
   if (!auction) {
     notFound();
   }
 
+  const hasBids = auction.currentPriceMinor > auction.startPriceMinor;
+
   const actions = (
     <div style={{ display: 'grid', gap: 8 }}>
-      <Link href={`/account/auctions/edit/${auction.id}`}>Edit auction</Link>
+      {!hasBids && <Link href={`/account/auctions/edit/${auction.id}`}>Edit auction</Link>}
       {/* TODO: delete action */}
-      {/* TODO: copy auction */}
-      {/* TODO: open conversation with buyer when there is a deal */}
+      {/* TODO: copy action */}
     </div>
   );
 

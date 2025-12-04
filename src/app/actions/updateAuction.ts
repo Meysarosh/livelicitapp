@@ -11,7 +11,7 @@ import {
 import { DEFAULT_CURRENCY, MAX_IMAGES, MAX_FILE_SIZE } from '@/lib/constants';
 
 import { Prisma } from '@prisma/client';
-import { put } from '@vercel/blob';
+import { del, put } from '@vercel/blob';
 import { prisma } from '@/lib/db';
 import { validateImageFile } from '@/services/validateImageFile';
 import {
@@ -43,6 +43,12 @@ export async function updateAuction(
   if (auction.ownerId !== user.id) {
     return {
       message: 'You can only edit your own auctions.',
+    };
+  }
+
+  if (auction.currentPriceMinor > auction.startPriceMinor) {
+    return {
+      message: 'You cannot edit an auction that has already received bids.',
     };
   }
 
@@ -239,6 +245,12 @@ export async function updateAuction(
       // 2) Delete images marked for deletion
       if (deletedIds.length > 0) {
         await deleteAuctionImagesByIds(auctionId, deletedIds, tx);
+        deletedIds.forEach(async (id) => {
+          const img = existingImages.find((img) => img.id === id);
+          if (img) {
+            await del(img.url);
+          }
+        });
       }
 
       // 3) Re-apply positions for kept existing images
@@ -266,6 +278,10 @@ export async function updateAuction(
     });
   } catch (err) {
     console.error('APP/ACTIONS/UPDATE_AUCTION:', err);
+
+    imageCreates.forEach(async (img) => {
+      await del(img.url);
+    });
 
     return {
       message: 'Server error. Please try again.',

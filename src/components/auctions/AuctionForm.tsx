@@ -183,7 +183,7 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
     if (!files.length) return;
 
     setImageFiles((prev) => {
-      const remainingSlots = MAX_IMAGES - prev.length;
+      const remainingSlots = MAX_IMAGES - existingImagesState.filter((i) => !i.deleted).length - prev.length;
       const toAdd = files.slice(0, Math.max(0, remainingSlots));
 
       const newItems: ImageFileItem[] = toAdd.map((file) => ({
@@ -347,7 +347,7 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
 
         <FormFieldWrapper label='New images' error={state?.errors?.imageUrls?.[0]}>
           <input ref={fileInputRef} type='file' name='images' accept='image/*' multiple onChange={handleImagesChange} />
-          <Muted>You can upload up to {MAX_IMAGES} new images at once. Max size 5 MB each.</Muted>
+          <Muted>You can upload up to {MAX_IMAGES} images. Max size 5 MB each.</Muted>
 
           {imageFiles.length > 0 && (
             <ImagePreviewGrid>

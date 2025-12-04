@@ -3,6 +3,7 @@ import { updateAuction } from '@/app/actions/updateAuction';
 import { notFound } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { getAuctionDetailsForOwner } from '@/data-access/auctions';
+import { ErrorText } from '@/components/ui';
 
 type PageProps = {
   id: string;
@@ -12,15 +13,14 @@ export default async function AuctionEditPage({ params }: { params: Promise<Page
   const { id } = await params;
   const user = await getAuthUser();
 
-  // const auction = await prisma.auction.findUnique({
-  //   where: { id },
-  //   include: { images: { orderBy: { position: 'asc' } } },
-  // });
-
   const auction = await getAuctionDetailsForOwner(id);
 
   if (!auction || auction.ownerId !== user.id) {
     notFound();
+  }
+
+  if (auction.currentPriceMinor > auction.startPriceMinor) {
+    return <ErrorText>You cannot edit an auction that has already received bids.</ErrorText>;
   }
 
   const initialValues = {
@@ -40,7 +40,6 @@ export default async function AuctionEditPage({ params }: { params: Promise<Page
       url: img.url,
     })) ?? [];
 
-  // Bind the auction ID to the updateAuction action
   const updateAction = updateAuction.bind(null, auction.id);
 
   return (
