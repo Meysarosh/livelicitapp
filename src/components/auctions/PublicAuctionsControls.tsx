@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
 import { Input, Select, Button } from '@/components/ui';
 import type { PublicAuctionsSort } from '@/data-access/auctions';
-import { Toolbar, ToolbarGroup, Label, Pagination, PageInfo } from './pageauctionscontrol.styles';
-import { SEARCH_DEBOUNCE_TIME } from '@/lib/constants';
+import { Toolbar, ToolbarGroup, Label, Pagination, PageInfo } from './PublicAuctionsControl.styles';
+import { MIN_SEARCH_LENGTH, SEARCH_DEBOUNCE_TIME } from '@/lib/constants';
 
 type Props = {
   initialQuery: string;
@@ -25,9 +25,8 @@ export function PublicAuctionsControls({ initialQuery, initialSort, currentPage,
     (page: number): Route => {
       const params = new URLSearchParams();
       const trimmed = query.trim();
-      const minChars = 3;
 
-      if (trimmed.length >= minChars) {
+      if (trimmed.length >= MIN_SEARCH_LENGTH) {
         params.set('q', trimmed);
       }
       if (sort !== 'end-asc') {

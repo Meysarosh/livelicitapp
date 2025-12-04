@@ -20,4 +20,5 @@ export const IMAGE_MAGIC_BYTES = {
 
 // Pagination, search debounce time
 export const PAGE_SIZE = 5;
+export const MIN_SEARCH_LENGTH = 3;
 export const SEARCH_DEBOUNCE_TIME = 300; // milliseconds
