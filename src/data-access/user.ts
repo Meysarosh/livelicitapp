@@ -22,6 +22,13 @@ export async function getUserProfile(userId: string) {
   });
 }
 
+export async function getUserWithCredentials(userId: string) {
+  return await prisma.user.findUnique({
+    where: { id: userId },
+    include: { credentials: true },
+  });
+}
+
 // UPDATE USER PROFILE
 export async function updateUserProfile(
   userId: string,
