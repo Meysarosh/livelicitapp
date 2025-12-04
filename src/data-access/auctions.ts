@@ -1,3 +1,4 @@
+import { MIN_SEARCH_LENGTH } from '@/lib/constants';
 import { prisma } from '@/lib/db';
 import type { Auction, AuctionImage, Prisma, PrismaClient, User } from '@prisma/client';
 
@@ -132,25 +133,100 @@ export type AuctionForLists = Auction & {
   };
 };
 
-export async function getActiveAuctions() {
-  const now = new Date();
+// GET AUCTIONS FOR PUBLIC WITH PAGINATION, FILTERING AND SORTING
+/**
+ * Retrieves active auctions for public display with pagination, search, and sorting.
+ *
+ * @param page - The page number (1-indexed)
+ * @param pageSize - Number of auctions per page
+ * @param search - Optional search query to filter by title or description (minimum 3 characters)
+ * @param sort - Sort order for the results
+ * @returns Promise containing an array of auctions and the total count
+ */
 
-  return await prisma.auction.findMany({
-    where: {
-      status: 'ACTIVE',
-      endAt: { gt: now },
-    },
-    orderBy: { startAt: 'asc' },
-    include: {
-      images: { orderBy: { position: 'asc' }, take: 1 },
-      _count: {
-        select: {
-          bids: true,
-          watchlistedBy: true,
+export type PublicAuctionsSort = 'end-asc' | 'end-desc' | 'price-asc' | 'price-desc';
+
+type GetPublicAuctionsArgs = {
+  page: number;
+  pageSize: number;
+  search?: string;
+  sort: PublicAuctionsSort;
+};
+
+export async function getPublicAuctions({
+  page,
+  pageSize,
+  search,
+  sort,
+}: GetPublicAuctionsArgs): Promise<{ auctions: AuctionForLists[]; total: number }> {
+  const where: Prisma.AuctionWhereInput = {
+    status: 'ACTIVE',
+  };
+
+  const trimmed = search?.trim() ?? '';
+  if (trimmed.length >= MIN_SEARCH_LENGTH) {
+    where.OR = [
+      { title: { contains: trimmed, mode: 'insensitive' } },
+      // { description: { contains: trimmed, mode: 'insensitive' } },
+    ];
+  }
+
+  let orderBy: Prisma.AuctionOrderByWithRelationInput;
+  switch (sort) {
+    case 'price-asc':
+      orderBy = { currentPriceMinor: 'asc' };
+      break;
+    case 'price-desc':
+      orderBy = { currentPriceMinor: 'desc' };
+      break;
+    case 'end-desc':
+      orderBy = { endAt: 'desc' };
+      break;
+    case 'end-asc':
+    default:
+      orderBy = { endAt: 'asc' };
+      break;
+  }
+
+  const skip = (page - 1) * pageSize;
+
+  const [rows, total] = await Promise.all([
+    prisma.auction.findMany({
+      where,
+      orderBy,
+      skip,
+      take: pageSize,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        currentPriceMinor: true,
+        currency: true,
+        endAt: true,
+        highestBidderId: true,
+        startAt: true,
+        status: true,
+        ownerId: true,
+        images: {
+          orderBy: { position: 'asc' },
+          take: 1,
+          select: { url: true },
+        },
+        _count: {
+          select: {
+            bids: true,
+            watchlistedBy: true,
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.auction.count({ where }),
+  ]);
+
+  return {
+    auctions: rows as AuctionForLists[],
+    total,
+  };
 }
 
 // READ USER'S AUCTIONS
