@@ -226,3 +226,92 @@ export async function updateAuctionWithImages(
     data,
   });
 }
+
+// GET AUCTIONS FOR PUBLIC WITH PAGINATION, FILTERING AND SORTING
+
+export type PublicAuctionsSort = 'end-asc' | 'end-desc' | 'price-asc' | 'price-desc';
+
+type GetPublicAuctionsArgs = {
+  page: number;
+  pageSize: number;
+  search?: string;
+  sort: PublicAuctionsSort;
+};
+
+export async function getPublicAuctions({
+  page,
+  pageSize,
+  search,
+  sort,
+}: GetPublicAuctionsArgs): Promise<{ auctions: AuctionForLists[]; total: number }> {
+  const where: Prisma.AuctionWhereInput = {
+    status: 'ACTIVE',
+    // optionally only future auctions:
+    // endAt: { gt: new Date() },
+  };
+
+  const trimmed = search?.trim() ?? '';
+  if (trimmed.length >= 3) {
+    where.OR = [
+      { title: { contains: trimmed, mode: 'insensitive' } },
+      { description: { contains: trimmed, mode: 'insensitive' } },
+    ];
+  }
+
+  let orderBy: Prisma.AuctionOrderByWithRelationInput;
+  switch (sort) {
+    case 'price-asc':
+      orderBy = { currentPriceMinor: 'asc' };
+      break;
+    case 'price-desc':
+      orderBy = { currentPriceMinor: 'desc' };
+      break;
+    case 'end-desc':
+      orderBy = { endAt: 'desc' };
+      break;
+    case 'end-asc':
+    default:
+      orderBy = { endAt: 'asc' };
+      break;
+  }
+
+  const skip = (page - 1) * pageSize;
+
+  const [rows, total] = await Promise.all([
+    prisma.auction.findMany({
+      where,
+      orderBy,
+      skip,
+      take: pageSize,
+      // IMPORTANT: use the same select/include as getActiveAuctions(),
+      // so the result matches AuctionForLists.
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        currentPriceMinor: true,
+        currency: true,
+        endAt: true,
+        // add whatever fields AuctionsList needs, e.g. first image:
+        images: {
+          orderBy: { position: 'asc' },
+          take: 1,
+          select: { url: true },
+        },
+        _count: {
+          select: {
+            bids: true,
+            watchlistedBy: true,
+          },
+        },
+      },
+    }),
+    prisma.auction.count({ where }),
+  ]);
+
+  // If your AuctionForLists already matches this shape, just cast:
+  return {
+    auctions: rows as unknown as AuctionForLists[],
+    total,
+  };
+}

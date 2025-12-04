@@ -17,3 +17,7 @@ export const IMAGE_MAGIC_BYTES = {
   webp: [0x52, 0x49, 0x46, 0x46], // RIFF header at offset 0
   webpIdentifier: [0x57, 0x45, 0x42, 0x50], // WEBP identifier at offset 8
 } as const;
+
+// Pagination, search debounce time
+export const PAGE_SIZE = 5;
+export const SEARCH_DEBOUNCE_TIME = 300; // milliseconds
