@@ -89,11 +89,7 @@ export const CreateAuctionFormSchema = z
       error: 'Please choose duration in days.',
     }),
 
-    currency: z
-      .string()
-      .trim()
-      .length(3, { message: 'Currency must be a 3-letter code.' })
-      .default(DEFAULT_CURRENCY),
+    currency: z.string().trim().length(3, { message: 'Currency must be a 3-letter code.' }).default(DEFAULT_CURRENCY),
 
     startMode: z.enum(['now', 'future']).default('now'),
 
@@ -183,5 +179,32 @@ export type PlaceBidFormState =
       values?: {
         amount?: string;
       };
+    }
+  | undefined;
+
+// --- PROFILE FORM ---
+
+export const ProfileFormSchema = z.object({
+  fullName: z.string().trim().max(100, 'Full name must be at most 100 characters').optional(),
+  phone: z
+    .string()
+    .trim()
+    .max(30, 'Phone number must be at most 30 characters')
+    .regex(/^[\d\s\-()+]+$/, 'Phone number must contain only digits, spaces, hyphens, parentheses, or plus sign')
+    .optional(),
+});
+
+export type ProfileFormState =
+  | {
+      errors?: {
+        fullName?: string[];
+        phone?: string[];
+        avatar?: string[];
+      };
+      values?: {
+        fullName?: string;
+        phone?: string;
+      };
+      message?: string;
     }
   | undefined;
