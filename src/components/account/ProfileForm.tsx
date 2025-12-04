@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateProfile } from '@/app/actions/updateProfile';
 import type { ProfileFormState } from '@/services/zodValidation-service';
-import { Form } from '@/components/forms/form.styles';
+import { Form, FormButtonRow } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
 import { Button, Title, Note, Input } from '@/components/ui';
 import { Avatar } from './Avatar';
@@ -170,14 +170,14 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           </div>
         </FormFieldWrapper>
 
-        <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+        <FormButtonRow>
           <Button type='submit' disabled={pending || !isDirty}>
             {pending ? 'Saving…' : 'Save changes'}
           </Button>
           <Button type='button' onClick={handleCancel} disabled={pending}>
             Cancel
           </Button>
-        </div>
+        </FormButtonRow>
       </Form>
     </>
   );

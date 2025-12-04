@@ -1,9 +1,9 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import { changePassword } from '@/app/actions/changePassword';
 import type { PasswordFormState } from '@/services/zodValidation-service';
-import { Form } from '@/components/forms/form.styles';
+import { Form, FormButtonRow } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
 import { Button, Title, Note, Input } from '@/components/ui';
 
@@ -13,6 +13,7 @@ type PasswordFormProps = {
 
 export default function PasswordForm({ hasLocalPassword }: PasswordFormProps) {
   const [state, formAction, pending] = useActionState<PasswordFormState, FormData>(changePassword, undefined);
+  const [, startTransition] = useTransition();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -25,6 +26,14 @@ export default function PasswordForm({ hasLocalPassword }: PasswordFormProps) {
     setNewPassword('');
     setConfirmPassword('');
   };
+
+  useEffect(() => {
+    if (state?.message && !state.errors) {
+      startTransition(() => {
+        handleCancel();
+      });
+    }
+  }, [state?.message, state?.errors]);
 
   const title = hasLocalPassword ? 'Change password' : 'Set a local password';
   const description = hasLocalPassword
@@ -39,9 +48,9 @@ export default function PasswordForm({ hasLocalPassword }: PasswordFormProps) {
       <Note>{description}</Note>
 
       {state?.message && (
-        <p role='alert' style={{ color: 'green', marginTop: 8 }}>
+        <Note style={{ color: 'green', marginTop: 8 }} role='alert'>
           {state.message}
-        </p>
+        </Note>
       )}
 
       <Form action={formAction}>
@@ -80,14 +89,14 @@ export default function PasswordForm({ hasLocalPassword }: PasswordFormProps) {
           />
         </FormFieldWrapper>
 
-        <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+        <FormButtonRow>
           <Button type='submit' disabled={pending || !isDirty}>
             {pending ? 'Saving…' : submitLabel}
           </Button>
           <Button type='button' onClick={handleCancel} disabled={pending}>
             Cancel
           </Button>
-        </div>
+        </FormButtonRow>
       </Form>
     </>
   );

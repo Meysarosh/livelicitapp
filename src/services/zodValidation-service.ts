@@ -256,6 +256,9 @@ export type ShippingAddressFormState =
 
 export const PasswordFormSchema = z
   .object({
+    // NOTE: currentPassword is only required if the user already has a password.
+    // This loose validation allows both "set password" and "change password" flows.
+    // The requirement is enforced server-side based on user state.
     currentPassword: z.string().trim().optional().or(z.literal('')),
     newPassword: z
       .string()
@@ -263,7 +266,7 @@ export const PasswordFormSchema = z
       .regex(/[a-zA-Z]/, { message: 'Include a letter.' })
       .regex(/[0-9]/, { message: 'Include a number.' })
       .trim(),
-    confirmPassword: z.string().min(6, { message: 'Please confirm your password.' }).trim(),
+    confirmPassword: z.string().min(6, { message: 'At least 6 characters.' }).trim(),
   })
   .refine((d) => d.newPassword === d.confirmPassword, {
     path: ['confirmPassword'],

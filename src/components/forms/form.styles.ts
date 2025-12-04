@@ -125,3 +125,9 @@ export const DeletedOverlay = styled.div`
   background: rgba(0, 0, 0, 0.5);
   pointer-events: none;
 `;
+
+export const FormButtonRow = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: ${({ theme }) => theme.spacing(2)};
+`;
