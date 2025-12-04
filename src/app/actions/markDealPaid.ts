@@ -1,11 +1,13 @@
 'use server';
 
-import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { MessageKind, DealStatus, Deal } from '@prisma/client';
+
 import { prisma } from '@/lib/db';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { getDealById, updateDeal } from '@/data-access/deals';
 import { upsertConversation, updateConversation } from '@/data-access/conversations';
 import { createMessage } from '@/data-access/messages';
-import { MessageKind, DealStatus, Deal } from '@prisma/client';
+import { getShippingAddress } from '@/data-access/shippingAddress';
 import { broadcastDealUpdated } from '@/lib/realtime/deals-events';
 import { emitConversationUpdatedForUsers, emitNewMessageEvent } from '@/lib/realtime/conversations-events';
 
@@ -45,7 +47,6 @@ export async function markDealPaid(_prev: MarkDealPaidState, formData: FormData)
         {
           status: DealStatus.PAID,
           paidAt: now,
-          // pay current auction price
           paidAmountMinor: deal.auction.currentPriceMinor,
           currency: deal.currency ?? deal.auction.currency,
         },
@@ -54,12 +55,21 @@ export async function markDealPaid(_prev: MarkDealPaidState, formData: FormData)
 
       const convo = await upsertConversation(deal.auctionId, deal.sellerId, deal.buyerId, tx);
 
+      const address = await getShippingAddress(user.id);
+
       const createdMessage = await createMessage(
         {
           conversationId: convo.id,
           senderId: null,
           kind: MessageKind.SYSTEM,
-          body: 'Buyer paid for the deal.',
+          body: `Buyer paid for the deal ${updated.paidAmountMinor! / 100} ${
+            updated.currency
+          }. The seller can now proceed with shipping the item. <br/> 
+          Address:<br/> ${
+            address
+              ? `Street: ${address.street},<br/> City: ${address.city},<br/> Postal Code: ${address.postalCode},<br/> Country: ${address.country}`
+              : 'Ask buyer for shipping address.'
+          }`,
         },
         tx
       );

@@ -1,7 +1,7 @@
 'use server';
 
 import { getAuctionWithDeal, updateAuction } from '@/data-access/auctions';
-import { upsertConversation } from '@/data-access/conversations';
+import { updateConversation, upsertConversation } from '@/data-access/conversations';
 import { createDeal } from '@/data-access/deals';
 import { createMessage } from '@/data-access/messages';
 import { type Prisma, DealStatus } from '@prisma/client';
@@ -46,6 +46,16 @@ export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: s
   };
 
   await createMessage(messageData, tx);
+
+  await updateConversation(
+    conversation.id,
+    {
+      lastMessageAt: new Date(),
+      unreadCountA: conversation.unreadCountA + 1,
+      unreadCountB: conversation.unreadCountB + 1,
+    },
+    tx
+  );
 
   return deal;
 }

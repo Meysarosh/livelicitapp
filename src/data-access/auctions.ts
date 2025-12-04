@@ -117,6 +117,7 @@ export async function getAuctionWithDeal(id: string, tx: DbClient = prisma) {
           seller: true,
         },
       },
+      auctionForConversations: { select: { id: true } },
     },
   });
 }

@@ -8,6 +8,8 @@ import { Form, FormButtonRow } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
 import { Button, Title, Note, Input } from '@/components/ui';
 import { Avatar } from './Avatar';
+import { ProfileLinks } from '../layout';
+import Link from 'next/link';
 
 type ProfileFormProps = {
   user: {
@@ -91,6 +93,13 @@ export default function ProfileForm({ user }: ProfileFormProps) {
     <>
       <Title as='h1'>Profile</Title>
       <Note>Update your personal details and avatar.</Note>
+
+      <ProfileLinks>
+        <Note>More settings:</Note>
+        <Link href='/account/profile/address'>Shipping address</Link>
+        <Note>·</Note>
+        <Link href='/account/profile/password'>Password &amp; security</Link>
+      </ProfileLinks>
 
       {state?.message && (
         <p role='alert' style={{ color: 'green', marginTop: 8 }}>

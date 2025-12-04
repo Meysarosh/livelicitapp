@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+
 export default function AccountPage() {
-  return <div>Account Page</div>;
+  redirect('/account/auctions');
 }

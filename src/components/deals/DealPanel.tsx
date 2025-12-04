@@ -12,6 +12,8 @@ import { markDealReceived } from '@/app/actions/markDealReceived';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
 import { DealUpdatedPayload } from '@/lib/realtime/deals-events';
 import { getDealStatusChip } from '@/services/dealStatus-service';
+import { Route } from 'next';
+import { StyledLink } from '../layout';
 
 type DealWithUsers = Deal & {
   buyer: User;
@@ -21,9 +23,10 @@ type DealWithUsers = Deal & {
 type Props = {
   deal: DealWithUsers;
   currentUserId: string;
+  conversationId: string;
 };
 
-export function DealPanel({ deal: initialDeal, currentUserId }: Props) {
+export function DealPanel({ deal: initialDeal, currentUserId, conversationId }: Props) {
   const [deal, setDeal] = useState<DealWithUsers>(initialDeal);
   const isBuyer = deal.buyerId === currentUserId;
   const isSeller = deal.sellerId === currentUserId;
@@ -77,6 +80,10 @@ export function DealPanel({ deal: initialDeal, currentUserId }: Props) {
 
       {isBuyer && <Paragraph>Seller: {deal.seller.nickname ?? deal.seller.email}</Paragraph>}
       {isSeller && <Paragraph>Buyer: {deal.buyer.nickname ?? deal.buyer.email}</Paragraph>}
+
+      <StyledLink $active={true} href={`/account/conversations/${conversationId}` as Route}>
+        Go to conversation
+      </StyledLink>
 
       {/* Buyer: mark as paid */}
       {canMarkPaid && (
