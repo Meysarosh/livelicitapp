@@ -97,7 +97,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       <ProfileLinks>
         <Note>More settings:</Note>
         <Link href='/account/profile/address'>Shipping address</Link>
-        <Note>·</Note>
+        <span>·</span>
         <Link href='/account/profile/password'>Password &amp; security</Link>
       </ProfileLinks>
 

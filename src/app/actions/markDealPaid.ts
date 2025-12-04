@@ -57,19 +57,21 @@ export async function markDealPaid(_prev: MarkDealPaidState, formData: FormData)
 
       const address = await getShippingAddress(user.id);
 
+      const messageBody = `Buyer paid for the deal ${updated.paidAmountMinor! / 100} ${
+        updated.currency
+      }. The seller can now proceed with shipping the item.\n 
+          Address:\n ${
+            address
+              ? `Street: ${address.street},\n City: ${address.city},\n Postal Code: ${address.postalCode},\n Country: ${address.country}`
+              : 'Ask buyer for shipping address.'
+          }`;
+
       const createdMessage = await createMessage(
         {
           conversationId: convo.id,
           senderId: null,
           kind: MessageKind.SYSTEM,
-          body: `Buyer paid for the deal ${updated.paidAmountMinor! / 100} ${
-            updated.currency
-          }. The seller can now proceed with shipping the item. <br/> 
-          Address:<br/> ${
-            address
-              ? `Street: ${address.street},<br/> City: ${address.city},<br/> Postal Code: ${address.postalCode},<br/> Country: ${address.country}`
-              : 'Ask buyer for shipping address.'
-          }`,
+          body: messageBody,
         },
         tx
       );

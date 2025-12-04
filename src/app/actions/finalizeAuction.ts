@@ -4,7 +4,9 @@ import { getAuctionWithDeal, updateAuction } from '@/data-access/auctions';
 import { updateConversation, upsertConversation } from '@/data-access/conversations';
 import { createDeal } from '@/data-access/deals';
 import { createMessage } from '@/data-access/messages';
-import { type Prisma, DealStatus } from '@prisma/client';
+import { emitConversationUpdatedForUsers, emitNewMessageEvent } from '@/lib/realtime/conversations-events';
+import { broadcastDealUpdated } from '@/lib/realtime/deals-events';
+import { type Prisma, Deal, DealStatus } from '@prisma/client';
 
 export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: string) {
   const auction = await getAuctionWithDeal(auctionId, tx);
@@ -45,9 +47,9 @@ export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: s
     body: `Auction "${auction.title}" has ended and a deal has been created.`,
   };
 
-  await createMessage(messageData, tx);
+  const message = await createMessage(messageData, tx);
 
-  await updateConversation(
+  const updatedConversation = await updateConversation(
     conversation.id,
     {
       lastMessageAt: new Date(),
@@ -56,6 +58,29 @@ export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: s
     },
     tx
   );
+
+  try {
+    await broadcastDealUpdated(deal as Deal);
+
+    await emitNewMessageEvent({
+      conversationId: conversation.id,
+      message: {
+        id: message.id,
+        body: message.body,
+        kind: message.kind,
+        senderId: message.senderId,
+        createdAt: message.createdAt,
+      },
+    });
+
+    await emitConversationUpdatedForUsers({
+      conversationId: updatedConversation.id,
+      userAId: updatedConversation.userAId,
+      userBId: updatedConversation.userBId,
+    });
+  } catch (pusherErr) {
+    console.error('Error broadcasting deal updated (paid):', pusherErr);
+  }
 
   return deal;
 }
