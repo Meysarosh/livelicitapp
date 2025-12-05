@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
+import PrivateChannel from 'pusher-js/types/src/core/channels/private_channel';
 
 type Props = {
   userId: string;
@@ -11,7 +12,7 @@ type Props = {
 export default function SuspensionWatcher({ userId }: Props) {
   useEffect(() => {
     let pusher: ReturnType<typeof getPusherClient> | undefined;
-    let channel: any;
+    let channel: PrivateChannel | undefined;
     const channelName = `private-user-${userId}`;
 
     const handleSuspended = () => {

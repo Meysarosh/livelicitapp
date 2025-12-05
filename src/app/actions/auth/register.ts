@@ -57,7 +57,7 @@ export async function register(prev: RegisterFormState, formData: FormData): Pro
       }
       return { errors, values: { email, nickname } };
     }
-    console.log('APP/ACTIONS/REGISTER: unexpected error', err);
+    console.error('APP/ACTIONS/REGISTER: unexpected error', err);
     return { message: 'Server error. Please try again.', values: { email, nickname } };
   }
 
@@ -66,7 +66,7 @@ export async function register(prev: RegisterFormState, formData: FormData): Pro
   } catch (err) {
     if (isNextRedirectError(err)) throw err;
 
-    console.log('APP/ACTIONS/REGISTER:', err);
+    console.error('APP/ACTIONS/REGISTER:', err);
 
     return { message: 'Server error. Please try again.', values: { email } };
   }
