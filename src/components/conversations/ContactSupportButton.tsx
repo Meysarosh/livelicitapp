@@ -48,7 +48,7 @@ export function ContactSupportButton({ auctionId }: Props) {
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState<ContactSupportFormState, FormData>(contactSupport, undefined);
 
-  const handleSubbmit = () => {
+  const handleSubmit = () => {
     //TODO close only on success after short delay with success message shown
     setOpen(false);
   };
@@ -62,7 +62,7 @@ export function ContactSupportButton({ auctionId }: Props) {
         <Overlay>
           <Dialog>
             <DialogTitle>Contact Support</DialogTitle>
-            <Form action={action} onSubmit={handleSubbmit}>
+            <Form action={action} onSubmit={handleSubmit}>
               <input type='hidden' name='auctionId' value={auctionId} />
 
               <FormFieldWrapper required error={state?.errors?.body}>
