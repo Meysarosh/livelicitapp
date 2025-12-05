@@ -12,6 +12,7 @@ jobs:
 
     env:
       DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/testdb'
+
       AUTH0_SECRET: 'test'
       AUTH0_BASE_URL: 'http://localhost:3000'
       AUTH0_ISSUER_BASE_URL: 'https://example.auth0.com'
@@ -31,12 +32,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
+
+      - name: Enable pnpm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
 
       - name: Install
         run: pnpm install --frozen-lockfile
