@@ -10,13 +10,10 @@ export default function NotFound() {
       <Card>
         <Title as='h1'>Page not found</Title>
         <Note>The page you’re looking for doesn’t exist or may have been moved.</Note>
-
         <Actions>
-          <Actions>
-            <Link href='/'>Go home</Link>
-            <Link href='/auctions'>Browse auctions</Link>
-            <Link href='/account'>My account</Link>
-          </Actions>
+          <Link href='/'>Go home</Link>
+          <Link href='/auctions'>Browse auctions</Link>
+          <Link href='/account'>My account</Link>
         </Actions>
       </Card>
     </Wrapper>
