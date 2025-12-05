@@ -4,7 +4,10 @@ import { DEFAULT_CURRENCY } from '@/lib/constants';
 // --- Login ---
 
 export const LoginFormSchema = z.object({
-  identifier: z.string({ message: 'Please enter a valid email or nickname.' }).trim(),
+  identifier: z
+    .string({ message: 'Please enter a valid email or nickname.' })
+    .trim()
+    .min(1, { message: 'Empty identifier not allowed.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }).trim(),
 });
 
@@ -24,7 +27,11 @@ export const RegisterFormSchema = z
       .min(2, { message: 'Nickname must be at least 2 characters.' })
       .max(50, { message: 'Nickname must be at most 50 characters.' })
       .trim(),
-    email: z.email({ message: 'Please enter a valid email.' }).trim(),
+    email: z
+      .string()
+      .trim()
+      .check(z.email({ message: 'Please enter a valid email.' }))
+      .toLowerCase(),
     password: z
       .string()
       .min(6, { message: 'At least 6 characters.' })
