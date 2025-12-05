@@ -4,7 +4,7 @@ import { getConversationForUser } from '@/data-access/conversations';
 import { Title, Note } from '@/components/ui';
 import { PageSection } from '@/components/layout';
 import { ConversationView } from '@/components/conversations/ConversationView';
-import { markConversationRead } from '@/app/actions/markConversationRead';
+import { markConversationRead } from '@/app/actions/conversation/markConversationRead';
 import Link from 'next/link';
 
 interface PageProps {

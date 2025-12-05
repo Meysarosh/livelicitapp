@@ -22,3 +22,6 @@ export const IMAGE_MAGIC_BYTES = {
 export const PAGE_SIZE = 5;
 export const MIN_SEARCH_LENGTH = 3;
 export const SEARCH_DEBOUNCE_TIME = 300; // milliseconds
+
+// Admin
+export const ADMIN_TABLE_SIZE = 20;

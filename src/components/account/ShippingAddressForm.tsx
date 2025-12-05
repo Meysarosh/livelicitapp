@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
-import { updateShippingAddress } from '@/app/actions/updateShippingAddress';
+import { editShippingAddress } from '@/app/actions/profile/editShippingAddress';
 import type { ShippingAddressFormState } from '@/services/zodValidation-service';
 import { Form, FormButtonRow } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
@@ -20,7 +20,7 @@ type ShippingAddressFormProps = {
 
 export default function ShippingAddressForm({ address }: ShippingAddressFormProps) {
   const [state, formAction, pending] = useActionState<ShippingAddressFormState, FormData>(
-    updateShippingAddress,
+    editShippingAddress,
     undefined
   );
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { login } from '@/app/actions/login';
+import { login } from '@/app/actions/auth/login';
 import { signIn } from 'next-auth/react';
 import { Form, Summary, SCLink, Divider, CenteredRow } from './form.styles';
 import { Button, Title, Note } from '@/components/ui';

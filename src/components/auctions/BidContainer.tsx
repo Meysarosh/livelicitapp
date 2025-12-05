@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
-import { placeBid } from '@/app/actions/placeBid';
+import { placeBid } from '@/app/actions/auction/placeBid';
 import type { PlaceBidFormState } from '@/services/zodValidation-service';
 import { Form } from '@/components/forms/form.styles';
 import { Button, Input, Note } from '@/components/ui';

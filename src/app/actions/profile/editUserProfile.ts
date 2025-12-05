@@ -7,7 +7,7 @@ import { MAX_FILE_SIZE } from '@/lib/constants';
 import { getUserProfile, updateUserProfile } from '@/data-access/user';
 import { validateImageFile } from '@/services/validateImageFile';
 
-export async function updateProfile(_prevState: ProfileFormState, formData: FormData): Promise<ProfileFormState> {
+export async function editUserProfile(_prevState: ProfileFormState, formData: FormData): Promise<ProfileFormState> {
   const user = await getAuthUser();
   if (!user) {
     return {

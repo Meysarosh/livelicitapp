@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import { toggleWatchlist } from '@/app/actions/toggleWatchlist';
+import { toggleWatchlist } from '@/app/actions/auction/toggleWatchlist';
 import { Button } from '@/components/ui';
 
 interface WatchlistButtonProps {
