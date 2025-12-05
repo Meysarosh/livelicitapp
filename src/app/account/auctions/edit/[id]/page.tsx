@@ -35,19 +35,10 @@ export default async function AuctionEditPage({ params }: { params: Promise<Page
   };
 
   const existingImages =
-    auction.images?.map(
-      (img: {
-        id: string;
-        createdAt: Date;
-        auctionId: string;
-        url: string;
-        position: number;
-        pathname: string | null;
-      }) => ({
-        id: img.id,
-        url: img.url,
-      })
-    ) ?? [];
+    auction.images?.map((img) => ({
+      id: img.id,
+      url: img.url,
+    })) ?? [];
 
   const updateAction = editAuction.bind(null, auction.id);
 
