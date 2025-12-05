@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { updateProfile } from '@/app/actions/updateProfile';
+import { editUserProfile } from '@/app/actions/profile/editUserProfile';
 import type { ProfileFormState } from '@/services/zodValidation-service';
 import { Form, FormButtonRow } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
@@ -24,7 +24,7 @@ type ProfileFormProps = {
 export default function ProfileForm({ user }: ProfileFormProps) {
   const router = useRouter();
 
-  const [state, formAction, pending] = useActionState<ProfileFormState, FormData>(updateProfile, undefined);
+  const [state, formAction, pending] = useActionState<ProfileFormState, FormData>(editUserProfile, undefined);
 
   const initialFullName = user.fullName ?? '';
   const initialPhone = user.phone ?? '';

@@ -27,9 +27,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <MenuLink href='/admin/auctions'>Auctions</MenuLink>
           </MenuItem>
           <MenuItem>
-            <MenuLink href='/admin/deals'>Deals</MenuLink>
+            <MenuLink href='/admin/conversations'>Conversations</MenuLink>
           </MenuItem>
-          {/* You can add /admin/conversations later */}
         </MenuList>
       </Sidebar>
 

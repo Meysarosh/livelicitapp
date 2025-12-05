@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
-import { getUnreadMessagesCount } from '@/app/actions/getUnreadMessagesCount';
+import { getUnreadMessagesCount } from '@/app/actions/conversation/getUnreadMessagesCount';
 
 import styled from 'styled-components';
 

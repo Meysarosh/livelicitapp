@@ -1,10 +1,8 @@
 import { getAdminUser } from '@/lib/auth/getAdminUser';
-import { getUsersForAdmin } from '@/data-access/adminUsers';
-import { adminUpdateUserStatus } from '@/app/actions/adminUpdateUserStatus';
+import { adminUpdateUserStatus, getUsersDataForAdmin } from '@/app/actions/admin/adminUserStatus';
 import { Title, Note, Input, Button } from '@/components/ui';
-import { Table, ActionsCell } from './styles';
-
-const PAGE_SIZE = 20;
+import { Table, ActionsCell } from '../styles';
+import { ADMIN_TABLE_SIZE } from '@/lib/constants';
 
 type SearchParams = {
   q?: string | string[];
@@ -12,7 +10,7 @@ type SearchParams = {
 };
 
 export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  await getAdminUser(); // ensure only admins
+  await getAdminUser();
 
   const params = await searchParams;
   const getFirst = (v?: string | string[]) => (typeof v === 'string' ? v : Array.isArray(v) ? v[0] : '');
@@ -22,13 +20,13 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
   const rawPageNum = rawPage ? Number(rawPage) : 1;
   const page = !Number.isFinite(rawPageNum) || rawPageNum < 1 ? 1 : rawPageNum;
 
-  const { users, total } = await getUsersForAdmin({
+  const { users, total } = await getUsersDataForAdmin({
     page,
-    pageSize: PAGE_SIZE,
+    pageSize: ADMIN_TABLE_SIZE,
     search: rawQuery,
   });
 
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(total / ADMIN_TABLE_SIZE));
 
   return (
     <div>

@@ -20,7 +20,7 @@ import {
   updateAuctionImagePosition,
 } from '@/data-access/auctionImage';
 
-export async function updateAuction(
+export async function editAuction(
   auctionId: string,
   _prevState: CreateAuctionFormState,
   formData: FormData

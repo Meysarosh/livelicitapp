@@ -1,5 +1,5 @@
 import AuctionForm from '@/components/auctions/AuctionForm';
-import { updateAuction } from '@/app/actions/updateAuction';
+import { editAuction } from '@/app/actions/auction/editAuction';
 import { notFound } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { getAuctionDetailsForOwner } from '@/data-access/auctions';
@@ -40,7 +40,7 @@ export default async function AuctionEditPage({ params }: { params: Promise<Page
       url: img.url,
     })) ?? [];
 
-  const updateAction = updateAuction.bind(null, auction.id);
+  const updateAction = editAuction.bind(null, auction.id);
 
   return (
     <AuctionForm

@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { useActionState } from 'react';
-import { startConversation } from '@/app/actions/startConversation';
+import { startConversation } from '@/app/actions/conversation/startConversation';
 import { Button, TextArea, Muted } from '@/components/ui';
 import { Form } from '../forms/form.styles';
 import { FormFieldWrapper } from '../forms/FormFieldWrapper';

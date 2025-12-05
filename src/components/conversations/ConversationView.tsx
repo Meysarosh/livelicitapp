@@ -2,14 +2,14 @@
 
 import type { Conversation, Message, User, Auction, MessageKind } from '@prisma/client';
 import { useActionState, useRef, useEffect, useState, useMemo } from 'react';
-import { sendMessage } from '@/app/actions/sendMessage';
+import { sendMessage } from '@/app/actions/conversation/sendMessage';
 import { Button, TextArea, Paragraph, Muted } from '@/components/ui';
 import { formatDateTime } from '@/services/format-service';
 import { Form } from '../forms/form.styles';
 import { FormFieldWrapper } from '../forms/FormFieldWrapper';
 import { MessagesBox, MessageRow, Bubble, MetaLine } from './ConversationView.styles';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
-import { markConversationRead } from '@/app/actions/markConversationRead';
+import { markConversationRead } from '@/app/actions/conversation/markConversationRead';
 
 type ConversationWithRelations = Conversation & {
   auction: Auction;

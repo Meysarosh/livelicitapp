@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef } from 'react';
 
-import { register } from '@/app/actions/register';
+import { register } from '@/app/actions/auth/register';
 import { buildErrorSummary } from '@/services/errorSummary-service';
 import { SCLink, Summary, SummaryList, RequiredMark, Form } from './form.styles';
 import { Button, Title, SubTitle, Note } from '@/components/ui';
