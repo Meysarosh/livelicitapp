@@ -26,7 +26,7 @@ export async function login(prev: LoginFormState, formData: FormData): Promise<L
   } catch (err) {
     if (isNextRedirectError(err)) throw err;
 
-    console.error('APP/ACTIONS/LOGIN:', err);
+    console.log('APP/ACTIONS/LOGIN:', err);
 
     if (err instanceof AuthError && err.type === 'CredentialsSignin') {
       return { message: 'Wrong identifier or password.', values: { identifier } };
