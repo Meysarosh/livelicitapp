@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/testdb'
+      DB_DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/testdb'
 
       AUTH0_SECRET: 'test'
       AUTH0_BASE_URL: 'http://localhost:3000'
