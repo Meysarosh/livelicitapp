@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
         'error',
         { allowShortCircuit: true, allowTernary: true, allowTaggedTemplates: true },
       ],
+      'no-console': ['error', { allow: ['warn', 'error'] }],
     },
   },
   globalIgnores([

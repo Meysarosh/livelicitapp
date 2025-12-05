@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ['main']
+  push:
+    branches: ['main']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/testdb'
+      AUTH0_SECRET: 'test'
+      AUTH0_BASE_URL: 'http://localhost:3000'
+      AUTH0_ISSUER_BASE_URL: 'https://example.auth0.com'
+      AUTH0_CLIENT_ID: 'test'
+      AUTH0_CLIENT_SECRET: 'test'
+      PUSHER_APP_ID: 'test'
+      PUSHER_KEY: 'test'
+      PUSHER_SECRET: 'test'
+      PUSHER_CLUSTER: 'test'
+      BLOB_READ_WRITE_TOKEN: 'test'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Prisma validate
+        run: pnpm prisma validate
+
+      - name: Prisma generate
+        run: pnpm prisma generate
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test:run
+
+      - name: Build
+        run: pnpm build
