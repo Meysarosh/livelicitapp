@@ -8,6 +8,7 @@ import { WatchlistButton } from '@/components/auctions/WatchlistButton';
 import { getWatchlistEntry } from '@/data-access/watchlist';
 import { AskSellerButton } from '@/components/conversations/AskSellerButton';
 import { Metadata } from 'next';
+import { ContactSupportButton } from '@/components/conversations/ContactSupportButton';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -43,7 +44,12 @@ export default async function AuctionDetailsPage({ params }: { params: Promise<P
   const actions = (
     <>
       <BidContainer auction={auction} userId={userId} />
-      <AskSellerButton auctionId={auction.id} disabled={isOwner} />
+      {userId && (
+        <>
+          <AskSellerButton auctionId={auction.id} disabled={isOwner} />
+          <ContactSupportButton auctionId={auction.id} />
+        </>
+      )}
     </>
   );
   const metadata = <AuctionMetaData auction={auction} />;

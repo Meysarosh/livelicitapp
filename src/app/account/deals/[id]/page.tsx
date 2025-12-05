@@ -19,6 +19,7 @@ export default async function DealDetailsPage({ params }: { params: Promise<{ id
       deal={auction.deal}
       currentUserId={currentUserId}
       conversationId={auction.auctionForConversations[0].id}
+      auctionId={auction.id}
     />
   );
 

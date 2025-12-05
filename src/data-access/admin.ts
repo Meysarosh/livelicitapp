@@ -1,6 +1,16 @@
 import { prisma } from '@/lib/db';
 import { Prisma } from '@prisma/client';
 
+export async function getAdminUserId(): Promise<string | null> {
+  const admin = await prisma.user.findFirst({
+    where: { role: 'ADMIN', status: 'OK' },
+    select: { id: true },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  return admin?.id ?? null;
+}
+
 export async function getAuctionsForAdmin({
   where,
   skip,
