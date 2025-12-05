@@ -57,7 +57,7 @@ export function AskSellerButton({ auctionId, disabled }: Props) {
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState<StartConversationFormState, FormData>(startConversation, undefined);
 
-  const handleSubbmit = () => {
+  const handleSubmit = () => {
     //TODO close only on success after short delay with success message shown
     setOpen(false);
   };
@@ -71,7 +71,7 @@ export function AskSellerButton({ auctionId, disabled }: Props) {
         <Overlay>
           <Dialog>
             <DialogTitle>Ask the seller</DialogTitle>
-            <Form action={action} onSubmit={handleSubbmit}>
+            <Form action={action} onSubmit={handleSubmit}>
               <input type='hidden' name='auctionId' value={auctionId} />
 
               <FormFieldWrapper required error={state?.errors?.body}>

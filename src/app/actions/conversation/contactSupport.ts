@@ -89,7 +89,7 @@ export async function contactSupport(
 
     return { message: 'Message sent successfully!' };
   } catch (err) {
-    console.error('APP/ACTIONS/START_CONVERSATION:', err);
+    console.error('APP/ACTIONS/CONTACT_SUPPORT:', err);
 
     if (err instanceof Error && err.message === 'Auction not found') {
       return { message: 'Auction not found.', values: { body } };
