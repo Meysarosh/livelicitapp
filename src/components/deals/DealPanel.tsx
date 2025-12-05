@@ -14,6 +14,7 @@ import { DealUpdatedPayload } from '@/lib/realtime/deals-events';
 import { getDealStatusChip } from '@/services/dealStatus-service';
 import { Route } from 'next';
 import { StyledLink } from '../layout';
+import { ContactSupportButton } from '../conversations/ContactSupportButton';
 
 type DealWithUsers = Deal & {
   buyer: User;
@@ -24,9 +25,10 @@ type Props = {
   deal: DealWithUsers;
   currentUserId: string;
   conversationId: string;
+  auctionId: string;
 };
 
-export function DealPanel({ deal: initialDeal, currentUserId, conversationId }: Props) {
+export function DealPanel({ deal: initialDeal, currentUserId, conversationId, auctionId }: Props) {
   const [deal, setDeal] = useState<DealWithUsers>(initialDeal);
   const isBuyer = deal.buyerId === currentUserId;
   const isSeller = deal.sellerId === currentUserId;
@@ -126,6 +128,9 @@ export function DealPanel({ deal: initialDeal, currentUserId, conversationId }: 
           {receivedState?.message && <Muted>{receivedState.message}</Muted>}
         </Form>
       )}
+      <Form style={{ marginTop: 12 }}>
+        <ContactSupportButton auctionId={auctionId} />
+      </Form>
     </section>
   );
 }

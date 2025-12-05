@@ -23,9 +23,10 @@ import { useRouter } from 'next/navigation';
 type Props = {
   conversations: ConversationWithRelations[];
   currentUserId: string;
+  isAdminView?: boolean;
 };
 
-export function ConversationsList({ conversations, currentUserId }: Props) {
+export function ConversationsList({ conversations, currentUserId, isAdminView }: Props) {
   const router = useRouter();
 
   useEffect(() => {
@@ -62,7 +63,11 @@ export function ConversationsList({ conversations, currentUserId }: Props) {
 
         return (
           <Item key={c.id}>
-            <ItemLink href={`/account/conversations/${c.id}` as Route}>
+            <ItemLink
+              href={
+                isAdminView ? (`/admin/conversations/${c.id}` as Route) : (`/account/conversations/${c.id}` as Route)
+              }
+            >
               <ThumbWrapper>
                 <ImageWithSkeleton src={firstImage?.url ?? null} alt={c.auction.title} contain={false} />
               </ThumbWrapper>
@@ -92,11 +97,6 @@ export function ConversationsList({ conversations, currentUserId }: Props) {
           </Item>
         );
       })}
-      {/* {isPending && (
-        <li>
-          <Muted>Updating…</Muted>
-        </li>
-      )} */}
     </List>
   );
 }

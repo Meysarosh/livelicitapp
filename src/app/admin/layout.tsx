@@ -3,14 +3,15 @@ import {
   Content,
   LayoutWrapper,
   MenuItem,
-  MenuLink,
   MenuList,
   Sidebar,
   SidebarTitle,
 } from '@/components/layout/AccountLayout/styles';
+import AccountMenuLink from '@/components/account/AccountMenuLink';
+import UnreadMessagesCount from '@/components/layout/AccountLayout/UnreadMessagesCount';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await getAdminUser();
+  const admin = await getAdminUser();
 
   return (
     <LayoutWrapper>
@@ -18,16 +19,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <SidebarTitle>Admin</SidebarTitle>
         <MenuList>
           <MenuItem>
-            <MenuLink href='/admin'>Overview</MenuLink>
+            <AccountMenuLink href='/admin'>Overview</AccountMenuLink>
           </MenuItem>
           <MenuItem>
-            <MenuLink href='/admin/users'>Users</MenuLink>
+            <AccountMenuLink href='/admin/users'>Users</AccountMenuLink>
           </MenuItem>
           <MenuItem>
-            <MenuLink href='/admin/auctions'>Auctions</MenuLink>
+            <AccountMenuLink href='/admin/auctions'>Auctions</AccountMenuLink>
           </MenuItem>
           <MenuItem>
-            <MenuLink href='/admin/conversations'>Conversations</MenuLink>
+            <AccountMenuLink href='/admin/conversations'>
+              Conversations <UnreadMessagesCount userId={admin.id} />
+            </AccountMenuLink>
           </MenuItem>
         </MenuList>
       </Sidebar>

@@ -5,7 +5,7 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { redirect } from 'next/navigation';
 import { emitToUser } from '@/lib/realtime/emitToUser';
 import { Prisma, Role, UserStatus } from '@prisma/client';
-import { getUsersCountForAdmin, getUsersForAdmin } from '@/data-access/zadmin';
+import { getUsersCountForAdmin, getUsersForAdmin } from '@/data-access/admin';
 
 export type UserRow = {
   id: string;

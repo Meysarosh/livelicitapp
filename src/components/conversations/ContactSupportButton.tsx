@@ -3,22 +3,13 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { useActionState } from 'react';
-import { startConversation } from '@/app/actions/conversation/startConversation';
 import { Button, TextArea, Muted } from '@/components/ui';
 import { Form } from '../forms/form.styles';
 import { FormFieldWrapper } from '../forms/FormFieldWrapper';
-
-type StartConversationFormState =
-  | {
-      message?: string;
-      errors?: { body?: string[] };
-      values?: { body?: string };
-    }
-  | undefined;
+import { contactSupport, ContactSupportFormState } from '@/app/actions/conversation/contactSupport';
 
 type Props = {
   auctionId: string;
-  disabled?: boolean;
 };
 
 const Overlay = styled.div`
@@ -53,9 +44,9 @@ const ActionsRow = styled.div`
   gap: ${({ theme }) => theme.spacing(1)};
 `;
 
-export function AskSellerButton({ auctionId, disabled }: Props) {
+export function ContactSupportButton({ auctionId }: Props) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState<StartConversationFormState, FormData>(startConversation, undefined);
+  const [state, action, pending] = useActionState<ContactSupportFormState, FormData>(contactSupport, undefined);
 
   const handleSubbmit = () => {
     //TODO close only on success after short delay with success message shown
@@ -63,19 +54,19 @@ export function AskSellerButton({ auctionId, disabled }: Props) {
   };
   return (
     <>
-      <Button type='button' disabled={disabled} onClick={() => setOpen(true)}>
-        Ask seller a question
+      <Button type='button' onClick={() => setOpen(true)}>
+        Contact Support
       </Button>
 
       {open && (
         <Overlay>
           <Dialog>
-            <DialogTitle>Ask the seller</DialogTitle>
+            <DialogTitle>Contact Support</DialogTitle>
             <Form action={action} onSubmit={handleSubbmit}>
               <input type='hidden' name='auctionId' value={auctionId} />
 
               <FormFieldWrapper required error={state?.errors?.body}>
-                <TextArea name='body' placeholder='Write your question…' defaultValue={state?.values?.body ?? ''} />
+                <TextArea name='body' placeholder='Write your message…' defaultValue={state?.values?.body ?? ''} />
               </FormFieldWrapper>
               {state?.message && <Muted>{state.message}</Muted>}
 
