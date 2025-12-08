@@ -9,11 +9,6 @@ import { validateImageFile } from '@/services/validateImageFile';
 
 export async function editUserProfile(_prevState: ProfileFormState, formData: FormData): Promise<ProfileFormState> {
   const user = await getAuthUser();
-  if (!user) {
-    return {
-      message: 'You must be signed in to update your profile.',
-    };
-  }
 
   const prevUserProfile = await getUserProfile(user.id);
 

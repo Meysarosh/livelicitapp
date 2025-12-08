@@ -1,8 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { changePassword } from '@/app/actions/profile/changePassword';
 
-// --- Mocks ---
-
 const getAuthUserMock = vi.fn();
 vi.mock('@/lib/auth/getAuthUser', () => ({
   getAuthUser: () => getAuthUserMock(),
@@ -61,7 +59,7 @@ describe('changePassword (server-side rules)', () => {
     });
 
     const formData = new FormData();
-    formData.set('currentPassword', ''); // missing
+    formData.set('currentPassword', '');
     formData.set('newPassword', 'abc123');
     formData.set('confirmPassword', 'abc123');
 
@@ -102,7 +100,7 @@ describe('changePassword (server-side rules)', () => {
     });
 
     const formData = new FormData();
-    formData.set('currentPassword', ''); // allowed in set-password flow
+    formData.set('currentPassword', '');
     formData.set('newPassword', 'abc123');
     formData.set('confirmPassword', 'abc123');
 
