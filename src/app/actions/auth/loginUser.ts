@@ -5,7 +5,7 @@ import { signIn } from '@/lib/auth';
 import { AuthError } from 'next-auth';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
 
-export async function login(prev: LoginFormState, formData: FormData): Promise<LoginFormState> {
+export async function loginUser(prev: LoginFormState, formData: FormData): Promise<LoginFormState> {
   const raw = {
     identifier: formData.get('identifier'),
     password: formData.get('password'),

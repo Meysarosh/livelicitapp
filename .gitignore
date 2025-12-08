@@ -10,7 +10,7 @@
 !.yarn/releases
 !.yarn/versions
 package-lock.json
-/src/app/api/admin/route.ts
+/prisma/seed.ts
 
 # testing
 /coverage

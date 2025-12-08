@@ -8,7 +8,7 @@ import { signIn } from '@/lib/auth';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
 import { createUser } from '@/data-access/user';
 
-export async function register(prev: RegisterFormState, formData: FormData): Promise<RegisterFormState> {
+export async function registerUser(prev: RegisterFormState, formData: FormData): Promise<RegisterFormState> {
   const raw = {
     nickname: formData.get('nickname'),
     email: formData.get('email'),

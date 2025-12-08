@@ -1,6 +1,6 @@
 'use client';
 
-import { login } from '@/app/actions/auth/login';
+import { loginUser } from '@/app/actions/auth/loginUser';
 import { signIn } from 'next-auth/react';
 import { Form, Summary, SCLink, Divider, CenteredRow } from './form.styles';
 import { Button, Title, Note } from '@/components/ui';
@@ -9,7 +9,7 @@ import { FormFieldWrapper } from './FormFieldWrapper';
 import { Input } from '@/components/ui';
 
 export default function LoginForm() {
-  const [state, action, pending] = useActionState(login, undefined);
+  const [state, action, pending] = useActionState(loginUser, undefined);
 
   const alertRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
