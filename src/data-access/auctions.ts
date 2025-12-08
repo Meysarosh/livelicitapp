@@ -139,7 +139,7 @@ export type AuctionForLists = Auction & {
  *
  * @param page - The page number (1-indexed)
  * @param pageSize - Number of auctions per page
- * @param search - Optional search query to filter by title or description (minimum 3 characters)
+ * @param search - Optional search query to filter by title (minimum 3 characters)
  * @param sort - Sort order for the results
  * @returns Promise containing an array of auctions and the total count
  */
@@ -165,10 +165,7 @@ export async function getPublicAuctions({
 
   const trimmed = search?.trim() ?? '';
   if (trimmed.length >= MIN_SEARCH_LENGTH) {
-    where.OR = [
-      { title: { contains: trimmed, mode: 'insensitive' } },
-      // { description: { contains: trimmed, mode: 'insensitive' } },
-    ];
+    where.OR = [{ title: { contains: trimmed, mode: 'insensitive' } }];
   }
 
   let orderBy: Prisma.AuctionOrderByWithRelationInput;

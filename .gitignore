@@ -10,7 +10,8 @@
 !.yarn/releases
 !.yarn/versions
 package-lock.json
-/src/app/api/admin/route.ts
+pnpm-workspace.yaml
+/prisma/seed.ts
 
 # testing
 /coverage

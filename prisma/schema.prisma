@@ -128,6 +128,10 @@ model Auction {
 
   @@index([status, startAt])
   @@index([status, endAt])
+  @@index([status, currentPriceMinor])
+  @@index([ownerId, status])
+
+  @@index([title])
 }
 
 model AuctionImage {
@@ -138,6 +142,8 @@ model AuctionImage {
   position  Int      @default(0)
   pathname  String?
   createdAt DateTime @default(now())
+
+  @@index([auctionId, position])
 }
 
 model Bid {
