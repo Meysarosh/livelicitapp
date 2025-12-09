@@ -59,7 +59,7 @@ pnpm prisma migrate dev
 pnpm dev
 ```
 
-## Bundle Analizer futáshoz packages.json fájlban meg kell változtatni build scriptet:
+## Bundle Analyzer futáshoz packages.json fájlban meg kell változtatni build scriptet:
 
 "scripts": {
 "build": "next build --webpack"
