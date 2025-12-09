@@ -10,12 +10,6 @@ export async function editShippingAddress(
 ): Promise<ShippingAddressFormState> {
   const user = await getAuthUser();
 
-  if (!user) {
-    return {
-      message: 'You must be signed in to update your shipping address.',
-    };
-  }
-
   const raw = {
     street: formData.get('street'),
     city: formData.get('city'),
