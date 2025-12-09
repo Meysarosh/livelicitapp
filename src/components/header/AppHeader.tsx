@@ -50,6 +50,7 @@ export default function AppHeader({
         </Brand>
         <Nav>
           <NavLink href='/auctions'>Auctions</NavLink>
+          <NavLink href='/rules'>Rules</NavLink>
           {user && <NavLink href='/account'>Account</NavLink>}
         </Nav>
         <AuthBlock>

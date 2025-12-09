@@ -1,27 +1,28 @@
 import type { NextConfig } from 'next';
+import BundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = BundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const nextConfig: NextConfig = {
-  reactCompiler: true,
-  compiler: { styledComponents: true },
-  typedRoutes: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
+    ],
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: '45mb',
     },
   },
-  images: {
-    //TODO: restrict it later, specify exact CDNs (e.g. S3, Cloudinary).
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-      {
-        protocol: 'http',
-        hostname: '**',
-      },
-    ],
+  compiler: {
+    styledComponents: true,
   },
+  reactCompiler: true,
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

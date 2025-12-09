@@ -68,7 +68,7 @@ export const StyledLink = styled(Link)<{ $active?: boolean }>`
   text-decoration: none;
   font-size: 14px;
 
-  color: ${({ $active }) => ($active ? '#ffffff' : '#111827')};
+  color: ${({ $active, theme }) => ($active ? '#ffffff' : theme.colors.textMuted)};
   background-color: ${({ $active }) => ($active ? '#2563eb' : 'transparent')};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
 
