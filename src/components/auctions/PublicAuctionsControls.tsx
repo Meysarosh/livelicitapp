@@ -94,13 +94,25 @@ export function PublicAuctionsControls({ initialQuery, initialSort, currentPage,
       </ToolbarGroup>
 
       <Pagination>
-        <Button type='button' $variant='secondary' disabled={!canPrev} onClick={() => goToPage(currentPage - 1)}>
+        <Button
+          type='button'
+          $variant='secondary'
+          disabled={!canPrev}
+          onClick={() => goToPage(currentPage - 1)}
+          aria-label='Previous page'
+        >
           &larr;
         </Button>
         <PageInfo>
           Page {currentPage} of {totalPages}
         </PageInfo>
-        <Button type='button' $variant='secondary' disabled={!canNext} onClick={() => goToPage(currentPage + 1)}>
+        <Button
+          type='button'
+          $variant='secondary'
+          disabled={!canNext}
+          onClick={() => goToPage(currentPage + 1)}
+          aria-label='Next page'
+        >
           &rarr;
         </Button>
       </Pagination>

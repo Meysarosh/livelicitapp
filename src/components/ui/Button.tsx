@@ -3,6 +3,38 @@
 import styled from 'styled-components';
 import type { DefaultTheme } from 'styled-components';
 
+export type ButtonVariant = 'primary' | 'secondary' | 'danger';
+
+export function getButtonColors(theme: DefaultTheme, variant: ButtonVariant) {
+  switch (variant) {
+    case 'secondary':
+      return {
+        bg: theme.colors.secondary,
+        border: theme.colors.secondary,
+        text: theme.colors.textOnSecondary ?? '#000000',
+        hoverBg: theme.colors.secondaryHover ?? theme.colors.secondary,
+        hoverBorder: theme.colors.secondaryHover ?? theme.colors.secondary,
+      };
+    case 'danger':
+      return {
+        bg: theme.colors.danger,
+        border: theme.colors.danger,
+        text: theme.colors.textOnDanger ?? '#ffffff',
+        hoverBg: theme.colors.dangerHover ?? theme.colors.danger,
+        hoverBorder: theme.colors.dangerHover ?? theme.colors.danger,
+      };
+    case 'primary':
+    default:
+      return {
+        bg: theme.colors.primary,
+        border: theme.colors.primary,
+        text: theme.colors.textOnPrimary ?? '#ffffff',
+        hoverBg: theme.colors.primaryHover ?? theme.colors.primary,
+        hoverBorder: theme.colors.primaryHover ?? theme.colors.primary,
+      };
+  }
+}
+
 export const SCButton = styled.button<{ $variant?: ButtonVariant }>`
   display: inline-flex;
   align-items: center;
@@ -56,35 +88,3 @@ export const Button: React.FC<ButtonProps> = ({ children, $variant, ...props }) 
     </SCButton>
   );
 };
-
-export type ButtonVariant = 'primary' | 'secondary' | 'danger';
-
-export function getButtonColors(theme: DefaultTheme, variant: ButtonVariant) {
-  switch (variant) {
-    case 'secondary':
-      return {
-        bg: theme.colors.secondary,
-        border: theme.colors.secondary,
-        text: theme.colors.textOnSecondary ?? '#000000',
-        hoverBg: theme.colors.secondaryHover ?? theme.colors.secondary,
-        hoverBorder: theme.colors.secondaryHover ?? theme.colors.secondary,
-      };
-    case 'danger':
-      return {
-        bg: theme.colors.danger,
-        border: theme.colors.danger,
-        text: theme.colors.textOnDanger ?? '#ffffff',
-        hoverBg: theme.colors.dangerHover ?? theme.colors.danger,
-        hoverBorder: theme.colors.dangerHover ?? theme.colors.danger,
-      };
-    case 'primary':
-    default:
-      return {
-        bg: theme.colors.primary,
-        border: theme.colors.primary,
-        text: theme.colors.textOnPrimary ?? '#ffffff',
-        hoverBg: theme.colors.primaryHover ?? theme.colors.primary,
-        hoverBorder: theme.colors.primaryHover ?? theme.colors.primary,
-      };
-  }
-}
