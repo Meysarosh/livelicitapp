@@ -54,7 +54,7 @@ export function ContactSupportButton({ auctionId }: Props) {
   };
   return (
     <>
-      <Button type='button' onClick={() => setOpen(true)}>
+      <Button type='button' $variant='secondary' onClick={() => setOpen(true)}>
         Contact Support
       </Button>
 
@@ -71,7 +71,7 @@ export function ContactSupportButton({ auctionId }: Props) {
               {state?.message && <Muted>{state.message}</Muted>}
 
               <ActionsRow>
-                <Button type='button' onClick={() => setOpen(false)} disabled={pending}>
+                <Button type='button' $variant='secondary' onClick={() => setOpen(false)} disabled={pending}>
                   Cancel
                 </Button>
                 <Button type='submit' disabled={pending}>

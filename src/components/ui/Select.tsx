@@ -48,7 +48,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>((props, r
 
   const labelledBy = [props['aria-labelledby'], labelId].filter(Boolean).join(' ') || undefined;
 
-  const options = props.options;
+  const { options, ...rest } = props;
 
   return (
     <SCSelect
@@ -57,7 +57,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>((props, r
       aria-invalid={isInvalid}
       aria-describedby={describedBy}
       aria-labelledby={labelledBy}
-      {...props}
+      {...rest}
     >
       {options
         ? options.map((opt) => (

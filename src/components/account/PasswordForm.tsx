@@ -93,7 +93,7 @@ export default function PasswordForm({ hasLocalPassword }: PasswordFormProps) {
           <Button type='submit' disabled={pending || !isDirty}>
             {pending ? 'Saving…' : submitLabel}
           </Button>
-          <Button type='button' onClick={handleCancel} disabled={pending}>
+          <Button type='button' $variant='secondary' onClick={handleCancel} disabled={pending}>
             Cancel
           </Button>
         </FormButtonRow>
