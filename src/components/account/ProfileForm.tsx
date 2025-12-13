@@ -183,7 +183,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           <Button type='submit' disabled={pending || !isDirty}>
             {pending ? 'Saving…' : 'Save changes'}
           </Button>
-          <Button type='button' onClick={handleCancel} disabled={pending}>
+          <Button type='button' $variant='secondary' onClick={handleCancel} disabled={pending}>
             Cancel
           </Button>
         </FormButtonRow>

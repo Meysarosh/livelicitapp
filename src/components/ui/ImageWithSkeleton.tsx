@@ -77,6 +77,7 @@ export function ImageWithSkeleton({ src, alt, rounded, contain, className }: Pro
         $visible={loaded}
         $contain={contain}
         onLoad={() => setLoaded(true)}
+        loading='eager'
       />
     </Wrapper>
   );

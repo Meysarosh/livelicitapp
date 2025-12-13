@@ -88,20 +88,20 @@ export function PublicAuctionsControls({ initialQuery, initialSort, currentPage,
       </ToolbarGroup>
 
       <ToolbarGroup>
-        <Button type='button' onClick={handleClear}>
+        <Button type='button' $variant='secondary' onClick={handleClear}>
           Clear
         </Button>
       </ToolbarGroup>
 
       <Pagination>
-        <Button type='button' disabled={!canPrev} onClick={() => goToPage(currentPage - 1)}>
-          Previous
+        <Button type='button' $variant='secondary' disabled={!canPrev} onClick={() => goToPage(currentPage - 1)}>
+          &larr;
         </Button>
         <PageInfo>
           Page {currentPage} of {totalPages}
         </PageInfo>
-        <Button type='button' disabled={!canNext} onClick={() => goToPage(currentPage + 1)}>
-          Next
+        <Button type='button' $variant='secondary' disabled={!canNext} onClick={() => goToPage(currentPage + 1)}>
+          &rarr;
         </Button>
       </Pagination>
     </Toolbar>

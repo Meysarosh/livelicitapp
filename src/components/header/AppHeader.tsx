@@ -54,8 +54,8 @@ export default function AppHeader({
           {user && <NavLink href='/account'>Account</NavLink>}
         </Nav>
         <AuthBlock>
-          <Button type='button' onClick={toggleMode}>
-            {mode === 'light' ? '🌙 Dark' : '☀️ Light'}
+          <Button $variant='secondary' type='button' onClick={toggleMode}>
+            {mode === 'light' ? '🌙' : '☀️'}
           </Button>
           {user ? (
             <>

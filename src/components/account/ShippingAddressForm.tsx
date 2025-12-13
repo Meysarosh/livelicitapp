@@ -116,7 +116,7 @@ export default function ShippingAddressForm({ address }: ShippingAddressFormProp
           <Button type='submit' disabled={pending || !isDirty}>
             {pending ? 'Saving…' : 'Save address'}
           </Button>
-          <Button type='button' onClick={handleCancel} disabled={pending}>
+          <Button type='button' $variant='secondary' onClick={handleCancel} disabled={pending}>
             Cancel
           </Button>
         </FormButtonRow>

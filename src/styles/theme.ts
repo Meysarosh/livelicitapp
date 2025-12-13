@@ -51,13 +51,18 @@ export const lightTheme = {
 
     primary: '#2563eb',
     primaryHover: '#1d4ed8',
-
+    secondary: '#6b7280',
+    secondaryHover: '#4b5563',
     danger: '#dc2626',
     dangerHover: '#b91c1c',
-
     accent: '#f97316',
 
-    // NEW: semantic tones for StatusChip
+    // text-on-color helpers for buttons
+    textOnPrimary: '#ffffff',
+    textOnSecondary: '#ffffff',
+    textOnDanger: '#ffffff',
+
+    // Status / semantic tones
     successSoft: '#dcfce7', // green-100
     successStrong: '#15803d', // green-700
 
@@ -96,22 +101,31 @@ export const darkTheme = {
     primary: '#3b82f6',
     primaryHover: '#2563eb',
 
+    // add secondary for dark theme
+    secondary: '#6b7280',
+    secondaryHover: '#4b5563',
+
     danger: '#f97316',
     dangerHover: '#ea580c',
 
     accent: '#22c55e',
 
-    // NEW: semantic tones for StatusChip in dark mode
-    successSoft: 'rgba(34,197,94,0.15)', // soft green bg
-    successStrong: '#4ade80', // green-400
+    // text-on-color helpers for buttons in dark mode
+    textOnPrimary: '#ffffff',
+    textOnSecondary: '#f9fafb',
+    textOnDanger: '#ffffff',
 
-    warningSoft: 'rgba(250,204,21,0.12)', // yellow bg soft
-    warningStrong: '#facc15', // yellow-400
+    // Status tones in dark mode
+    successSoft: 'rgba(34,197,94,0.15)',
+    successStrong: '#4ade80',
 
-    dangerSoft: 'rgba(239,68,68,0.15)', // red bg soft
-    dangerStrong: '#f87171', // red-400
+    warningSoft: 'rgba(250,204,21,0.12)',
+    warningStrong: '#facc15',
 
-    accentSoft: 'rgba(249,115,22,0.15)', // orange soft
+    dangerSoft: 'rgba(239,68,68,0.15)',
+    dangerStrong: '#f87171',
+
+    accentSoft: 'rgba(249,115,22,0.15)',
 
     // Surfaces
     headerBg: '#020617',

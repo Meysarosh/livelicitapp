@@ -63,7 +63,7 @@ export function AskSellerButton({ auctionId, disabled }: Props) {
   };
   return (
     <>
-      <Button type='button' disabled={disabled} onClick={() => setOpen(true)}>
+      <Button type='button' $variant='secondary' disabled={disabled} onClick={() => setOpen(true)}>
         Ask seller a question
       </Button>
 
@@ -80,7 +80,7 @@ export function AskSellerButton({ auctionId, disabled }: Props) {
               {state?.message && <Muted>{state.message}</Muted>}
 
               <ActionsRow>
-                <Button type='button' onClick={() => setOpen(false)} disabled={pending}>
+                <Button type='button' $variant='secondary' onClick={() => setOpen(false)} disabled={pending}>
                   Cancel
                 </Button>
                 <Button type='submit' disabled={pending}>
