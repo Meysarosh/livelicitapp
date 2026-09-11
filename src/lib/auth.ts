@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import Auth0 from 'next-auth/providers/auth0';
-import Google from "next-auth/providers/google";
+//import Google from "next-auth/providers/google";
 import { credentialsProvider } from '@/lib/auth/credentials-auth';
 import { handleAuth0SignIn, applyAuth0IdentityToToken } from '@/lib/auth/auth0-support';
 
