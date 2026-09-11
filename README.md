@@ -1,27 +1,29 @@
-# Auction App – Helyi futtatás
+# Auction App – Local run
 
-## Előfeltételek
+## Requirements
 
-- **Node.js 20+** (ajánlott: nvm)
+- **Node.js 20+**
 - **pnpm**
-- **Docker Desktop** (Compose támogatással)
+- **Docker Desktop**
 - **Git**
 
-## Környezeti változók (env példa)
+## Environmental variables (env example)
 
 ```dotenv
 # Database
 DATABASE_URL="postgresql://postgres:postgres@localhost:5433/livelicitdb?schema=public"
 
 # NextAuth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="change-me"
-
+AUTH_SECRET="change-me"
 
 # Auth0
 AUTH0_CLIENT_ID=""
 AUTH0_CLIENT_SECRET=""
 AUTH0_ISSUER="" # e.g., https://your-tenant.eu.auth0.com
+
+# Google
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
 
 # Pusher.com
 PUSHER_APP_ID=""
@@ -36,35 +38,33 @@ NEXT_PUBLIC_PUSHER_CLUSTER=""
 BLOB_READ_WRITE_TOKEN=""
 ```
 
-## Adatbázis indítása Dockerben
+## Creating database environment in Docker based on docker-compose.yml
 
 ```bash
 docker compose up -d db
 ```
 
-> Az adatbázis ezután a `localhost:5433` címen érhető el, alapértelmezett felhasználó/jelszó: `postgres` / `postgres`.
-
-## Függőségek, Prisma migrációk
-
-A DB-nek futnia kell az alábbi parancsok előtt.
+## Installing dependencies, Prisma migration
 
 ```bash
 pnpm i
 pnpm prisma migrate dev
 ```
 
-## Projekt indítása
+## Running the app
 
 ```bash
 pnpm dev
 ```
 
-## Bundle Analyzer futáshoz packages.json fájlban meg kell változtatni build scriptet:
-
-"scripts": {
-"build": "next build --webpack"
-}
+## Database Studio - visual database in the browser
 
 ```bash
-pnpm build
+pnpm db:studio
+```
+
+## Bundle Analyzer
+
+```bash
+pnpm analyze
 ```

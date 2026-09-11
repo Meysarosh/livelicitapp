@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import Auth0 from 'next-auth/providers/auth0';
+//import Google from "next-auth/providers/google";
 import { credentialsProvider } from '@/lib/auth/credentials-auth';
 import { handleAuth0SignIn, applyAuth0IdentityToToken } from '@/lib/auth/auth0-support';
 
@@ -17,6 +18,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.AUTH0_CLIENT_SECRET!,
       issuer: process.env.AUTH0_ISSUER!,
     }),
+    // Google({
+    //   clientId: process.env.GOOGLE_CLIENT_ID!,
+    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    // }),
   ],
 
   pages: {
