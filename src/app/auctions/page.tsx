@@ -1,5 +1,5 @@
 import { AuctionsList } from '@/components/auctions/AuctionsList';
-import { getPublicAuctions, type PublicAuctionsSort } from '@/data-access/auctions';
+import { getPublicAuctions, type PublicAuctionsSort } from '@/data-access/auction';
 import { PublicAuctionsControls } from '@/components/auctions/PublicAuctionsControls';
 import { PAGE_SIZE } from '@/lib/constants';
 
@@ -9,7 +9,11 @@ type SearchParams = {
   page?: string;
 };
 
-export default async function PublicAuctionsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+export default async function PublicAuctionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   const params = await searchParams;
 
   const rawQuery = typeof params?.q === 'string' ? params.q : '';
@@ -34,7 +38,12 @@ export default async function PublicAuctionsPage({ searchParams }: { searchParam
 
   return (
     <>
-      <PublicAuctionsControls initialQuery={rawQuery} initialSort={sort} currentPage={page} totalPages={totalPages} />
+      <PublicAuctionsControls
+        initialQuery={rawQuery}
+        initialSort={sort}
+        currentPage={page}
+        totalPages={totalPages}
+      />
       <AuctionsList auctions={auctions} page='public' />
     </>
   );

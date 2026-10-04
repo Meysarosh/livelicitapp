@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { createAuction as createAuctionInDb } from '@/data-access/auctions';
+import { createAuction } from '@/data-access/auction';
 import {
   CreateAuctionFormSchema,
   durationDayOptions,
@@ -13,9 +13,9 @@ import { validateImageFile } from '@/services/validateImageFile';
 import { AuctionStatus, Prisma } from '@prisma/client';
 import { put } from '@vercel/blob';
 
-export async function createAuction(
+export async function createAuctionAction(
   _prevState: CreateAuctionFormState,
-  formData: FormData
+  formData: FormData,
 ): Promise<CreateAuctionFormState> {
   const user = await getAuthUser();
 
@@ -30,7 +30,9 @@ export async function createAuction(
     startAt: formData.get('startAt'),
   };
 
-  const imageFiles = formData.getAll('images').filter((v): v is File => v instanceof File && v.size > 0);
+  const imageFiles = formData
+    .getAll('images')
+    .filter((v): v is File => v instanceof File && v.size > 0);
 
   const parsed = CreateAuctionFormSchema.safeParse(raw);
 
@@ -138,8 +140,7 @@ export async function createAuction(
 
   const imageCreates: { url: string; position: number }[] = [];
 
-  for (let i = 0; i < imageFiles.length; i++) {
-    const file = imageFiles[i];
+  for (const [i, file] of imageFiles.entries()) {
     const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
 
     try {
@@ -154,7 +155,7 @@ export async function createAuction(
     } catch (err) {
       console.error('Error uploading image file:', err);
       return {
-        message: `Failed to upload image "${file.name}". Please try again.`,
+        message: `Failed to upload image "${file?.name}". Please try again.`,
         values: {
           ...parsed.data,
           imageUrls: parsed.data.imageUrls ?? '',
@@ -182,7 +183,7 @@ export async function createAuction(
   };
 
   try {
-    await createAuctionInDb(data);
+    await createAuction(data);
   } catch (err) {
     console.error('APP/ACTIONS/CREATE_AUCTION:', err);
 

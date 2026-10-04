@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState, useTransition } from 'react';
-import { changePassword } from '@/app/actions/profile/changePassword';
+import { changePasswordAction } from '@/app/actions/profile/changePassword';
 import type { PasswordFormState } from '@/services/zodValidation-service';
 import { Form, FormButtonRow } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
@@ -12,7 +12,10 @@ type PasswordFormProps = {
 };
 
 export default function PasswordForm({ hasLocalPassword }: PasswordFormProps) {
-  const [state, formAction, pending] = useActionState<PasswordFormState, FormData>(changePassword, undefined);
+  const [state, formAction, pending] = useActionState<PasswordFormState, FormData>(
+    changePasswordAction,
+    undefined,
+  );
   const [, startTransition] = useTransition();
 
   const [currentPassword, setCurrentPassword] = useState('');
@@ -55,7 +58,11 @@ export default function PasswordForm({ hasLocalPassword }: PasswordFormProps) {
 
       <Form action={formAction}>
         {hasLocalPassword && (
-          <FormFieldWrapper label='Current password' required error={state?.errors?.currentPassword?.[0]}>
+          <FormFieldWrapper
+            label='Current password'
+            required
+            error={state?.errors?.currentPassword?.[0]}
+          >
             <Input
               type='password'
               name='currentPassword'
@@ -78,7 +85,11 @@ export default function PasswordForm({ hasLocalPassword }: PasswordFormProps) {
           />
         </FormFieldWrapper>
 
-        <FormFieldWrapper label='Confirm new password' required error={state?.errors?.confirmPassword?.[0]}>
+        <FormFieldWrapper
+          label='Confirm new password'
+          required
+          error={state?.errors?.confirmPassword?.[0]}
+        >
           <Input
             type='password'
             name='confirmPassword'

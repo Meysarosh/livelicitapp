@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getAuctionById, updateAuctionWithImages } from '@/data-access/auctions';
+import { getAuction, updateAuctionWithImages } from '@/data-access/auction';
 import {
   CreateAuctionFormSchema,
   durationDayOptions,
@@ -15,15 +15,15 @@ import { del, put } from '@vercel/blob';
 import { prisma } from '@/lib/db';
 import { validateImageFile } from '@/services/validateImageFile';
 import {
-  deleteAuctionImagesByIds,
   getAuctionImagesByAuctionId,
   updateAuctionImagePosition,
+  deleteAuctionImagesByIds,
 } from '@/data-access/auctionImage';
 
-export async function editAuction(
+export async function editAuctionAction(
   auctionId: string,
   _prevState: CreateAuctionFormState,
-  formData: FormData
+  formData: FormData,
 ): Promise<CreateAuctionFormState> {
   const user = await getAuthUser();
   if (!user) {
@@ -32,7 +32,7 @@ export async function editAuction(
     };
   }
 
-  const auction = await getAuctionById(auctionId);
+  const auction = await getAuction(auctionId);
 
   if (!auction) {
     return {
@@ -42,7 +42,7 @@ export async function editAuction(
 
   if (auction.ownerId !== user.id) {
     return {
-      message: 'You can only edit your own auctions.',
+      message: 'You are not authorized to edit this auction.',
     };
   }
 
@@ -63,7 +63,9 @@ export async function editAuction(
     startAt: formData.get('startAt'),
   };
 
-  const imageFiles = formData.getAll('images').filter((v): v is File => v instanceof File && v.size > 0);
+  const imageFiles = formData
+    .getAll('images')
+    .filter((v): v is File => v instanceof File && v.size > 0);
   const imagesMetaRaw = formData.get('imagesMeta');
   let meta: { existingOrder: string[]; deletedIds: string[] } | null = null;
 
@@ -182,12 +184,13 @@ export async function editAuction(
   // Upload new images and append them after existing positions
   const imageCreates: { url: string; position: number }[] = [];
 
-  for (let i = 0; i < imageFiles.length; i++) {
-    const file = imageFiles[i];
+  for (const [i, file] of imageFiles.entries()) {
     const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
 
     try {
-      const blob = await put(`auctions/${user.id}/${crypto.randomUUID()}-${safeName}`, file, { access: 'public' });
+      const blob = await put(`auctions/${user.id}/${crypto.randomUUID()}-${safeName}`, file, {
+        access: 'public',
+      });
 
       imageCreates.push({
         url: blob.url,
@@ -254,8 +257,8 @@ export async function editAuction(
       }
 
       // 3) Re-apply positions for kept existing images
-      for (let i = 0; i < existingOrder.length; i++) {
-        await updateAuctionImagePosition(existingOrder[i], i, tx);
+      for (const [i, id] of existingOrder.entries()) {
+        await updateAuctionImagePosition(id, i, tx);
       }
 
       // 4) Append new images after kept existing ones

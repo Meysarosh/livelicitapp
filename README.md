@@ -51,10 +51,24 @@ pnpm i
 pnpm prisma migrate dev
 ```
 
+## Seeding test database
+
+```bash
+pnpm seed
+```
+
 ## Running the app
 
 ```bash
 pnpm dev
+```
+
+## Checks before pushing to remote repository
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
 ```
 
 ## Database Studio - visual database in the browser

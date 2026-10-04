@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getPusherServer } from '@/lib/realtime/pusher-server';
-import { getConversationById } from '@/data-access/conversations';
+import { getConversationSummary } from '@/data-access/conversation';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -28,12 +28,12 @@ export async function POST(req: NextRequest) {
   } else if (channelName.startsWith('private-conversation-')) {
     const conversationId = channelName.substring('private-conversation-'.length);
 
-    const convo = await getConversationById(conversationId);
-    if (!convo) {
+    const conversation = await getConversationSummary(conversationId);
+    if (!conversation) {
       return new NextResponse('Not found', { status: 404 });
     }
 
-    const isParticipant = convo.userAId === user.id || convo.userBId === user.id;
+    const isParticipant = conversation.userAId === user.id || conversation.userBId === user.id;
     if (!isParticipant) {
       return new NextResponse('Forbidden', { status: 403 });
     }

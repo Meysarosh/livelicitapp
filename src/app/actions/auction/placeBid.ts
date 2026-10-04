@@ -3,12 +3,15 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { PlaceBidFormSchema, type PlaceBidFormState } from '@/services/zodValidation-service';
 import { prisma } from '@/lib/db';
-import { getAuctionForBidTransaction, updateAuctionBid } from '@/data-access/auctions';
-import { createBid } from '@/data-access/bids';
+import { getAuctionForBidTransaction, updateAuctionBid } from '@/data-access/auction';
+import { createBid } from '@/data-access/bid';
 import { TIME_EXTEND_AFTER_BID } from '@/lib/constants';
 import { emitBidPlaced } from '@/lib/realtime/auctions-events';
 
-export async function placeBid(_prevState: PlaceBidFormState, formData: FormData): Promise<PlaceBidFormState> {
+export async function placeBidAction(
+  _prevState: PlaceBidFormState,
+  formData: FormData,
+): Promise<PlaceBidFormState> {
   const user = await getAuthUser();
 
   const raw = {
@@ -80,7 +83,9 @@ export async function placeBid(_prevState: PlaceBidFormState, formData: FormData
           kind: 'error' as const,
           state: {
             errors: {
-              amount: [`Your bid must be at least ${(minAllowedBidMinor / 100).toFixed(0)} ${auction.currency}.`],
+              amount: [
+                `Your bid must be at least ${(minAllowedBidMinor / 100).toFixed(0)} ${auction.currency}.`,
+              ],
             },
             values: { amount },
           },

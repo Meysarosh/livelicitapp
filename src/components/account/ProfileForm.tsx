@@ -2,29 +2,27 @@
 
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { editUserProfile } from '@/app/actions/profile/editUserProfile';
+import Link from 'next/link';
+import { User } from '@/types/user';
+import { editUserProfileAction } from '@/app/actions/profile/editUserProfile';
 import type { ProfileFormState } from '@/services/zodValidation-service';
 import { Form, FormButtonRow } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
 import { Button, Title, Note, Input } from '@/components/ui';
 import { Avatar } from './Avatar';
 import { ProfileLinks } from '../layout';
-import Link from 'next/link';
 
 type ProfileFormProps = {
-  user: {
-    email: string;
-    nickname: string | null;
-    fullName: string | null;
-    phone: string | null;
-    avatarUrl: string | null;
-  };
+  user: User;
 };
 
 export default function ProfileForm({ user }: ProfileFormProps) {
   const router = useRouter();
 
-  const [state, formAction, pending] = useActionState<ProfileFormState, FormData>(editUserProfile, undefined);
+  const [state, formAction, pending] = useActionState<ProfileFormState, FormData>(
+    editUserProfileAction,
+    undefined,
+  );
 
   const initialFullName = user.fullName ?? '';
   const initialPhone = user.phone ?? '';
@@ -43,7 +41,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         URL.revokeObjectURL(avatarPreview);
       }
     },
-    [avatarPreview]
+    [avatarPreview],
   );
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import { toggleWatchlist } from '@/app/actions/auction/toggleWatchlist';
+import { toggleWatchlistAction } from '@/app/actions/auction/toggleWatchlist';
 import { Button } from '@/components/ui';
 
 interface WatchlistButtonProps {
@@ -21,7 +21,7 @@ export function WatchlistButton({ auctionId, initialInWatchlist }: WatchlistButt
       onClick={() => {
         startTransition(async () => {
           try {
-            const result = await toggleWatchlist(auctionId, inWatchlist);
+            const result = await toggleWatchlistAction(auctionId, inWatchlist);
             setInWatchlist(result.inWatchlist);
           } catch (e) {
             console.error('toggleWatchlist failed', e);

@@ -4,12 +4,15 @@ import { MessageKind, DealStatus, Deal } from '@prisma/client';
 
 import { prisma } from '@/lib/db';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getDealById, updateDeal } from '@/data-access/deals';
-import { upsertConversation, updateConversation } from '@/data-access/conversations';
-import { createMessage } from '@/data-access/messages';
+import { getDealForStatusAction, updateDeal } from '@/data-access/deal';
+import { upsertConversation, updateConversation } from '@/data-access/conversation';
+import { createMessage } from '@/data-access/message';
 import { getShippingAddress } from '@/data-access/shippingAddress';
 import { broadcastDealUpdated } from '@/lib/realtime/deals-events';
-import { emitConversationUpdatedForUsers, emitNewMessageEvent } from '@/lib/realtime/conversations-events';
+import {
+  emitConversationUpdatedForUsers,
+  emitNewMessageEvent,
+} from '@/lib/realtime/conversations-events';
 
 type MarkDealPaidState =
   | {
@@ -17,7 +20,10 @@ type MarkDealPaidState =
     }
   | undefined;
 
-export async function markDealPaid(_prev: MarkDealPaidState, formData: FormData): Promise<MarkDealPaidState> {
+export async function markDealPaidAction(
+  _prev: MarkDealPaidState,
+  formData: FormData,
+): Promise<MarkDealPaidState> {
   const user = await getAuthUser();
 
   const dealId = formData.get('dealId');
@@ -29,7 +35,7 @@ export async function markDealPaid(_prev: MarkDealPaidState, formData: FormData)
     const now = new Date();
 
     const { deal, message, conversation } = await prisma.$transaction(async (tx) => {
-      const deal = await getDealById(dealId, tx);
+      const deal = await getDealForStatusAction(dealId, tx);
       if (!deal) {
         throw new Error('Deal not found.');
       }
@@ -50,7 +56,7 @@ export async function markDealPaid(_prev: MarkDealPaidState, formData: FormData)
           paidAmountMinor: deal.auction.currentPriceMinor,
           currency: deal.currency ?? deal.auction.currency,
         },
-        tx
+        tx,
       );
 
       const convo = await upsertConversation(deal.auctionId, deal.sellerId, deal.buyerId, tx);
@@ -73,17 +79,19 @@ export async function markDealPaid(_prev: MarkDealPaidState, formData: FormData)
           kind: MessageKind.SYSTEM,
           body: messageBody,
         },
-        tx
+        tx,
       );
 
       const updatedConversation = await updateConversation(
         convo.id,
         {
           lastMessageAt: now,
-          unreadCountA: convo.userAId === deal.sellerId ? convo.unreadCountA + 1 : convo.unreadCountA,
-          unreadCountB: convo.userBId === deal.sellerId ? convo.unreadCountB + 1 : convo.unreadCountB,
+          unreadCountA:
+            convo.userAId === deal.sellerId ? convo.unreadCountA + 1 : convo.unreadCountA,
+          unreadCountB:
+            convo.userBId === deal.sellerId ? convo.unreadCountB + 1 : convo.unreadCountB,
         },
-        tx
+        tx,
       );
 
       return {

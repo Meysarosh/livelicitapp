@@ -26,7 +26,7 @@ type GetUsersDataForAdminArgs = {
   search?: string;
 };
 
-export async function getUsersDataForAdmin({
+export async function getUsersDataForAdminAction({
   page,
   pageSize,
   search,
@@ -43,7 +43,10 @@ export async function getUsersDataForAdmin({
 
   const skip = (page - 1) * pageSize;
 
-  const [rows, total] = await Promise.all([getUsersForAdmin({ where, skip, pageSize }), getUsersCountForAdmin(where)]);
+  const [rows, total] = await Promise.all([
+    getUsersForAdmin({ where, skip, pageSize }),
+    getUsersCountForAdmin(where),
+  ]);
 
   const users: UserRow[] = rows.map((u) => ({
     id: u.id,
@@ -61,7 +64,7 @@ export async function getUsersDataForAdmin({
   return { users, total };
 }
 
-export async function adminUpdateUserStatus(formData: FormData) {
+export async function adminUpdateUserStatusAction(formData: FormData) {
   const admin = await getAuthUser();
 
   if (admin.role !== 'ADMIN') {

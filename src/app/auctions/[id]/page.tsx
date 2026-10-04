@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { AuctionDetailsView } from '@/components/auctions/AuctionDetailsView';
 import { BidContainer } from '@/components/auctions/BidContainer';
-import { getAuctionDetailsForPublic } from '@/data-access/auctions';
+import { getAuctionDetails, getAuctionMetaData } from '@/data-access/auction';
 import { AuctionMetaData } from '@/components/auctions/AuctionMetaData';
 import { WatchlistButton } from '@/components/auctions/WatchlistButton';
 import { getWatchlistEntry } from '@/data-access/watchlist';
@@ -10,9 +10,13 @@ import { AskSellerButton } from '@/components/conversations/AskSellerButton';
 import { Metadata } from 'next';
 import { ContactSupportButton } from '@/components/conversations/ContactSupportButton';
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
   const { id } = await params;
-  const auction = await getAuctionDetailsForPublic(id);
+  const auction = await getAuctionMetaData(id);
 
   if (!auction) return { title: 'Auction Not Found' };
 
@@ -30,9 +34,9 @@ export default async function AuctionDetailsPage({ params }: { params: Promise<P
   const session = await auth();
   const userId = session?.user.id;
 
-  const pageParams = await params;
+  const { id } = await params;
 
-  const auction = await getAuctionDetailsForPublic(pageParams.id);
+  const auction = await getAuctionDetails(id);
 
   if (!auction || !auction.owner) {
     notFound();
@@ -53,7 +57,9 @@ export default async function AuctionDetailsPage({ params }: { params: Promise<P
     </>
   );
   const metadata = <AuctionMetaData auction={auction} />;
-  const watchlistButton = <WatchlistButton auctionId={auction.id} initialInWatchlist={inWatchlist} />;
+  const watchlistButton = (
+    <WatchlistButton auctionId={auction.id} initialInWatchlist={inWatchlist} />
+  );
 
   return (
     <AuctionDetailsView

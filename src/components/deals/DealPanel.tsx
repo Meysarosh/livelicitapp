@@ -1,14 +1,14 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
-import type { Deal, DealStatus, User } from '@prisma/client';
+import type { Deal, DealStatus } from '@prisma/client';
 import { Button, Paragraph, Muted, SubTitle } from '@/components/ui';
 import { Form } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
 import { Input } from '@/components/ui';
-import { markDealPaid } from '@/app/actions/deal/markDealPaid';
-import { markDealShipped } from '@/app/actions/deal/markDealShipped';
-import { markDealReceived } from '@/app/actions/deal/markDealReceived';
+import { markDealPaidAction } from '@/app/actions/deal/markDealPaid';
+import { markDealShippedAction } from '@/app/actions/deal/markDealShipped';
+import { markDealReceivedAction } from '@/app/actions/deal/markDealReceived';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
 import { DealUpdatedPayload } from '@/lib/realtime/deals-events';
 import { getDealStatusChip } from '@/services/dealStatus-service';
@@ -17,8 +17,16 @@ import { StyledLink } from '../layout';
 import { ContactSupportButton } from '../conversations/ContactSupportButton';
 
 type DealWithUsers = Deal & {
-  buyer: User;
-  seller: User;
+  buyer: {
+    id: string;
+    nickname: string | null;
+    email: string;
+  };
+  seller: {
+    id: string;
+    nickname: string | null;
+    email: string;
+  };
 };
 
 type Props = {
@@ -33,9 +41,15 @@ export function DealPanel({ deal: initialDeal, currentUserId, conversationId, au
   const isBuyer = deal.buyerId === currentUserId;
   const isSeller = deal.sellerId === currentUserId;
 
-  const [paidState, markPaidAction, pendingPaid] = useActionState(markDealPaid, undefined);
-  const [shippedState, markShippedAction, pendingShipped] = useActionState(markDealShipped, undefined);
-  const [receivedState, markReceivedAction, pendingReceived] = useActionState(markDealReceived, undefined);
+  const [paidState, markPaidAction, pendingPaid] = useActionState(markDealPaidAction, undefined);
+  const [shippedState, markShippedAction, pendingShipped] = useActionState(
+    markDealShippedAction,
+    undefined,
+  );
+  const [receivedState, markReceivedAction, pendingReceived] = useActionState(
+    markDealReceivedAction,
+    undefined,
+  );
 
   useEffect(() => {
     const pusher = getPusherClient();
@@ -103,12 +117,26 @@ export function DealPanel({ deal: initialDeal, currentUserId, conversationId, au
         <Form action={markShippedAction} style={{ marginTop: 12 }}>
           <input type='hidden' name='dealId' value={deal.id} />
 
-          <FormFieldWrapper label='Shipping company' required error={shippedState?.errors?.shippingCompany?.[0]}>
-            <Input name='shippingCompany' defaultValue={shippedState?.values?.shippingCompany ?? ''} />
+          <FormFieldWrapper
+            label='Shipping company'
+            required
+            error={shippedState?.errors?.shippingCompany?.[0]}
+          >
+            <Input
+              name='shippingCompany'
+              defaultValue={shippedState?.values?.shippingCompany ?? ''}
+            />
           </FormFieldWrapper>
 
-          <FormFieldWrapper label='Tracking number' required error={shippedState?.errors?.trackingNumber?.[0]}>
-            <Input name='trackingNumber' defaultValue={shippedState?.values?.trackingNumber ?? ''} />
+          <FormFieldWrapper
+            label='Tracking number'
+            required
+            error={shippedState?.errors?.trackingNumber?.[0]}
+          >
+            <Input
+              name='trackingNumber'
+              defaultValue={shippedState?.values?.trackingNumber ?? ''}
+            />
           </FormFieldWrapper>
 
           <Button type='submit' disabled={pendingShipped}>

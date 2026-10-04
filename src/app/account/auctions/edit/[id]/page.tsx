@@ -1,8 +1,8 @@
 import AuctionForm from '@/components/auctions/AuctionForm';
-import { editAuction } from '@/app/actions/auction/editAuction';
+import { editAuctionAction } from '@/app/actions/auction/editAuction';
 import { notFound } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getAuctionDetailsForOwner } from '@/data-access/auctions';
+import { getAuctionDetails } from '@/data-access/auction';
 import { ErrorText } from '@/components/ui';
 
 type PageProps = {
@@ -13,7 +13,7 @@ export default async function AuctionEditPage({ params }: { params: Promise<Page
   const { id } = await params;
   const user = await getAuthUser();
 
-  const auction = await getAuctionDetailsForOwner(id);
+  const auction = await getAuctionDetails(id);
 
   if (!auction || auction.ownerId !== user.id) {
     notFound();
@@ -40,7 +40,7 @@ export default async function AuctionEditPage({ params }: { params: Promise<Page
       url: img.url,
     })) ?? [];
 
-  const updateAction = editAuction.bind(null, auction.id);
+  const updateAction = editAuctionAction.bind(null, auction.id);
 
   return (
     <AuctionForm

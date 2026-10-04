@@ -1,5 +1,5 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getUserConversations } from '@/data-access/conversations';
+import { getUserConversations } from '@/data-access/conversation';
 import { Title, Note } from '@/components/ui';
 import { PageSection } from '@/components/layout';
 import { ConversationsList } from '@/components/conversations/ConversationsList';
@@ -15,7 +15,11 @@ export default async function AdminConversationsPage() {
       {conversations.length === 0 ? (
         <Note>You don’t have any conversations yet.</Note>
       ) : (
-        <ConversationsList conversations={conversations} currentUserId={user.id} isAdminView={true} />
+        <ConversationsList
+          conversations={conversations}
+          currentUserId={user.id}
+          isAdminView={true}
+        />
       )}
     </PageSection>
   );

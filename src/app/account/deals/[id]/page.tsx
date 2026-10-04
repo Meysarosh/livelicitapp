@@ -1,6 +1,6 @@
 import { AuctionDetailsView } from '@/components/auctions/AuctionDetailsView';
 import { DealPanel } from '@/components/deals/DealPanel';
-import { getAuctionWithDeal } from '@/data-access/auctions';
+import { getAuctionWithDeal } from '@/data-access/auction';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { notFound } from 'next/navigation';
 
@@ -18,7 +18,7 @@ export default async function DealDetailsPage({ params }: { params: Promise<{ id
     <DealPanel
       deal={auction.deal}
       currentUserId={currentUserId}
-      conversationId={auction.auctionForConversations[0].id}
+      conversationId={auction.auctionForConversations[0]!.id}
       auctionId={auction.id}
     />
   );

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
-import { AuctionForLists } from '@/data-access/auctions';
+import { AuctionForList } from '@/types/auction';
 
 type AuctionContextType = {
   currentPriceMinor: number;
@@ -23,7 +23,7 @@ export function useAuctionRealtime() {
 }
 
 type ProviderProps = {
-  auction: AuctionForLists;
+  auction: AuctionForList;
   children: React.ReactNode;
 };
 
@@ -49,7 +49,7 @@ export function AuctionRealtimeProvider({ auction, children }: ProviderProps) {
         setHighestBidderId(data.pusherHighestBidderId);
         setEndAt(new Date(data.pusherEndAt));
         setBidsCount(data.pusherBidsCount);
-      }
+      },
     );
 
     return () => {

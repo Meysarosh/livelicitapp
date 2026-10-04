@@ -2,12 +2,15 @@
 
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { prisma } from '@/lib/db';
-import { getDealById, updateDeal } from '@/data-access/deals';
-import { upsertConversation, updateConversation } from '@/data-access/conversations';
-import { createMessage } from '@/data-access/messages';
+import { getDealForStatusAction, updateDeal } from '@/data-access/deal';
+import { upsertConversation, updateConversation } from '@/data-access/conversation';
+import { createMessage } from '@/data-access/message';
 import { MessageKind, DealStatus, Deal } from '@prisma/client';
 import { broadcastDealUpdated } from '@/lib/realtime/deals-events';
-import { emitConversationUpdatedForUsers, emitNewMessageEvent } from '@/lib/realtime/conversations-events';
+import {
+  emitConversationUpdatedForUsers,
+  emitNewMessageEvent,
+} from '@/lib/realtime/conversations-events';
 
 type MarkDealReceivedState =
   | {
@@ -15,9 +18,9 @@ type MarkDealReceivedState =
     }
   | undefined;
 
-export async function markDealReceived(
+export async function markDealReceivedAction(
   _prev: MarkDealReceivedState,
-  formData: FormData
+  formData: FormData,
 ): Promise<MarkDealReceivedState> {
   const user = await getAuthUser();
 
@@ -30,7 +33,7 @@ export async function markDealReceived(
     const now = new Date();
 
     const { deal, message, conversation } = await prisma.$transaction(async (tx) => {
-      const deal = await getDealById(dealId, tx);
+      const deal = await getDealForStatusAction(dealId, tx);
       if (!deal) {
         throw new Error('Deal not found.');
       }
@@ -50,7 +53,7 @@ export async function markDealReceived(
           receivedAt: now,
           closedAt: now,
         },
-        tx
+        tx,
       );
 
       const convo = await upsertConversation(deal.auctionId, deal.sellerId, deal.buyerId, tx);
@@ -62,17 +65,19 @@ export async function markDealReceived(
           kind: MessageKind.SYSTEM,
           body: 'Buyer marked the deal as RECEIVED. Transaction closed.',
         },
-        tx
+        tx,
       );
 
       const updatedConversation = await updateConversation(
         convo.id,
         {
           lastMessageAt: now,
-          unreadCountA: convo.userAId === deal.sellerId ? convo.unreadCountA + 1 : convo.unreadCountA,
-          unreadCountB: convo.userBId === deal.sellerId ? convo.unreadCountB + 1 : convo.unreadCountB,
+          unreadCountA:
+            convo.userAId === deal.sellerId ? convo.unreadCountA + 1 : convo.unreadCountA,
+          unreadCountB:
+            convo.userBId === deal.sellerId ? convo.unreadCountB + 1 : convo.unreadCountB,
         },
-        tx
+        tx,
       );
 
       return {

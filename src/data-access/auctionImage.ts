@@ -1,5 +1,7 @@
+import 'server-only';
 import { prisma } from '@/lib/db';
 import { AuctionImage, Prisma, PrismaClient } from '@prisma/client';
+import { auctionImagesByAuctionIdArgs, AuctionImageForAuction } from '@/types/auctionImage';
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -9,7 +11,7 @@ export async function createImage(
   url: string,
   pathname: string,
   position: number = 0,
-  tx: DbClient = prisma
+  tx: DbClient = prisma,
 ): Promise<AuctionImage> {
   return tx.auctionImage.create({
     data: {
@@ -22,9 +24,13 @@ export async function createImage(
 }
 
 //GET AUCTION IMAGES BY AUCTION ID
-export async function getAuctionImagesByAuctionId(auctionId: string, tx: DbClient = prisma): Promise<AuctionImage[]> {
+export async function getAuctionImagesByAuctionId(
+  auctionId: string,
+  tx: DbClient = prisma,
+): Promise<AuctionImageForAuction[]> {
   return tx.auctionImage.findMany({
     where: { auctionId },
+    ...auctionImagesByAuctionIdArgs,
     orderBy: { position: 'asc' },
   });
 }
@@ -33,7 +39,7 @@ export async function getAuctionImagesByAuctionId(auctionId: string, tx: DbClien
 export async function updateAuctionImagePosition(
   id: string,
   position: number,
-  tx: DbClient = prisma
+  tx: DbClient = prisma,
 ): Promise<AuctionImage> {
   return tx.auctionImage.update({
     where: { id },
@@ -45,7 +51,7 @@ export async function updateAuctionImagePosition(
 export async function deleteAuctionImagesByIds(
   auctionId: string,
   ids: string[],
-  tx: DbClient = prisma
+  tx: DbClient = prisma,
 ): Promise<Prisma.BatchPayload> {
   return tx.auctionImage.deleteMany({
     where: {

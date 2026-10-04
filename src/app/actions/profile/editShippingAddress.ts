@@ -2,11 +2,14 @@
 
 import { upsertShippingAddress } from '@/data-access/shippingAddress';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { ShippingAddressFormSchema, type ShippingAddressFormState } from '@/services/zodValidation-service';
+import {
+  ShippingAddressFormSchema,
+  type ShippingAddressFormState,
+} from '@/services/zodValidation-service';
 
-export async function editShippingAddress(
+export async function editShippingAddressAction(
   _prevState: ShippingAddressFormState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ShippingAddressFormState> {
   const user = await getAuthUser();
 

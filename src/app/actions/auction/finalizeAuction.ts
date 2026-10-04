@@ -1,20 +1,23 @@
 'use server';
 
-import { getAuctionWithDeal, updateAuction } from '@/data-access/auctions';
-import { updateConversation, upsertConversation } from '@/data-access/conversations';
-import { createDeal } from '@/data-access/deals';
-import { createMessage } from '@/data-access/messages';
-import { emitConversationUpdatedForUsers, emitNewMessageEvent } from '@/lib/realtime/conversations-events';
+import { getAuctionToFinalaze, updateAuction } from '@/data-access/auction';
+import { updateConversation, upsertConversation } from '@/data-access/conversation';
+import { createDeal } from '@/data-access/deal';
+import { createMessage } from '@/data-access/message';
+import {
+  emitConversationUpdatedForUsers,
+  emitNewMessageEvent,
+} from '@/lib/realtime/conversations-events';
 import { broadcastDealUpdated } from '@/lib/realtime/deals-events';
 import { type Prisma, Deal, DealStatus } from '@prisma/client';
 
-export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: string) {
-  const auction = await getAuctionWithDeal(auctionId, tx);
+export async function finalizeAuctionAction(tx: Prisma.TransactionClient, auctionId: string) {
+  const auction = await getAuctionToFinalaze(auctionId, tx);
 
   if (!auction) return null;
 
   if (auction.status !== 'ACTIVE') {
-    return auction.deal;
+    return null;
   }
 
   await updateAuction(auction.id, { status: 'ENDED' }, tx);
@@ -56,7 +59,7 @@ export async function finalizeAuction(tx: Prisma.TransactionClient, auctionId: s
       unreadCountA: conversation.unreadCountA + 1,
       unreadCountB: conversation.unreadCountB + 1,
     },
-    tx
+    tx,
   );
 
   try {

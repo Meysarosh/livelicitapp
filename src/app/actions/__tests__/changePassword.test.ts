@@ -1,19 +1,16 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { changePassword } from '@/app/actions/profile/changePassword';
+import { changePasswordAction } from '@/app/actions/profile/changePassword';
 
 const getAuthUserMock = vi.fn();
 vi.mock('@/lib/auth/getAuthUser', () => ({
   getAuthUser: () => getAuthUserMock(),
 }));
 
-const getUserWithCredentialsMock = vi.fn();
-vi.mock('@/data-access/user', () => ({
-  getUserWithCredentials: (id: string) => getUserWithCredentialsMock(id),
-}));
-
+const getUserCredentialMock = vi.fn();
 const createUserCredentialMock = vi.fn();
 const updateUserCredentialMock = vi.fn();
-vi.mock('@/data-access/userCredentials', () => ({
+vi.mock('@/data-access/user', () => ({
+  getUserCredential: (userId: string) => getUserCredentialMock(userId),
   createUserCredential: (userId: string, hash: string) => createUserCredentialMock(userId, hash),
   updateUserCredential: (userId: string, hash: string) => updateUserCredentialMock(userId, hash),
 }));
@@ -37,7 +34,7 @@ vi.mock('bcrypt', () => ({
 describe('changePassword (server-side rules)', () => {
   beforeEach(() => {
     getAuthUserMock.mockReset();
-    getUserWithCredentialsMock.mockReset();
+    getUserCredentialMock.mockReset();
     createUserCredentialMock.mockReset();
     updateUserCredentialMock.mockReset();
     bcryptCompareMock.mockReset();
@@ -53,17 +50,14 @@ describe('changePassword (server-side rules)', () => {
   });
 
   it('requires currentPassword when user already has local credentials', async () => {
-    getUserWithCredentialsMock.mockResolvedValue({
-      id: 'user-1',
-      credentials: { passHash: 'old-hash' },
-    });
+    getUserCredentialMock.mockResolvedValue({ userId: 'user-1', passHash: 'old-hash' });
 
     const formData = new FormData();
     formData.set('currentPassword', '');
     formData.set('newPassword', 'abc123');
     formData.set('confirmPassword', 'abc123');
 
-    const res = await changePassword(undefined, formData);
+    const res = await changePasswordAction(undefined, formData);
 
     expect(res?.errors?.currentPassword?.[0]).toBe('Current password is required.');
     expect(bcryptCompareMock).not.toHaveBeenCalled();
@@ -73,10 +67,7 @@ describe('changePassword (server-side rules)', () => {
   });
 
   it('rejects incorrect currentPassword when user has local credentials', async () => {
-    getUserWithCredentialsMock.mockResolvedValue({
-      id: 'user-1',
-      credentials: { passHash: 'old-hash' },
-    });
+    getUserCredentialMock.mockResolvedValue({ userId: 'user-1', passHash: 'old-hash' });
 
     bcryptCompareMock.mockResolvedValue(false);
 
@@ -85,7 +76,7 @@ describe('changePassword (server-side rules)', () => {
     formData.set('newPassword', 'abc123');
     formData.set('confirmPassword', 'abc123');
 
-    const res = await changePassword(undefined, formData);
+    const res = await changePasswordAction(undefined, formData);
 
     expect(res?.errors?.currentPassword?.[0]).toBe('Current password is incorrect.');
     expect(bcryptHashMock).not.toHaveBeenCalled();
@@ -94,17 +85,14 @@ describe('changePassword (server-side rules)', () => {
   });
 
   it('does NOT require currentPassword when user has no local credentials and creates credential', async () => {
-    getUserWithCredentialsMock.mockResolvedValue({
-      id: 'user-1',
-      credentials: null,
-    });
+    getUserCredentialMock.mockResolvedValue(null);
 
     const formData = new FormData();
     formData.set('currentPassword', '');
     formData.set('newPassword', 'abc123');
     formData.set('confirmPassword', 'abc123');
 
-    const res = await changePassword(undefined, formData);
+    const res = await changePasswordAction(undefined, formData);
 
     expect(res?.errors?.currentPassword).toBeUndefined();
     expect(bcryptHashMock).toHaveBeenCalledWith('abc123', 10);
@@ -114,17 +102,14 @@ describe('changePassword (server-side rules)', () => {
   });
 
   it('updates credential when user already has local credentials', async () => {
-    getUserWithCredentialsMock.mockResolvedValue({
-      id: 'user-1',
-      credentials: { passHash: 'old-hash' },
-    });
+    getUserCredentialMock.mockResolvedValue({ userId: 'user-1', passHash: 'old-hash' });
 
     const formData = new FormData();
     formData.set('currentPassword', 'oldPass123');
     formData.set('newPassword', 'abc123');
     formData.set('confirmPassword', 'abc123');
 
-    const res = await changePassword(undefined, formData);
+    const res = await changePasswordAction(undefined, formData);
 
     expect(bcryptCompareMock).toHaveBeenCalledWith('oldPass123', 'old-hash');
     expect(bcryptHashMock).toHaveBeenCalledWith('abc123', 10);

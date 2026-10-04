@@ -1,4 +1,6 @@
 'use client';
+import { signOut } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 import {
   Header,
   HeaderInner,
@@ -13,13 +15,9 @@ import {
 } from './appHeader.styles';
 import { Button, Muted } from '@/components/ui';
 import { useThemeMode } from '@/styles/themeProvider';
-import { signOut } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
 import { Avatar } from '../account/Avatar';
 
-export default function AppHeader({
-  user,
-}: {
+interface AppHeaderProps {
   user: {
     email: string;
     nickname: string;
@@ -27,7 +25,9 @@ export default function AppHeader({
     phone: string | null;
     avatarUrl: string | null;
   } | null;
-}) {
+}
+
+export default function AppHeader({ user }: AppHeaderProps) {
   const pathname = usePathname();
   const authPaths = ['/login', '/register'];
   const onAuthPage = authPaths.includes(pathname);

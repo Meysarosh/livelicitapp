@@ -4,9 +4,12 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { redirect } from 'next/navigation';
 import { MessageKind } from '@prisma/client';
-import { getConversationById, updateConversation } from '@/data-access/conversations';
-import { createMessage } from '@/data-access/messages';
-import { emitConversationUpdatedForUsers, emitNewMessageEvent } from '@/lib/realtime/conversations-events';
+import { getConversationSummary, updateConversation } from '@/data-access/conversation';
+import { createMessage } from '@/data-access/message';
+import {
+  emitConversationUpdatedForUsers,
+  emitNewMessageEvent,
+} from '@/lib/realtime/conversations-events';
 
 type SendMessageFormState =
   | {
@@ -16,7 +19,10 @@ type SendMessageFormState =
     }
   | undefined;
 
-export async function sendMessage(_prevState: SendMessageFormState, formData: FormData): Promise<SendMessageFormState> {
+export async function sendMessageAction(
+  _prevState: SendMessageFormState,
+  formData: FormData,
+): Promise<SendMessageFormState> {
   const session = await auth();
   const user = session?.user;
   if (!user) {
@@ -44,13 +50,13 @@ export async function sendMessage(_prevState: SendMessageFormState, formData: Fo
 
   try {
     const { conversation, message } = await prisma.$transaction(async (tx) => {
-      const convo = await getConversationById(conversationId, tx);
-      if (!convo) {
+      const conversation = await getConversationSummary(conversationId, tx);
+      if (!conversation) {
         throw new Error('Conversation not found');
       }
 
-      const isA = convo.userAId === user!.id;
-      const isB = convo.userBId === user!.id;
+      const isA = conversation.userAId === user!.id;
+      const isB = conversation.userBId === user!.id;
 
       if (!isA && !isB) {
         throw new Error('You are not a participant of this conversation.');
@@ -58,23 +64,27 @@ export async function sendMessage(_prevState: SendMessageFormState, formData: Fo
 
       const createdMessage = await createMessage(
         {
-          conversationId: convo.id,
+          conversationId: conversation.id,
           senderId: user!.id,
           kind: MessageKind.TEXT,
           body,
         },
-        tx
+        tx,
       );
 
       const now = new Date();
 
       const conversationUpdateData = {
         lastMessageAt: now,
-        unreadCountA: isA ? convo.unreadCountA : convo.unreadCountA + 1,
-        unreadCountB: isB ? convo.unreadCountB : convo.unreadCountB + 1,
+        unreadCountA: isA ? conversation.unreadCountA : conversation.unreadCountA + 1,
+        unreadCountB: isB ? conversation.unreadCountB : conversation.unreadCountB + 1,
       };
 
-      const updatedConversation = await updateConversation(convo.id, conversationUpdateData, tx);
+      const updatedConversation = await updateConversation(
+        conversation.id,
+        conversationUpdateData,
+        tx,
+      );
 
       return {
         conversation: updatedConversation,

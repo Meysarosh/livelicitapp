@@ -3,7 +3,7 @@
 import { createWatchlistEntry, deleteWatchlistEntry } from '@/data-access/watchlist';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 
-export async function toggleWatchlist(auctionId: string, inWatchlist: boolean) {
+export async function toggleWatchlistAction(auctionId: string, inWatchlist: boolean) {
   const user = await getAuthUser();
 
   if (inWatchlist) {
