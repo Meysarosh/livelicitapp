@@ -16,6 +16,10 @@ export async function finalizeAuctionAction(tx: Prisma.TransactionClient, auctio
 
   if (!auction) return null;
 
+  if (auction.status !== 'ACTIVE') {
+    return null;
+  }
+
   await updateAuction(auction.id, { status: 'ENDED' }, tx);
 
   if (!auction.highestBidderId) {

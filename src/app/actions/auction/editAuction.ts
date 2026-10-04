@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { updateAuctionWithImages } from '@/data-access/auction';
+import { getAuction, updateAuctionWithImages } from '@/data-access/auction';
 import {
   CreateAuctionFormSchema,
   durationDayOptions,
@@ -29,6 +29,26 @@ export async function editAuctionAction(
   if (!user) {
     return {
       message: 'You must be signed in to edit an auction.',
+    };
+  }
+
+  const auction = await getAuction(auctionId);
+
+  if (!auction) {
+    return {
+      message: 'Auction not found.',
+    };
+  }
+
+  if (auction.ownerId !== user.id) {
+    return {
+      message: 'You are not authorized to edit this auction.',
+    };
+  }
+
+  if (auction.currentPriceMinor > auction.startPriceMinor) {
+    return {
+      message: 'You cannot edit an auction that has already received bids.',
     };
   }
 

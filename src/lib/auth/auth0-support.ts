@@ -35,11 +35,6 @@ export async function handleAuth0SignIn({ user, account, profile }: SignInArgs):
       dbUser = existingProviderAccount.user;
     }
 
-    if (dbUser && dbUser.status !== 'OK') {
-      console.warn(`[Auth0 SignIn] Rejected user ${dbUser.id} with status: ${dbUser.status}`);
-      return false;
-    }
-
     const emailFromProfile =
       (profile && 'email' in profile && typeof profile.email === 'string' && profile.email) ||
       (user && typeof user.email === 'string' && user.email) ||
@@ -50,6 +45,11 @@ export async function handleAuth0SignIn({ user, account, profile }: SignInArgs):
       if (userByEmail) {
         dbUser = userByEmail;
       }
+    }
+
+    if (dbUser && dbUser.status !== 'OK') {
+      console.warn(`[Auth0 SignIn] Rejected user ${dbUser.id} with status: ${dbUser.status}`);
+      return false;
     }
 
     if (!dbUser) {
@@ -92,29 +92,25 @@ export async function applyAuth0IdentityToToken(
   const providerUserId = account.providerAccountId;
 
   if (!providerUserId) {
-    console.warn('[applyAuth0IdentityToToken] Missing providerAccountId on account');
-    return token;
+    throw new Error('[applyAuth0IdentityToToken] Missing providerAccountId on account');
   }
 
-  try {
-    const providerAccount = await getProviderAccountWithUser(provider, providerUserId);
+  const providerAccount = await getProviderAccountWithUser(provider, providerUserId);
+  const user = providerAccount?.user;
 
-    if (providerAccount?.user) {
-      const { user } = providerAccount;
-
-      if (user.status === 'OK') {
-        token.uid = user.id;
-        token.role = user.role;
-        token.nickname = user.nickname;
-      } else {
-        console.warn(
-          `[applyAuth0IdentityToToken] User ${user.id} has non-active status: ${user.status}`,
-        );
-      }
-    }
-  } catch (error) {
-    console.error('[applyAuth0IdentityToToken Error]:', error);
+  if (!user) {
+    throw new Error('[applyAuth0IdentityToToken] No user mapped to Auth0 identity');
   }
+
+  if (user.status !== 'OK') {
+    throw new Error(
+      `[applyAuth0IdentityToToken] User ${user.id} has non-active status: ${user.status}`,
+    );
+  }
+
+  token.uid = user.id;
+  token.role = user.role;
+  token.nickname = user.nickname;
 
   return token;
 }

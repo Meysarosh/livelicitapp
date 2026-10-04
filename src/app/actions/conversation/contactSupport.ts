@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/db';
-import { getAuctionForConversationTransaction } from '@/data-access/auction';
+import { getAuction } from '@/data-access/auction';
 import { updateConversation, upsertConversation } from '@/data-access/conversation';
 import { MessageKind } from '@prisma/client';
 import { createMessage } from '@/data-access/message';
@@ -42,7 +42,7 @@ export async function contactSupportAction(
 
   try {
     const { conversation } = await prisma.$transaction(async (tx) => {
-      const auction = await getAuctionForConversationTransaction(auctionId, tx);
+      const auction = await getAuction(auctionId, tx);
 
       if (!auction) {
         throw new Error('Auction not found');

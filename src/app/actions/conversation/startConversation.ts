@@ -3,7 +3,7 @@
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { redirect } from 'next/navigation';
-import { getAuctionForConversationTransaction } from '@/data-access/auction';
+import { getAuction } from '@/data-access/auction';
 import { updateConversation, upsertConversation } from '@/data-access/conversation';
 import { MessageKind } from '@prisma/client';
 import { createMessage } from '@/data-access/message';
@@ -45,7 +45,7 @@ export async function startConversationAction(
 
   try {
     const { conversation } = await prisma.$transaction(async (tx) => {
-      const auction = await getAuctionForConversationTransaction(auctionId, tx);
+      const auction = await getAuction(auctionId, tx);
 
       if (!auction) {
         throw new Error('Auction not found');

@@ -29,16 +29,9 @@ export async function createAuction(data: Prisma.AuctionCreateInput): Promise<Au
 
 //READ AUCTION
 
-export async function getAuctionForConversationTransaction(
-  id: string,
-  tx: DbClient = prisma,
-): Promise<Pick<Auction, 'id' | 'ownerId'> | null> {
+export async function getAuction(id: string, tx: DbClient = prisma): Promise<Auction | null> {
   return tx.auction.findUnique({
     where: { id },
-    select: {
-      id: true,
-      ownerId: true,
-    },
   });
 }
 
