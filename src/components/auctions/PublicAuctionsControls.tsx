@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
 import { Input, Select, Button } from '@/components/ui';
-import type { PublicAuctionsSort } from '@/data-access/auctions';
+import type { PublicAuctionsSort } from '@/data-access/auction';
 import { Toolbar, ToolbarGroup, Label, Pagination, PageInfo } from './PublicAuctionsControl.styles';
 import { MIN_SEARCH_LENGTH, SEARCH_DEBOUNCE_TIME } from '@/lib/constants';
 
@@ -15,7 +15,12 @@ type Props = {
   totalPages: number;
 };
 
-export function PublicAuctionsControls({ initialQuery, initialSort, currentPage, totalPages }: Props) {
+export function PublicAuctionsControls({
+  initialQuery,
+  initialSort,
+  currentPage,
+  totalPages,
+}: Props) {
   const router = useRouter();
 
   const [query, setQuery] = useState(initialQuery);
@@ -41,7 +46,7 @@ export function PublicAuctionsControls({ initialQuery, initialSort, currentPage,
 
       return href as Route;
     },
-    [query, sort]
+    [query, sort],
   );
 
   useEffect(() => {
@@ -69,7 +74,11 @@ export function PublicAuctionsControls({ initialQuery, initialSort, currentPage,
     <Toolbar>
       <ToolbarGroup style={{ flex: 1, minWidth: '220px' }}>
         <Label>Search</Label>
-        <Input placeholder='Search by title or description…' value={query} onChange={(e) => setQuery(e.target.value)} />
+        <Input
+          placeholder='Search by title or description…'
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
       </ToolbarGroup>
 
       <ToolbarGroup>

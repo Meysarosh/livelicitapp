@@ -1,7 +1,8 @@
+import 'server-only';
 import Credentials from 'next-auth/providers/credentials';
-import { prisma } from '@/lib/db';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
+import { getUserWithCredentialsByIdentifier } from '@/data-access/user';
 
 const Creds = z.object({
   identifier: z.string(),
@@ -20,17 +21,12 @@ export const credentialsProvider = Credentials({
 
     const { identifier, password } = parsed.data;
 
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [{ email: identifier }, { nickname: identifier }],
-      },
-      include: { credentials: true },
-    });
+    const user = await getUserWithCredentialsByIdentifier(identifier);
 
     if (!user?.credentials) return null;
 
-    const ok = await bcrypt.compare(password, user.credentials.passHash);
-    if (!ok) return null;
+    const isPasswordMatch = await bcrypt.compare(password, user.credentials.passHash);
+    if (!isPasswordMatch) return null;
 
     if (user.status !== 'OK') return null;
 

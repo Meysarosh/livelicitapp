@@ -2,12 +2,15 @@
 
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { prisma } from '@/lib/db';
-import { getDealById, updateDeal } from '@/data-access/deals';
-import { upsertConversation, updateConversation } from '@/data-access/conversations';
-import { createMessage } from '@/data-access/messages';
+import { getDealForStatusAction, updateDeal } from '@/data-access/deal';
+import { upsertConversation, updateConversation } from '@/data-access/conversation';
+import { createMessage } from '@/data-access/message';
 import { MessageKind, DealStatus, Deal } from '@prisma/client';
 import { broadcastDealUpdated } from '@/lib/realtime/deals-events';
-import { emitConversationUpdatedForUsers, emitNewMessageEvent } from '@/lib/realtime/conversations-events';
+import {
+  emitConversationUpdatedForUsers,
+  emitNewMessageEvent,
+} from '@/lib/realtime/conversations-events';
 
 type MarkDealShippedState =
   | {
@@ -23,7 +26,10 @@ type MarkDealShippedState =
     }
   | undefined;
 
-export async function markDealShipped(_prev: MarkDealShippedState, formData: FormData): Promise<MarkDealShippedState> {
+export async function markDealShippedAction(
+  _prev: MarkDealShippedState,
+  formData: FormData,
+): Promise<MarkDealShippedState> {
   const user = await getAuthUser();
 
   const dealId = formData.get('dealId');
@@ -49,7 +55,7 @@ export async function markDealShipped(_prev: MarkDealShippedState, formData: For
     const now = new Date();
 
     const { deal, message, conversation } = await prisma.$transaction(async (tx) => {
-      const deal = await getDealById(dealId, tx);
+      const deal = await getDealForStatusAction(dealId, tx);
       if (!deal) {
         throw new Error('Deal not found.');
       }
@@ -70,7 +76,7 @@ export async function markDealShipped(_prev: MarkDealShippedState, formData: For
           shippingCompany,
           trackingNumber,
         },
-        tx
+        tx,
       );
 
       const convo = await upsertConversation(deal.auctionId, deal.sellerId, deal.buyerId, tx);
@@ -82,17 +88,19 @@ export async function markDealShipped(_prev: MarkDealShippedState, formData: For
           kind: MessageKind.SYSTEM,
           body: `Seller marked the deal as SHIPPED.\nCarrier: ${shippingCompany}\nTracking: ${trackingNumber}`,
         },
-        tx
+        tx,
       );
 
       const updatedConversation = await updateConversation(
         convo.id,
         {
           lastMessageAt: now,
-          unreadCountA: convo.userAId === deal.buyerId ? convo.unreadCountA + 1 : convo.unreadCountA,
-          unreadCountB: convo.userBId === deal.buyerId ? convo.unreadCountB + 1 : convo.unreadCountB,
+          unreadCountA:
+            convo.userAId === deal.buyerId ? convo.unreadCountA + 1 : convo.unreadCountA,
+          unreadCountB:
+            convo.userBId === deal.buyerId ? convo.unreadCountB + 1 : convo.unreadCountB,
         },
-        tx
+        tx,
       );
 
       return {

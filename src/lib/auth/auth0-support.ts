@@ -1,14 +1,21 @@
-import type { Account, Profile, User } from 'next-auth';
+import 'server-only';
+import type { Account, Profile, User as NextAuthUser } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
-import { prisma } from '@/lib/db';
+import type { User } from '@/types/user';
+import {
+  getProviderAccountWithUser,
+  createUser,
+  getUserByEmail,
+  upsertProviderAccount,
+} from '@/data-access/user';
 
 type SignInArgs = {
-  user: User;
+  user: NextAuthUser;
   account: Account | null;
   profile?: Profile | undefined;
 };
 
-export async function handleAuth0SignIn({ user, account, profile }: SignInArgs) {
+export async function handleAuth0SignIn({ user, account, profile }: SignInArgs): Promise<boolean> {
   if (!account || account.provider !== 'auth0') {
     return true;
   }
@@ -19,78 +26,64 @@ export async function handleAuth0SignIn({ user, account, profile }: SignInArgs) 
     return false;
   }
 
-  const existingIdentity = await prisma.userIdentity.findUnique({
-    where: {
-      provider_providerUserId: {
-        provider,
-        providerUserId,
-      },
-    },
-  });
+  try {
+    let dbUser: User | null = null;
 
-  let dbUser = null;
+    const existingProviderAccount = await getProviderAccountWithUser(provider, providerUserId);
 
-  if (existingIdentity) {
-    dbUser = await prisma.user.findUnique({
-      where: { id: existingIdentity.userId },
-    });
-  }
+    if (existingProviderAccount) {
+      dbUser = existingProviderAccount.user;
+    }
 
-  if (dbUser && dbUser.status !== 'OK') {
+    if (dbUser && dbUser.status !== 'OK') {
+      console.warn(`[Auth0 SignIn] Rejected user ${dbUser.id} with status: ${dbUser.status}`);
+      return false;
+    }
+
+    const emailFromProfile =
+      (profile && 'email' in profile && typeof profile.email === 'string' && profile.email) ||
+      (user && typeof user.email === 'string' && user.email) ||
+      undefined;
+
+    if (!dbUser && emailFromProfile) {
+      const userByEmail = await getUserByEmail(emailFromProfile);
+      if (userByEmail) {
+        dbUser = userByEmail;
+      }
+    }
+
+    if (!dbUser) {
+      const nicknameBase =
+        (profile &&
+          'nickname' in profile &&
+          typeof profile.nickname === 'string' &&
+          profile.nickname) ||
+        (profile && 'name' in profile && typeof profile.name === 'string' && profile.name) ||
+        (emailFromProfile ? emailFromProfile.split('@')[0] : 'user');
+
+      const safeNickname = nicknameBase!.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30);
+      const uniqueNickname = `${safeNickname}_${Math.random().toString(36).slice(2, 7)}`;
+
+      dbUser = await createUser(
+        uniqueNickname,
+        emailFromProfile || `${providerUserId}@example.com`,
+      );
+    }
+
+    await upsertProviderAccount(dbUser.id, provider, providerUserId);
+
+    return true;
+  } catch (error) {
+    console.error('[Auth0 SignIn Callback Error]:', error);
+
     return false;
   }
-
-  const emailFromProfile =
-    (profile && 'email' in profile && typeof profile.email === 'string' && profile.email) ||
-    (user && typeof user.email === 'string' && user.email) ||
-    undefined;
-
-  if (!dbUser && emailFromProfile) {
-    const byEmail = await prisma.user.findUnique({
-      where: { email: emailFromProfile },
-    });
-    if (byEmail) {
-      dbUser = byEmail;
-    }
-  }
-
-  if (!dbUser) {
-    const nicknameBase =
-      (profile && 'nickname' in profile && typeof profile.nickname === 'string' && profile.nickname) ||
-      (profile && 'name' in profile && typeof profile.name === 'string' && profile.name) ||
-      (emailFromProfile ? emailFromProfile.split('@')[0] : 'user');
-
-    const nickname = nicknameBase.slice(0, 50);
-
-    dbUser = await prisma.user.create({
-      data: {
-        email: emailFromProfile || `${providerUserId}@example.com`,
-        nickname,
-      },
-    });
-  }
-
-  await prisma.userIdentity.upsert({
-    where: {
-      provider_providerUserId: {
-        provider,
-        providerUserId,
-      },
-    },
-    update: {
-      userId: dbUser.id,
-    },
-    create: {
-      userId: dbUser.id,
-      provider,
-      providerUserId,
-    },
-  });
-
-  return true;
 }
 
-export async function applyAuth0IdentityToToken(token: JWT, account: Account | null | undefined) {
+export async function applyAuth0IdentityToToken(
+  token: JWT,
+  account: Account | null | undefined,
+): Promise<JWT> {
   if (!account || account.provider !== 'auth0') {
     return token;
   }
@@ -98,24 +91,29 @@ export async function applyAuth0IdentityToToken(token: JWT, account: Account | n
   const provider = 'auth0';
   const providerUserId = account.providerAccountId;
 
-  const identity = await prisma.userIdentity.findUnique({
-    where: {
-      provider_providerUserId: {
-        provider,
-        providerUserId,
-      },
-    },
-  });
+  if (!providerUserId) {
+    console.warn('[applyAuth0IdentityToToken] Missing providerAccountId on account');
+    return token;
+  }
 
-  if (identity) {
-    const dbUser = await prisma.user.findUnique({
-      where: { id: identity.userId },
-    });
-    if (dbUser) {
-      token.uid = dbUser.id;
-      token.role = dbUser.role;
-      token.nickname = dbUser.nickname;
+  try {
+    const providerAccount = await getProviderAccountWithUser(provider, providerUserId);
+
+    if (providerAccount?.user) {
+      const { user } = providerAccount;
+
+      if (user.status === 'OK') {
+        token.uid = user.id;
+        token.role = user.role;
+        token.nickname = user.nickname;
+      } else {
+        console.warn(
+          `[applyAuth0IdentityToToken] User ${user.id} has non-active status: ${user.status}`,
+        );
+      }
     }
+  } catch (error) {
+    console.error('[applyAuth0IdentityToToken Error]:', error);
   }
 
   return token;

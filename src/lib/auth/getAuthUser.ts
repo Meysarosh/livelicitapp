@@ -1,9 +1,9 @@
-'use server';
-
+import 'server-only';
 import { auth } from '@/lib/auth';
+import { SessionUser } from '@/types/user';
 import { redirect } from 'next/navigation';
 
-export async function getAuthUser() {
+export async function getAuthUser(): Promise<SessionUser> {
   const session = await auth();
   const user = session?.user;
 

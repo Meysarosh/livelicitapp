@@ -1,10 +1,10 @@
 'use server';
 
 import { prisma } from '@/lib/db';
-import { getAuctionForConversationTransaction } from '@/data-access/auctions';
-import { updateConversation, upsertConversation } from '@/data-access/conversations';
+import { getAuctionForConversationTransaction } from '@/data-access/auction';
+import { updateConversation, upsertConversation } from '@/data-access/conversation';
 import { MessageKind } from '@prisma/client';
-import { createMessage } from '@/data-access/messages';
+import { createMessage } from '@/data-access/message';
 import { emitConversationUpdatedForUsers } from '@/lib/realtime/conversations-events';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { getAdminUserId } from '@/data-access/admin';
@@ -17,9 +17,9 @@ export type ContactSupportFormState =
     }
   | undefined;
 
-export async function contactSupport(
+export async function contactSupportAction(
   _prevState: ContactSupportFormState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ContactSupportFormState> {
   const user = await getAuthUser();
   const adminId = await getAdminUserId();
@@ -60,7 +60,7 @@ export async function contactSupport(
           kind: MessageKind.TEXT,
           body,
         },
-        tx
+        tx,
       );
 
       const now = new Date();

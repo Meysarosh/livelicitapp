@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { useActionState } from 'react';
-import { startConversation } from '@/app/actions/conversation/startConversation';
+import { startConversationAction } from '@/app/actions/conversation/startConversation';
 import { Button, TextArea, Muted } from '@/components/ui';
 import { Form } from '../forms/form.styles';
 import { FormFieldWrapper } from '../forms/FormFieldWrapper';
@@ -55,7 +55,10 @@ const ActionsRow = styled.div`
 
 export function AskSellerButton({ auctionId, disabled }: Props) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState<StartConversationFormState, FormData>(startConversation, undefined);
+  const [state, action, pending] = useActionState<StartConversationFormState, FormData>(
+    startConversationAction,
+    undefined,
+  );
 
   const handleSubmit = () => {
     //TODO close only on success after short delay with success message shown
@@ -75,12 +78,21 @@ export function AskSellerButton({ auctionId, disabled }: Props) {
               <input type='hidden' name='auctionId' value={auctionId} />
 
               <FormFieldWrapper required error={state?.errors?.body}>
-                <TextArea name='body' placeholder='Write your question…' defaultValue={state?.values?.body ?? ''} />
+                <TextArea
+                  name='body'
+                  placeholder='Write your question…'
+                  defaultValue={state?.values?.body ?? ''}
+                />
               </FormFieldWrapper>
               {state?.message && <Muted>{state.message}</Muted>}
 
               <ActionsRow>
-                <Button type='button' $variant='secondary' onClick={() => setOpen(false)} disabled={pending}>
+                <Button
+                  type='button'
+                  $variant='secondary'
+                  onClick={() => setOpen(false)}
+                  disabled={pending}
+                >
                   Cancel
                 </Button>
                 <Button type='submit' disabled={pending}>

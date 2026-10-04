@@ -1,5 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
+import type { Route } from 'next';
+import { useRouter } from 'next/navigation';
 import { ImageWithSkeleton } from '@/components/ui/ImageWithSkeleton';
 import { Muted, Paragraph, MonospaceText } from '@/components/ui';
 import {
@@ -13,15 +16,12 @@ import {
   LastLine,
   Badge,
 } from './ConversationsList.styles';
-import type { ConversationWithRelations } from '@/data-access/conversations';
+import type { ConversationForList } from '@/types/conversation';
 import { formatDateTime } from '@/services/format-service';
-import { useEffect } from 'react';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
-import type { Route } from 'next';
-import { useRouter } from 'next/navigation';
 
 type Props = {
-  conversations: ConversationWithRelations[];
+  conversations: ConversationForList[];
   currentUserId: string;
   isAdminView?: boolean;
 };
@@ -57,7 +57,7 @@ export function ConversationsList({ conversations, currentUserId, isAdminView }:
         const lastSenderLabel = lastMsg
           ? lastMsg.senderId === currentUserId
             ? 'You'
-            : lastMsg.sender?.nickname ?? 'System'
+            : (lastMsg.sender?.nickname ?? 'System')
           : '';
         const firstImage = c.auction.images?.[0];
 
@@ -65,11 +65,17 @@ export function ConversationsList({ conversations, currentUserId, isAdminView }:
           <Item key={c.id}>
             <ItemLink
               href={
-                isAdminView ? (`/admin/conversations/${c.id}` as Route) : (`/account/conversations/${c.id}` as Route)
+                isAdminView
+                  ? (`/admin/conversations/${c.id}` as Route)
+                  : (`/account/conversations/${c.id}` as Route)
               }
             >
               <ThumbWrapper>
-                <ImageWithSkeleton src={firstImage?.url ?? null} alt={c.auction.title} contain={false} />
+                <ImageWithSkeleton
+                  src={firstImage?.url ?? null}
+                  alt={c.auction.title}
+                  contain={false}
+                />
               </ThumbWrapper>
 
               <Content>

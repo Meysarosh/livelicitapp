@@ -1,16 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { markDealPaid } from '../deal/markDealPaid';
+import { markDealPaidAction } from '../deal/markDealPaid';
 import type { Deal } from '@prisma/client';
 import { AuctionStatus, DealStatus, MessageKind } from '@prisma/client';
 
 import { prisma } from '@/lib/db';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getDealById, updateDeal } from '@/data-access/deals';
-import { upsertConversation, updateConversation } from '@/data-access/conversations';
-import { createMessage } from '@/data-access/messages';
+import { getDealForStatusAction, updateDeal } from '@/data-access/deal';
+import { upsertConversation, updateConversation } from '@/data-access/conversation';
+import { createMessage } from '@/data-access/message';
 import { getShippingAddress } from '@/data-access/shippingAddress';
 import { broadcastDealUpdated } from '@/lib/realtime/deals-events';
-import { emitConversationUpdatedForUsers, emitNewMessageEvent } from '@/lib/realtime/conversations-events';
+import {
+  emitConversationUpdatedForUsers,
+  emitNewMessageEvent,
+} from '@/lib/realtime/conversations-events';
 
 vi.mock('@/lib/db', () => ({
   prisma: {
@@ -22,17 +25,17 @@ vi.mock('@/lib/auth/getAuthUser', () => ({
   getAuthUser: vi.fn(),
 }));
 
-vi.mock('@/data-access/deals', () => ({
-  getDealById: vi.fn(),
+vi.mock('@/data-access/deal', () => ({
+  getDealForStatusAction: vi.fn(),
   updateDeal: vi.fn(),
 }));
 
-vi.mock('@/data-access/conversations', () => ({
+vi.mock('@/data-access/conversation', () => ({
   upsertConversation: vi.fn(),
   updateConversation: vi.fn(),
 }));
 
-vi.mock('@/data-access/messages', () => ({
+vi.mock('@/data-access/message', () => ({
   createMessage: vi.fn(),
 }));
 
@@ -51,7 +54,7 @@ vi.mock('@/lib/realtime/conversations-events', () => ({
 
 const mockedPrisma = vi.mocked(prisma);
 const mockedGetAuthUser = vi.mocked(getAuthUser);
-const mockedGetDealById = vi.mocked(getDealById);
+const mockedGetDealForStatusAction = vi.mocked(getDealForStatusAction);
 const mockedUpdateDeal = vi.mocked(updateDeal);
 const mockedUpsertConversation = vi.mocked(upsertConversation);
 const mockedUpdateConversation = vi.mocked(updateConversation);
@@ -143,11 +146,15 @@ const baseConversation = {
 };
 
 const baseAddress = {
+  id: 'address-1',
+  userId: 'user-1',
   street: 'Main street 1',
   city: 'Budapest',
   postalCode: '1234',
   country: 'HU',
   state: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
 const baseMessage = {
@@ -189,36 +196,36 @@ describe('markDealPaid action', () => {
   it('returns error message for invalid dealId', async () => {
     const fd = new FormData(); // no dealId
 
-    const result = await markDealPaid(undefined, fd);
+    const result = await markDealPaidAction(undefined, fd);
 
     expect(result).toEqual({ message: 'Invalid deal.' });
     expect(mockedPrisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('returns "Deal not found." if deal is missing', async () => {
-    mockedGetDealById.mockResolvedValueOnce(null);
+    mockedGetDealForStatusAction.mockResolvedValueOnce(null);
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const fd = makeFormData({ dealId: 'deal-1' });
 
-    const result = await markDealPaid(undefined, fd);
+    const result = await markDealPaidAction(undefined, fd);
 
     expect(mockedPrisma.$transaction).toHaveBeenCalledTimes(1);
-    expect(mockedGetDealById).toHaveBeenCalledWith('deal-1', expect.anything());
+    expect(mockedGetDealForStatusAction).toHaveBeenCalledWith('deal-1', expect.anything());
     expect(result).toEqual({ message: 'Deal not found.' });
     errorSpy.mockRestore();
   });
 
   it('returns error if current user is not the buyer', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    mockedGetDealById.mockResolvedValueOnce({
+    mockedGetDealForStatusAction.mockResolvedValueOnce({
       ...baseDeal,
       buyerId: 'other-buyer',
     });
 
     const fd = makeFormData({ dealId: 'deal-1' });
 
-    const result = await markDealPaid(undefined, fd);
+    const result = await markDealPaidAction(undefined, fd);
 
     expect(result).toEqual({ message: 'You are not the buyer for this deal.' });
     expect(mockedUpdateDeal).not.toHaveBeenCalled();
@@ -227,14 +234,14 @@ describe('markDealPaid action', () => {
 
   it('returns error if deal status does not allow marking as paid', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    mockedGetDealById.mockResolvedValueOnce({
+    mockedGetDealForStatusAction.mockResolvedValueOnce({
       ...baseDeal,
       status: DealStatus.PAID,
     });
 
     const fd = makeFormData({ dealId: 'deal-1' });
 
-    const result = await markDealPaid(undefined, fd);
+    const result = await markDealPaidAction(undefined, fd);
 
     expect(result).toEqual({ message: 'This deal cannot be marked as paid.' });
     expect(mockedUpdateDeal).not.toHaveBeenCalled();
@@ -250,7 +257,7 @@ describe('markDealPaid action', () => {
       currency: baseDeal.currency,
     };
 
-    mockedGetDealById.mockResolvedValueOnce(baseDeal);
+    mockedGetDealForStatusAction.mockResolvedValueOnce(baseDeal);
     mockedUpdateDeal.mockResolvedValueOnce(updatedDeal);
     mockedUpsertConversation.mockResolvedValueOnce(baseConversation);
     mockedGetShippingAddress.mockResolvedValueOnce(baseAddress);
@@ -259,12 +266,12 @@ describe('markDealPaid action', () => {
 
     const fd = makeFormData({ dealId: 'deal-1' });
 
-    const result = await markDealPaid(undefined, fd);
+    const result = await markDealPaidAction(undefined, fd);
 
     // updateDeal got correct payload
     const updateCall = mockedUpdateDeal.mock.calls[0];
-    expect(updateCall[0]).toBe('deal-1');
-    const updateData = updateCall[1];
+    expect(updateCall![0]).toBe('deal-1');
+    const updateData = updateCall![1];
     expect(updateData.status).toBe(DealStatus.PAID);
     expect(updateData.paidAmountMinor).toBe(baseDeal.auction.currentPriceMinor);
     expect(updateData.currency).toBe(baseDeal.currency);
@@ -272,7 +279,7 @@ describe('markDealPaid action', () => {
 
     // system message content includes address
     const createMsgCall = mockedCreateMessage.mock.calls[0];
-    const msgData = createMsgCall[0];
+    const msgData = createMsgCall![0];
     expect(msgData.kind).toBe(MessageKind.SYSTEM);
     expect(msgData.conversationId).toBe(baseConversation.id);
     expect(msgData.body).toContain('Street: Main street 1');
@@ -282,8 +289,8 @@ describe('markDealPaid action', () => {
 
     // unread count updated for seller
     const updateConvoCall = mockedUpdateConversation.mock.calls[0];
-    expect(updateConvoCall[0]).toBe('convo-1');
-    expect(updateConvoCall[1]).toMatchObject({
+    expect(updateConvoCall![0]).toBe('convo-1');
+    expect(updateConvoCall![1]).toMatchObject({
       lastMessageAt: expect.any(Date),
       unreadCountA: 1,
       unreadCountB: 0,
@@ -319,7 +326,7 @@ describe('markDealPaid action', () => {
       currency: baseDeal.currency,
     };
 
-    mockedGetDealById.mockResolvedValueOnce(baseDeal);
+    mockedGetDealForStatusAction.mockResolvedValueOnce(baseDeal);
     mockedUpdateDeal.mockResolvedValueOnce(updatedDeal);
     mockedUpsertConversation.mockResolvedValueOnce(baseConversation);
     mockedGetShippingAddress.mockResolvedValueOnce(null);
@@ -328,10 +335,10 @@ describe('markDealPaid action', () => {
 
     const fd = makeFormData({ dealId: 'deal-1' });
 
-    const result = await markDealPaid(undefined, fd);
+    const result = await markDealPaidAction(undefined, fd);
 
     const createMsgCall = mockedCreateMessage.mock.calls[0];
-    const msgData = createMsgCall[0];
+    const msgData = createMsgCall![0];
 
     expect(msgData.body).toContain('Ask buyer for shipping address.');
 
@@ -347,7 +354,7 @@ describe('markDealPaid action', () => {
       currency: baseDeal.currency,
     };
 
-    mockedGetDealById.mockResolvedValueOnce(baseDeal);
+    mockedGetDealForStatusAction.mockResolvedValueOnce(baseDeal);
     mockedUpdateDeal.mockResolvedValueOnce(updatedDeal);
     mockedUpsertConversation.mockResolvedValueOnce(baseConversation);
     mockedGetShippingAddress.mockResolvedValueOnce(baseAddress);
@@ -360,7 +367,7 @@ describe('markDealPaid action', () => {
 
     const fd = makeFormData({ dealId: 'deal-1' });
 
-    const result = await markDealPaid(undefined, fd);
+    const result = await markDealPaidAction(undefined, fd);
 
     expect(mockedBroadcastDealUpdated).toHaveBeenCalledTimes(1);
     // emitNewMessageEvent & emitConversationUpdatedForUsers are not awaited if broadcast throws
@@ -370,14 +377,14 @@ describe('markDealPaid action', () => {
   });
 
   it('returns generic server error on unexpected exception', async () => {
-    // Let getDealById itself fail unexpectedly
-    mockedGetDealById.mockRejectedValueOnce(new Error('Unexpected DB error'));
+    // Let getDealForStatusAction itself fail unexpectedly
+    mockedGetDealForStatusAction.mockRejectedValueOnce(new Error('Unexpected DB error'));
 
     const fd = makeFormData({ dealId: 'deal-1' });
 
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const result = await markDealPaid(undefined, fd);
+    const result = await markDealPaidAction(undefined, fd);
 
     expect(result).toEqual({ message: 'Server error. Please try again.' });
 

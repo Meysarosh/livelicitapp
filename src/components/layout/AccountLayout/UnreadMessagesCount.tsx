@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
-import { getUnreadMessagesCount } from '@/app/actions/conversation/getUnreadMessagesCount';
+import { getUnreadMessagesCountAction } from '@/app/actions/conversation/getUnreadMessagesCount';
 
 import styled from 'styled-components';
 
@@ -25,7 +25,7 @@ export default function UnreadMessagesCount({ userId }: Props) {
 
   useEffect(() => {
     // Initial fetch
-    void getUnreadMessagesCount().then((count) => {
+    void getUnreadMessagesCountAction().then((count) => {
       if (typeof count === 'number') {
         setUnreadCount(count);
       }
@@ -38,7 +38,7 @@ export default function UnreadMessagesCount({ userId }: Props) {
     const channel = pusher.subscribe(channelName);
 
     const handleConversationUpdated = () => {
-      void getUnreadMessagesCount().then((count) => {
+      void getUnreadMessagesCountAction().then((count) => {
         if (typeof count === 'number') {
           setUnreadCount(count);
         }
@@ -56,7 +56,9 @@ export default function UnreadMessagesCount({ userId }: Props) {
   return (
     <>
       {unreadCount > 0 && (
-        <UnreadMessagesPill aria-label={`${unreadCount} unread messages`}>{unreadCount}</UnreadMessagesPill>
+        <UnreadMessagesPill aria-label={`${unreadCount} unread messages`}>
+          {unreadCount}
+        </UnreadMessagesPill>
       )}
     </>
   );

@@ -3,7 +3,7 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { redirect } from 'next/navigation';
 import { AuctionStatus, Prisma } from '@prisma/client';
-import { updateAuction } from '@/data-access/auctions';
+import { updateAuction } from '@/data-access/auction';
 import { getAuctionsCountForAdmin, getAuctionsForAdmin } from '@/data-access/admin';
 
 export type AuctionRow = {
@@ -28,7 +28,7 @@ type GetAuctionsForAdminArgs = {
   status?: string;
 };
 
-export async function getAuctionsDataForAdmin({
+export async function getAuctionsDataForAdminAction({
   page,
   pageSize,
   search,
@@ -81,7 +81,7 @@ export async function getAuctionsDataForAdmin({
   return { auctions, total };
 }
 
-export async function adminCancelAuction(formData: FormData) {
+export async function adminCancelAuctionAction(formData: FormData) {
   const admin = await getAuthUser();
 
   if (admin.role !== 'ADMIN') {

@@ -1,20 +1,22 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { finalizeAuction } from '@/app/actions/auction/finalizeAuction';
-import { getAuctionsToFinalize } from '@/data-access/auctions';
+import { finalizeAuctionAction } from '@/app/actions/auction/finalizeAuction';
+import { getAuctionsListToFinalize } from '@/data-access/auction';
 
 const BATCH_LIMIT = 100;
 
 export async function GET() {
   // Find auctions to finalize: ACTIVE and already past endAt
-  const auctionsToFinalize = await getAuctionsToFinalize(BATCH_LIMIT);
+  const auctionsToFinalize = await getAuctionsListToFinalize(BATCH_LIMIT);
 
   const results = await Promise.allSettled(
-    auctionsToFinalize.map((a) => prisma.$transaction((tx) => finalizeAuction(tx, a.id)))
+    auctionsToFinalize.map((a) => prisma.$transaction((tx) => finalizeAuctionAction(tx, a.id))),
   );
 
   const processed = results.filter((r) => r.status === 'fulfilled').length;
-  const errors = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason);
+  const errors = results
+    .filter((r) => r.status === 'rejected')
+    .map((r) => (r as PromiseRejectedResult).reason);
 
   if (errors.length > 0) {
     // TODO: proper logging

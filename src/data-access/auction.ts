@@ -1,8 +1,25 @@
+import 'server-only';
 import { MIN_SEARCH_LENGTH } from '@/lib/constants';
 import { prisma } from '@/lib/db';
-import type { Auction, AuctionImage, Prisma, PrismaClient, User } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
+import {
+  auctionBidTransactionArgs,
+  auctionMetaDataArgs,
+  auctionDetailsArgs,
+  auctionToFinalazeArgs,
+  auctionWithDealArgs,
+  auctionForListArgs,
+  type Auction,
+  AuctionForBidTransaction,
+  AuctionMetaData,
+  AuctionDetails,
+  AuctionToFinalaze,
+  AuctionWithDeal,
+  AuctionForList,
+} from '@/types/auction';
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
+
 //CREATE AUCTION
 export async function createAuction(data: Prisma.AuctionCreateInput): Promise<Auction> {
   return await prisma.auction.create({
@@ -11,127 +28,65 @@ export async function createAuction(data: Prisma.AuctionCreateInput): Promise<Au
 }
 
 //READ AUCTION
-export async function getAuctionById(id: string): Promise<Auction | null> {
-  return prisma.auction.findUnique({
-    where: { id },
-  });
-}
 
-export async function getAuctionForConversationTransaction(id: string, tx: DbClient = prisma) {
+export async function getAuctionForConversationTransaction(
+  id: string,
+  tx: DbClient = prisma,
+): Promise<Pick<Auction, 'id' | 'ownerId'> | null> {
   return tx.auction.findUnique({
     where: { id },
-    include: { images: { orderBy: { position: 'asc' } } },
+    select: {
+      id: true,
+      ownerId: true,
+    },
   });
 }
-
-type AuctionForBidTransaction = Auction & {
-  _count: {
-    bids: number;
-  };
-};
 
 export async function getAuctionForBidTransaction(
   id: string,
-  tx: DbClient = prisma
+  tx: DbClient = prisma,
 ): Promise<AuctionForBidTransaction | null> {
   return tx.auction.findUnique({
     where: { id },
-    include: {
-      _count: {
-        select: {
-          bids: true,
-        },
-      },
-    },
+    ...auctionBidTransactionArgs,
   });
 }
 
-export type AuctionDetailForPublic = Auction & {
-  images: AuctionImage[];
-  owner: Pick<User, 'id' | 'nickname' | 'ratingAvg' | 'ratingCount'>;
-  _count: {
-    bids: number;
-    watchlistedBy: number;
-  };
-};
-
-export async function getAuctionDetailsForPublic(id: string): Promise<AuctionDetailForPublic | null> {
+export async function getAuctionMetaData(id: string): Promise<AuctionMetaData | null> {
   return prisma.auction.findUnique({
     where: { id },
-    include: {
-      images: {
-        orderBy: { position: 'asc' },
-      },
-      owner: {
-        select: {
-          id: true,
-          nickname: true,
-          ratingAvg: true,
-          ratingCount: true,
-        },
-      },
-      _count: {
-        select: {
-          bids: true,
-          watchlistedBy: true,
-        },
-      },
-    },
+    ...auctionMetaDataArgs,
   });
 }
 
-export type AuctionWithImages = Auction & {
-  images: AuctionImage[];
-  _count: {
-    bids: number;
-    watchlistedBy: number;
-  };
-};
-
-export async function getAuctionDetailsForOwner(id: string): Promise<AuctionWithImages | null> {
+export async function getAuctionDetails(id: string): Promise<AuctionDetails | null> {
   return prisma.auction.findUnique({
     where: { id },
-    include: {
-      images: {
-        orderBy: { position: 'asc' },
-      },
-      _count: {
-        select: {
-          bids: true,
-          watchlistedBy: true,
-        },
-      },
-    },
+    ...auctionDetailsArgs,
   });
 }
 
-export async function getAuctionWithDeal(id: string, tx: DbClient = prisma) {
+export async function getAuctionToFinalaze(
+  id: string,
+  tx: DbClient = prisma,
+): Promise<AuctionToFinalaze | null> {
   return tx.auction.findUnique({
     where: { id },
-    include: {
-      owner: true,
-      images: { orderBy: { position: 'asc' } },
-      _count: { select: { bids: true, watchlistedBy: true } },
-      deal: {
-        include: {
-          buyer: true,
-          seller: true,
-        },
-      },
-      auctionForConversations: { select: { id: true } },
-    },
+    ...auctionToFinalazeArgs,
+  });
+}
+
+export async function getAuctionWithDeal(
+  id: string,
+  tx: DbClient = prisma,
+): Promise<AuctionWithDeal | null> {
+  return tx.auction.findUnique({
+    where: { id },
+    ...auctionWithDealArgs,
   });
 }
 
 //READ ACTIVE AUCTIONS
-
-export type AuctionForLists = Auction & {
-  images: AuctionImage[];
-  _count: {
-    bids: number;
-    watchlistedBy: number;
-  };
-};
 
 // GET AUCTIONS FOR PUBLIC WITH PAGINATION, FILTERING AND SORTING
 /**
@@ -158,7 +113,7 @@ export async function getPublicAuctions({
   pageSize,
   search,
   sort,
-}: GetPublicAuctionsArgs): Promise<{ auctions: AuctionForLists[]; total: number }> {
+}: GetPublicAuctionsArgs): Promise<{ auctions: AuctionForList[]; total: number }> {
   const where: Prisma.AuctionWhereInput = {
     status: 'ACTIVE',
   };
@@ -193,60 +148,28 @@ export async function getPublicAuctions({
       orderBy,
       skip,
       take: pageSize,
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        currentPriceMinor: true,
-        currency: true,
-        endAt: true,
-        highestBidderId: true,
-        startAt: true,
-        status: true,
-        ownerId: true,
-        images: {
-          orderBy: { position: 'asc' },
-          take: 1,
-          select: { url: true },
-        },
-        _count: {
-          select: {
-            bids: true,
-            watchlistedBy: true,
-          },
-        },
-      },
+      ...auctionForListArgs,
     }),
     prisma.auction.count({ where }),
   ]);
 
   return {
-    auctions: rows as AuctionForLists[],
+    auctions: rows as AuctionForList[],
     total,
   };
 }
 
 // READ USER'S AUCTIONS
-export async function getAuctionsByUser(userId: string) {
+export async function getAuctionsByUser(userId: string): Promise<AuctionForList[]> {
   return prisma.auction.findMany({
     where: { ownerId: userId },
     orderBy: { createdAt: 'desc' },
-    include: {
-      images: {
-        orderBy: { position: 'asc' },
-      },
-      _count: {
-        select: {
-          bids: true,
-          watchlistedBy: true,
-        },
-      },
-    },
+    ...auctionForListArgs,
   });
 }
 
 // READ AUCTIONS TO FINALIZE
-export async function getAuctionsToFinalize(limit: number): Promise<Pick<Auction, 'id'>[]> {
+export async function getAuctionsListToFinalize(limit: number): Promise<Pick<Auction, 'id'>[]> {
   const now = new Date();
   return prisma.auction.findMany({
     where: {
@@ -258,7 +181,11 @@ export async function getAuctionsToFinalize(limit: number): Promise<Pick<Auction
   });
 }
 //UPDATE AUCTION
-export async function updateAuction(id: string, data: Partial<Auction>, tx: DbClient = prisma): Promise<Auction> {
+export async function updateAuction(
+  id: string,
+  data: Partial<Auction>,
+  tx: DbClient = prisma,
+): Promise<Auction> {
   return await tx.auction.update({
     where: { id },
     data,
@@ -274,7 +201,7 @@ export async function updateAuctionBid(
     highestBidderId: string;
     endAt: Date;
   },
-  tx: DbClient = prisma
+  tx: DbClient = prisma,
 ): Promise<Prisma.BatchPayload> {
   const { id, version, currentPriceMinor, highestBidderId, endAt } = data;
   return await tx.auction.updateMany({
@@ -292,7 +219,7 @@ export async function updateAuctionBid(
 export async function updateAuctionWithImages(
   id: string,
   data: Prisma.AuctionUpdateInput,
-  tx: DbClient = prisma
+  tx: DbClient = prisma,
 ): Promise<Auction> {
   return await tx.auction.update({
     where: { id },

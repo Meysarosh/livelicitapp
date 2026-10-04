@@ -5,23 +5,24 @@ import type { Route } from 'next';
 import { ImageWithSkeleton } from '@/components/ui';
 import { getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
 import { formatDateTime } from '@/services/format-service';
-import { AuctionForLists } from '@/data-access/auctions';
-
 import { List, Item, Thumb, Body, ItemTitle, MetaRow, MetaPiece } from './AuctionsList.styles';
 import { LivePrice } from './LivePrice';
 import { AuctionRealtimeProvider } from './AuctionRealtimeProvider';
 import { LiveCountdown } from './LiveCountDown';
 import { LiveBidsCount } from './LiveBidsCount';
-import { DealWithAuction } from '@/data-access/deals';
+
+import type { AuctionForList } from '@/types/auction';
+
 import { getDealStatusChip } from '@/services/dealStatus-service';
 import { StatusChip } from '../ui/StatusChip';
+import type { DealForList } from '@/types/deal';
 
 type AuctionsListPage = 'public' | 'watchlist' | 'account' | 'won' | 'sold';
 
 type Props = {
-  auctions: AuctionForLists[];
+  auctions: AuctionForList[];
   page: AuctionsListPage;
-  deals?: DealWithAuction[];
+  deals?: DealForList[];
 };
 
 const pageRoutes: Record<AuctionsListPage, (id: string) => Route> = {

@@ -21,7 +21,10 @@ type AuctionFormMode = 'create' | 'edit';
 
 type AuctionFormProps = {
   mode: AuctionFormMode;
-  action: (prevState: CreateAuctionFormState, formData: FormData) => Promise<CreateAuctionFormState>;
+  action: (
+    prevState: CreateAuctionFormState,
+    formData: FormData,
+  ) => Promise<CreateAuctionFormState>;
   initialValues?: {
     title?: string;
     description?: string;
@@ -48,15 +51,24 @@ type ExistingImageItem = {
   deleted?: boolean;
 };
 
-export default function AuctionForm({ mode, action, initialValues, existingImages, submitLabel }: AuctionFormProps) {
-  const [state, formAction, pending] = useActionState<CreateAuctionFormState, FormData>(action, undefined);
+export default function AuctionForm({
+  mode,
+  action,
+  initialValues,
+  existingImages,
+  submitLabel,
+}: AuctionFormProps) {
+  const [state, formAction, pending] = useActionState<CreateAuctionFormState, FormData>(
+    action,
+    undefined,
+  );
 
   const startModeOptions = useMemo(
     () => [
       { value: 'now', label: 'Start immediately' },
       { value: 'future', label: 'Schedule start' },
     ],
-    []
+    [],
   );
 
   const durationOptions = useMemo(
@@ -65,7 +77,7 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
         value,
         label: value === 'test' ? 'Test (1 minute)' : `${value} days`,
       })),
-    []
+    [],
   );
 
   const currencyOptions = useMemo(
@@ -74,11 +86,11 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
         value: c,
         label: c,
       })),
-    []
+    [],
   );
 
   const [startMode, setStartMode] = useState<'now' | 'future'>(
-    (state?.values?.startMode as 'now' | 'future') ?? initialValues?.startMode ?? 'now'
+    (state?.values?.startMode as 'now' | 'future') ?? initialValues?.startMode ?? 'now',
   );
 
   const [isoStartAt, setIsoStartAt] = useState(() => {
@@ -110,7 +122,7 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
   });
 
   const [existingImagesState, setExistingImagesState] = useState<ExistingImageItem[]>(() =>
-    (existingImages ?? []).map((img) => ({ id: img.id, url: img.url, deleted: false }))
+    (existingImages ?? []).map((img) => ({ id: img.id, url: img.url, deleted: false })),
   );
   const existingDragIdRef = useRef<string | null>(null);
 
@@ -134,6 +146,7 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
 
       const newArr = [...prev];
       const [moved] = newArr.splice(sourceIndex, 1);
+      if (!moved) return prev;
       newArr.splice(targetIndex, 0, moved);
 
       return newArr;
@@ -141,7 +154,9 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
   };
 
   const handleExistingToggleDelete = (id: string) => {
-    setExistingImagesState((prev) => prev.map((img) => (img.id === id ? { ...img, deleted: !img.deleted } : img)));
+    setExistingImagesState((prev) =>
+      prev.map((img) => (img.id === id ? { ...img, deleted: !img.deleted } : img)),
+    );
   };
 
   const imagesMetaJson = useMemo(() => {
@@ -183,7 +198,8 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
     if (!files.length) return;
 
     setImageFiles((prev) => {
-      const remainingSlots = MAX_IMAGES - existingImagesState.filter((i) => !i.deleted).length - prev.length;
+      const remainingSlots =
+        MAX_IMAGES - existingImagesState.filter((i) => !i.deleted).length - prev.length;
       const toAdd = files.slice(0, Math.max(0, remainingSlots));
 
       const newItems: ImageFileItem[] = toAdd.map((file) => ({
@@ -233,6 +249,7 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
 
       const newArr = [...prev];
       const [moved] = newArr.splice(sourceIndex, 1);
+      if (!moved) return prev;
       newArr.splice(targetIndex, 0, moved);
 
       syncInputFilesFromState(newArr);
@@ -271,15 +288,35 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
         </FormFieldWrapper>
 
         <FormFieldWrapper label='Description' required error={state?.errors?.description?.[0]}>
-          <TextArea name='description' defaultValue={descriptionValue} placeholder='Describe your item in detail...' />
+          <TextArea
+            name='description'
+            defaultValue={descriptionValue}
+            placeholder='Describe your item in detail...'
+          />
         </FormFieldWrapper>
 
         <FormFieldWrapper label='Starting price' required error={state?.errors?.startingPrice?.[0]}>
-          <Input name='startingPrice' type='number' step='0.01' min='0' defaultValue={startingPriceValue} />
+          <Input
+            name='startingPrice'
+            type='number'
+            step='0.01'
+            min='0'
+            defaultValue={startingPriceValue}
+          />
         </FormFieldWrapper>
 
-        <FormFieldWrapper label='Minimum increment' required error={state?.errors?.minIncrement?.[0]}>
-          <Input name='minIncrement' type='number' step='0.01' min='0' defaultValue={minIncrementValue} />
+        <FormFieldWrapper
+          label='Minimum increment'
+          required
+          error={state?.errors?.minIncrement?.[0]}
+        >
+          <Input
+            name='minIncrement'
+            type='number'
+            step='0.01'
+            min='0'
+            defaultValue={minIncrementValue}
+          />
         </FormFieldWrapper>
 
         <FormFieldWrapper label='Duration' required error={state?.errors?.durationDays?.[0]}>
@@ -337,8 +374,8 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
               ))}
             </ImagePreviewGrid>
             <Note>
-              Drag to reorder. Click × to mark for deletion (↺ to undo). New uploads will be added after the kept
-              images.
+              Drag to reorder. Click × to mark for deletion (↺ to undo). New uploads will be added
+              after the kept images.
             </Note>
           </FormFieldWrapper>
         )}
@@ -346,7 +383,14 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
         {mode === 'edit' && <input type='hidden' name='imagesMeta' value={imagesMetaJson} />}
 
         <FormFieldWrapper label='New images' error={state?.errors?.imageUrls?.[0]}>
-          <input ref={fileInputRef} type='file' name='images' accept='image/*' multiple onChange={handleImagesChange} />
+          <input
+            ref={fileInputRef}
+            type='file'
+            name='images'
+            accept='image/*'
+            multiple
+            onChange={handleImagesChange}
+          />
           <Muted>You can upload up to {MAX_IMAGES} images. Max size 5 MB each.</Muted>
 
           {imageFiles.length > 0 && (
@@ -360,7 +404,11 @@ export default function AuctionForm({ mode, action, initialValues, existingImage
                   onDrop={() => handleDrop(item.id)}
                 >
                   <ImagePreviewImg src={item.previewUrl} alt={`Selected image ${index + 1}`} />
-                  <RemoveImageButton type='button' onClick={() => handleRemoveImage(item.id)} aria-label='Remove image'>
+                  <RemoveImageButton
+                    type='button'
+                    onClick={() => handleRemoveImage(item.id)}
+                    aria-label='Remove image'
+                  >
                     ×
                   </RemoveImageButton>
                   <ImageIndexBadge>{index + 1}</ImageIndexBadge>

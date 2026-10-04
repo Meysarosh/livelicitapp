@@ -1,5 +1,5 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getDealsAsBuyer } from '@/data-access/deals';
+import { getDealsAsBuyer } from '@/data-access/deal';
 import { AuctionsList } from '@/components/auctions/AuctionsList';
 import { PageSection } from '@/components/layout/primitives';
 import { Title } from '@/components/ui';

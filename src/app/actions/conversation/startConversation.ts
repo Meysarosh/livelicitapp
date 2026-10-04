@@ -3,10 +3,10 @@
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { redirect } from 'next/navigation';
-import { getAuctionForConversationTransaction } from '@/data-access/auctions';
-import { updateConversation, upsertConversation } from '@/data-access/conversations';
+import { getAuctionForConversationTransaction } from '@/data-access/auction';
+import { updateConversation, upsertConversation } from '@/data-access/conversation';
 import { MessageKind } from '@prisma/client';
-import { createMessage } from '@/data-access/messages';
+import { createMessage } from '@/data-access/message';
 import { emitConversationUpdatedForUsers } from '@/lib/realtime/conversations-events';
 
 type StartConversationFormState =
@@ -17,9 +17,9 @@ type StartConversationFormState =
     }
   | undefined;
 
-export async function startConversation(
+export async function startConversationAction(
   _prevState: StartConversationFormState,
-  formData: FormData
+  formData: FormData,
 ): Promise<StartConversationFormState> {
   const session = await auth();
   const user = session?.user;
@@ -70,7 +70,7 @@ export async function startConversation(
           kind: MessageKind.TEXT,
           body,
         },
-        tx
+        tx,
       );
 
       const ownIsA = convo.userAId === user!.id;

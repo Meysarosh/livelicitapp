@@ -1,27 +1,22 @@
 'use client';
 
-import type { Conversation, Message, User, Auction, MessageKind } from '@prisma/client';
+import type { MessageKind } from '@prisma/client';
 import { useActionState, useRef, useEffect, useState, useMemo } from 'react';
-import { sendMessage } from '@/app/actions/conversation/sendMessage';
+import { sendMessageAction } from '@/app/actions/conversation/sendMessage';
 import { Button, TextArea, Paragraph, Muted } from '@/components/ui';
 import { formatDateTime } from '@/services/format-service';
 import { Form } from '../forms/form.styles';
 import { FormFieldWrapper } from '../forms/FormFieldWrapper';
 import { MessagesBox, MessageRow, Bubble, MetaLine } from './ConversationView.styles';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
-import { markConversationRead } from '@/app/actions/conversation/markConversationRead';
-
-type ConversationWithRelations = Conversation & {
-  auction: Auction;
-  userA: User;
-  userB: User;
-  messages: Message[];
-};
+import { markConversationReadAction } from '@/app/actions/conversation/markConversationRead';
+import { ConversationDetails } from '@/types/conversation';
+import type { User } from '@/types/user';
 
 type Props = {
-  conversation: ConversationWithRelations;
+  conversation: ConversationDetails;
   currentUserId: string;
-  counterpart: User;
+  counterpart: Pick<User, 'id' | 'nickname' | 'email'>;
 };
 
 type SendMessageFormState =
@@ -33,7 +28,10 @@ type SendMessageFormState =
   | undefined;
 
 export function ConversationView({ conversation, currentUserId, counterpart }: Props) {
-  const [state, action, pending] = useActionState<SendMessageFormState, FormData>(sendMessage, undefined);
+  const [state, action, pending] = useActionState<SendMessageFormState, FormData>(
+    sendMessageAction,
+    undefined,
+  );
   const [messages, setMessages] = useState(conversation.messages);
 
   const isUserA = conversation.userAId === currentUserId;
@@ -55,11 +53,12 @@ export function ConversationView({ conversation, currentUserId, counterpart }: P
     if (!messages.length) return;
 
     const last = messages[messages.length - 1];
+    if (!last) return;
 
     if (!last.senderId || last.senderId === currentUserId) return;
     if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
 
-    void markConversationRead(conversation.id);
+    void markConversationReadAction(conversation.id);
   }, [messages.length, messages, currentUserId, conversation.id]);
 
   useEffect(() => {
@@ -140,7 +139,11 @@ export function ConversationView({ conversation, currentUserId, counterpart }: P
 
         {messages.map((m) => {
           const own = m.senderId === currentUserId;
-          const senderLabel = m.senderId ? (own ? 'You' : counterpart.nickname ?? counterpart.email) : 'System';
+          const senderLabel = m.senderId
+            ? own
+              ? 'You'
+              : (counterpart.nickname ?? counterpart.email)
+            : 'System';
 
           const isSeenHere = own && seenOutgoingIds.has(m.id);
 
@@ -161,7 +164,11 @@ export function ConversationView({ conversation, currentUserId, counterpart }: P
       <Form action={action}>
         <input type='hidden' name='conversationId' value={conversation.id} />
         <FormFieldWrapper required error={state?.errors?.body}>
-          <TextArea name='body' placeholder='Write a message…' defaultValue={state?.values?.body ?? ''} />
+          <TextArea
+            name='body'
+            placeholder='Write a message…'
+            defaultValue={state?.values?.body ?? ''}
+          />
         </FormFieldWrapper>
 
         <Button type='submit' disabled={pending}>

@@ -1,4 +1,6 @@
+import 'server-only';
 import { prisma } from '@/lib/db';
+import { type ShippingAdress } from '@/types/shippingAddress';
 
 // UPSERT SHIPPING ADDRESS
 
@@ -8,8 +10,8 @@ export async function upsertShippingAddress(
   city: string,
   state: string | null,
   postalCode: string,
-  country: string
-) {
+  country: string,
+): Promise<void> {
   await prisma.shippingAddress.upsert({
     where: { userId },
     update: {
@@ -31,15 +33,8 @@ export async function upsertShippingAddress(
 }
 
 // GET SHIPPING ADDRESS
-export async function getShippingAddress(userId: string) {
+export async function getShippingAddress(userId: string): Promise<ShippingAdress | null> {
   return await prisma.shippingAddress.findUnique({
     where: { userId },
-    select: {
-      street: true,
-      city: true,
-      state: true,
-      postalCode: true,
-      country: true,
-    },
   });
 }

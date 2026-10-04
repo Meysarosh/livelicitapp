@@ -1,41 +1,46 @@
 'use server';
 
-import { getConversationById, updateConversation } from '@/data-access/conversations';
-import { auth } from '@/lib/auth';
-import { emitConversationRead, emitConversationUpdatedForUsers } from '@/lib/realtime/conversations-events';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { getConversationSummary, updateConversation } from '@/data-access/conversation';
+import {
+  emitConversationRead,
+  emitConversationUpdatedForUsers,
+} from '@/lib/realtime/conversations-events';
 
-export async function markConversationRead(conversationId: string) {
-  const session = await auth();
-  const user = session?.user;
+export async function markConversationReadAction(conversationId: string) {
+  const user = await getAuthUser();
+
   if (!user) return;
 
-  const userId = user.id;
+  const conversation = await getConversationSummary(conversationId);
+  if (!conversation) return;
 
-  const convo = await getConversationById(conversationId);
-  if (!convo) return;
-
-  const isA = convo.userAId === userId;
-  const isB = convo.userBId === userId;
+  const isA = conversation.userAId === user.id;
+  const isB = conversation.userBId === user.id;
   if (!isA && !isB) return;
 
   const now = new Date();
 
   const dataUpdate: Partial<{ unreadCountA: number; unreadCountB: number }> = {};
   if (isA) {
-    if (convo.unreadCountA === 0) return;
+    if (conversation.unreadCountA === 0) return;
     dataUpdate.unreadCountA = 0;
   } else if (isB) {
-    if (convo.unreadCountB === 0) return;
+    if (conversation.unreadCountB === 0) return;
     dataUpdate.unreadCountB = 0;
   }
 
-  await updateConversation(convo.id, dataUpdate);
+  await updateConversation(conversation.id, dataUpdate);
 
   await emitConversationRead({
-    conversationId: convo.id,
-    readerId: userId,
+    conversationId: conversation.id,
+    readerId: user.id,
     readAt: now,
   });
 
-  await emitConversationUpdatedForUsers({ conversationId: convo.id, userAId: convo.userAId, userBId: convo.userBId });
+  await emitConversationUpdatedForUsers({
+    conversationId: conversation.id,
+    userAId: conversation.userAId,
+    userBId: conversation.userBId,
+  });
 }

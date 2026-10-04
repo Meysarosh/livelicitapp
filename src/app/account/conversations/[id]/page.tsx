@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getConversationForUser } from '@/data-access/conversations';
+import { getConversationDetails } from '@/data-access/conversation';
 import { Title, Note } from '@/components/ui';
 import { PageSection } from '@/components/layout';
 import { ConversationView } from '@/components/conversations/ConversationView';
-import { markConversationRead } from '@/app/actions/conversation/markConversationRead';
+import { markConversationReadAction } from '@/app/actions/conversation/markConversationRead';
 import Link from 'next/link';
 
 interface PageProps {
@@ -14,13 +14,13 @@ interface PageProps {
 export default async function ConversationPage({ params }: { params: Promise<PageProps> }) {
   const user = await getAuthUser();
   const pageParams = await params;
-  const conversation = await getConversationForUser(pageParams.id, user.id);
+  const conversation = await getConversationDetails(pageParams.id, user.id);
 
   if (!conversation) {
     notFound();
   }
 
-  await markConversationRead(conversation.id);
+  await markConversationReadAction(conversation.id);
 
   const isA = conversation.userAId === user.id;
   const counterpart = isA ? conversation.userB : conversation.userA;
@@ -31,18 +31,26 @@ export default async function ConversationPage({ params }: { params: Promise<Pag
       <Note>
         {conversation.auction.deal ? (
           <>
-            Deal: <Link href={`/account/deals/${conversation.auctionId}`}>{conversation.auction.title}</Link>
+            Deal:{' '}
+            <Link href={`/account/deals/${conversation.auctionId}`}>
+              {conversation.auction.title}
+            </Link>
           </>
         ) : (
           <>
-            Auction: <Link href={`/auctions/${conversation.auctionId}`}>{conversation.auction.title}</Link>
+            Auction:{' '}
+            <Link href={`/auctions/${conversation.auctionId}`}>{conversation.auction.title}</Link>
           </>
         )}
         <br />
         With: {counterpart.nickname ?? counterpart.email}
       </Note>
 
-      <ConversationView conversation={conversation} currentUserId={user.id} counterpart={counterpart} />
+      <ConversationView
+        conversation={conversation}
+        currentUserId={user.id}
+        counterpart={counterpart}
+      />
     </PageSection>
   );
 }

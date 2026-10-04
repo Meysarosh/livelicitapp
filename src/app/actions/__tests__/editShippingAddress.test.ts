@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { editShippingAddress } from '../profile/editShippingAddress';
+import { editShippingAddressAction } from '../profile/editShippingAddress';
 import type { ShippingAddressFormState } from '@/services/zodValidation-service';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { upsertShippingAddress } from '@/data-access/shippingAddress';
@@ -25,7 +25,12 @@ function makeFormData(values: Record<string, string | undefined>): FormData {
   return fd;
 }
 
-const mockedUser = { id: 'user-1', role: 'USER' as const, email: 'user1@example.com', nickname: 'user1' };
+const mockedUser = {
+  id: 'user-1',
+  role: 'USER' as const,
+  email: 'user1@example.com',
+  nickname: 'user1',
+};
 
 describe('editShippingAddress action', () => {
   beforeEach(() => {
@@ -42,9 +47,9 @@ describe('editShippingAddress action', () => {
       country: 'H',
     });
 
-    const result = (await editShippingAddress(
+    const result = (await editShippingAddressAction(
       undefined as ShippingAddressFormState,
-      formData
+      formData,
     )) as ShippingAddressFormState;
 
     expect(mockedUpsertShippingAddress).not.toHaveBeenCalled();
@@ -73,9 +78,9 @@ describe('editShippingAddress action', () => {
       country: 'hu',
     });
 
-    const result = (await editShippingAddress(
+    const result = (await editShippingAddressAction(
       undefined as ShippingAddressFormState,
-      formData
+      formData,
     )) as ShippingAddressFormState;
 
     expect(mockedUpsertShippingAddress).toHaveBeenCalledTimes(1);
@@ -85,7 +90,7 @@ describe('editShippingAddress action', () => {
       'Budapest',
       'Pest',
       '1234',
-      'HU'
+      'HU',
     );
 
     expect(result?.message).toBe('Shipping address saved successfully.');
@@ -113,9 +118,9 @@ describe('editShippingAddress action', () => {
       country: 'HU',
     });
 
-    const result = (await editShippingAddress(
+    const result = (await editShippingAddressAction(
       undefined as ShippingAddressFormState,
-      formData
+      formData,
     )) as ShippingAddressFormState;
 
     expect(mockedUpsertShippingAddress).toHaveBeenCalledTimes(1);

@@ -4,13 +4,16 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { ProfileFormSchema, type ProfileFormState } from '@/services/zodValidation-service';
 import { del, put } from '@vercel/blob';
 import { MAX_FILE_SIZE } from '@/lib/constants';
-import { getUserProfile, updateUserProfile } from '@/data-access/user';
+import { getUserById, updateUser } from '@/data-access/user';
 import { validateImageFile } from '@/services/validateImageFile';
 
-export async function editUserProfile(_prevState: ProfileFormState, formData: FormData): Promise<ProfileFormState> {
-  const user = await getAuthUser();
+export async function editUserProfileAction(
+  _prevState: ProfileFormState,
+  formData: FormData,
+): Promise<ProfileFormState> {
+  const authUser = await getAuthUser();
 
-  const prevUserProfile = await getUserProfile(user.id);
+  const prevUserProfile = await getUserById(authUser.id);
 
   const raw = {
     fullName: formData.get('fullName'),
@@ -69,7 +72,7 @@ export async function editUserProfile(_prevState: ProfileFormState, formData: Fo
     const safeName = avatar.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
 
     try {
-      const blob = await put(`avatars/${user.id}/${crypto.randomUUID()}-${safeName}`, avatar, {
+      const blob = await put(`avatars/${authUser.id}/${crypto.randomUUID()}-${safeName}`, avatar, {
         access: 'public',
       });
 
@@ -92,7 +95,12 @@ export async function editUserProfile(_prevState: ProfileFormState, formData: Fo
   }
 
   try {
-    await updateUserProfile(user.id, parsed.data.fullName || null, parsed.data.phone || null, avatarUrl);
+    await updateUser(
+      authUser.id,
+      parsed.data.fullName || null,
+      parsed.data.phone || null,
+      avatarUrl,
+    );
   } catch (err) {
     console.error('APP/ACTIONS/UPDATE_PROFILE:', err);
 

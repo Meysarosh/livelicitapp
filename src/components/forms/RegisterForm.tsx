@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef } from 'react';
 
-import { registerUser } from '@/app/actions/auth/registerUser';
+import { registerUserAction } from '@/app/actions/auth/registerUser';
 import { buildErrorSummary } from '@/services/errorSummary-service';
 import { SCLink, Summary, SummaryList, RequiredMark, Form } from './form.styles';
 import { Button, Title, SubTitle, Note } from '@/components/ui';
@@ -12,7 +12,7 @@ import { FormFieldWrapper } from './FormFieldWrapper';
 type RegisterField = 'nickname' | 'email' | 'password' | 'confirmPassword';
 
 export default function RegisterForm() {
-  const [state, action, pending] = useActionState(registerUser, undefined);
+  const [state, action, pending] = useActionState(registerUserAction, undefined);
 
   const errors = buildErrorSummary<RegisterField>({
     errors: state?.errors as Partial<Record<RegisterField, string[]>> | undefined,
@@ -80,11 +80,25 @@ export default function RegisterForm() {
         </FormFieldWrapper>
 
         <FormFieldWrapper label='Password' required error={state?.errors?.password?.[0]}>
-          <Input name='password' type='password' autoComplete='new-password' aria-describedby={requiredNoteId} />
+          <Input
+            name='password'
+            type='password'
+            autoComplete='new-password'
+            aria-describedby={requiredNoteId}
+          />
         </FormFieldWrapper>
 
-        <FormFieldWrapper label='Confirm password' required error={state?.errors?.confirmPassword?.[0]}>
-          <Input name='confirmPassword' type='password' autoComplete='new-password' aria-describedby={requiredNoteId} />
+        <FormFieldWrapper
+          label='Confirm password'
+          required
+          error={state?.errors?.confirmPassword?.[0]}
+        >
+          <Input
+            name='confirmPassword'
+            type='password'
+            autoComplete='new-password'
+            aria-describedby={requiredNoteId}
+          />
         </FormFieldWrapper>
 
         <Button disabled={pending} type='submit'>

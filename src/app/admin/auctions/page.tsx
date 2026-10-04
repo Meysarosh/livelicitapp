@@ -1,5 +1,8 @@
 import { getAdminUser } from '@/lib/auth/getAdminUser';
-import { adminCancelAuction, getAuctionsDataForAdmin } from '@/app/actions/admin/adminAuction';
+import {
+  adminCancelAuctionAction,
+  getAuctionsDataForAdminAction,
+} from '@/app/actions/admin/adminAuction';
 import { Title, Note, Input, Button, Select } from '@/components/ui';
 import { Table, ActionsCell } from '../styles';
 import { ADMIN_TABLE_SIZE } from '@/lib/constants';
@@ -10,10 +13,15 @@ type SearchParams = {
   page?: string | string[];
 };
 
-export default async function AdminAuctionsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+export default async function AdminAuctionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   await getAdminUser();
   const params = await searchParams;
-  const getFirst = (v?: string | string[]) => (typeof v === 'string' ? v : Array.isArray(v) ? v[0] : '');
+  const getFirst = (v?: string | string[]) =>
+    typeof v === 'string' ? v : Array.isArray(v) ? v[0] : '';
 
   const rawQuery = getFirst(params.q);
   const rawStatus = getFirst(params.status) || 'ALL';
@@ -21,7 +29,7 @@ export default async function AdminAuctionsPage({ searchParams }: { searchParams
   const rawPageNum = rawPage ? Number(rawPage) : 1;
   const page = !Number.isFinite(rawPageNum) || rawPageNum < 1 ? 1 : rawPageNum;
 
-  const { auctions, total } = await getAuctionsDataForAdmin({
+  const { auctions, total } = await getAuctionsDataForAdminAction({
     page,
     pageSize: ADMIN_TABLE_SIZE,
     search: rawQuery,
@@ -112,7 +120,7 @@ export default async function AdminAuctionsPage({ searchParams }: { searchParams
                   <td>{a.endAt.toISOString().slice(0, 16).replace('T', ' ')}</td>
                   <td>{a.createdAt.toISOString().slice(0, 10)}</td>
                   <ActionsCell>
-                    <form action={adminCancelAuction}>
+                    <form action={adminCancelAuctionAction}>
                       <input type='hidden' name='auctionId' value={a.id} />
                       <Button
                         type='submit'

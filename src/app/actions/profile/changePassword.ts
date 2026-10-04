@@ -3,17 +3,13 @@
 import bcrypt from 'bcrypt';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { PasswordFormSchema, type PasswordFormState } from '@/services/zodValidation-service';
-import { getUserWithCredentials } from '@/data-access/user';
-import { createUserCredential, updateUserCredential } from '@/data-access/userCredentials';
+import { createUserCredential, getUserCredential, updateUserCredential } from '@/data-access/user';
 
-export async function changePassword(_prevState: PasswordFormState, formData: FormData): Promise<PasswordFormState> {
+export async function changePasswordAction(
+  _prevState: PasswordFormState,
+  formData: FormData,
+): Promise<PasswordFormState> {
   const user = await getAuthUser();
-
-  if (!user) {
-    return {
-      message: 'You must be signed in to change your password.',
-    };
-  }
 
   const raw = {
     currentPassword: formData.get('currentPassword'),
@@ -39,15 +35,9 @@ export async function changePassword(_prevState: PasswordFormState, formData: Fo
     };
   }
 
-  const dbUser = await getUserWithCredentials(user.id);
+  const userCreds = await getUserCredential(user.id);
 
-  if (!dbUser) {
-    return {
-      message: 'User not found.',
-    };
-  }
-
-  const hasLocalPassword = !!dbUser.credentials;
+  const hasLocalPassword = !!userCreds;
   const { currentPassword, newPassword } = parsed.data;
 
   // If user already has a local password, require and verify current password
@@ -60,8 +50,8 @@ export async function changePassword(_prevState: PasswordFormState, formData: Fo
       };
     }
 
-    const ok = await bcrypt.compare(currentPassword, dbUser.credentials!.passHash);
-    if (!ok) {
+    const isPasswordMatch = await bcrypt.compare(currentPassword, userCreds.passHash);
+    if (!isPasswordMatch) {
       return {
         errors: {
           currentPassword: ['Current password is incorrect.'],
@@ -74,9 +64,9 @@ export async function changePassword(_prevState: PasswordFormState, formData: Fo
     const hash = await bcrypt.hash(newPassword, 10);
 
     if (hasLocalPassword) {
-      await updateUserCredential(dbUser.id, hash);
+      await updateUserCredential(userCreds.userId, hash);
     } else {
-      await createUserCredential(dbUser.id, hash);
+      await createUserCredential(user.id, hash);
     }
   } catch (err) {
     console.error('APP/ACTIONS/CHANGE_PASSWORD:', err);

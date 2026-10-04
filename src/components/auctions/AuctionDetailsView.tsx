@@ -18,17 +18,22 @@ import { ImageWithSkeleton, Title, SubTitle } from '@/components/ui';
 import { LivePrice } from './LivePrice';
 import { LiveCountdown } from './LiveCountDown';
 import { LiveBidsCount } from './LiveBidsCount';
-import { AuctionWithImages } from '@/data-access/auctions';
+import type { AuctionDetails } from '@/types/auction';
 import { AuctionRealtimeProvider } from './AuctionRealtimeProvider';
 
 interface AuctionDetailsViewProps {
-  auction: AuctionWithImages;
+  auction: AuctionDetails;
   actions?: ReactNode;
   metadata?: ReactNode;
   watchlistButton?: ReactNode;
 }
 
-export function AuctionDetailsView({ auction, actions, metadata, watchlistButton }: AuctionDetailsViewProps) {
+export function AuctionDetailsView({
+  auction,
+  actions,
+  metadata,
+  watchlistButton,
+}: AuctionDetailsViewProps) {
   const mainImage = auction.images[0];
   const otherImages = auction.images.slice(1);
 

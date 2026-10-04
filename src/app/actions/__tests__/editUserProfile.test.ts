@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { editUserProfile } from '../profile/editUserProfile';
+import { editUserProfileAction } from '../profile/editUserProfile';
 import type { ProfileFormState } from '@/services/zodValidation-service';
 
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getUserProfile, updateUserProfile } from '@/data-access/user';
+import { getUserById, updateUser } from '@/data-access/user';
 import { validateImageFile } from '@/services/validateImageFile';
 import { put, del } from '@vercel/blob';
 import { MAX_FILE_SIZE } from '@/lib/constants';
@@ -13,8 +13,8 @@ vi.mock('@/lib/auth/getAuthUser', () => ({
 }));
 
 vi.mock('@/data-access/user', () => ({
-  getUserProfile: vi.fn(),
-  updateUserProfile: vi.fn(),
+  getUserById: vi.fn(),
+  updateUser: vi.fn(),
 }));
 
 vi.mock('@vercel/blob', () => ({
@@ -27,8 +27,8 @@ vi.mock('@/services/validateImageFile', () => ({
 }));
 
 const mockedGetAuthUser = vi.mocked(getAuthUser);
-const mockedGetUserProfile = vi.mocked(getUserProfile);
-const mockedUpdateUserProfile = vi.mocked(updateUserProfile);
+const mockedGetUserById = vi.mocked(getUserById);
+const mockedUpdateUser = vi.mocked(updateUser);
 const mockedPut = vi.mocked(put);
 const mockedDel = vi.mocked(del);
 const mockedValidateImageFile = vi.mocked(validateImageFile);
@@ -49,7 +49,7 @@ const mockedUser = {
   logoUrl: null,
   emailVerifiedAt: null,
   phoneVerifiedAt: null,
-  avatarUrl: null,
+  avatarUrl: 'https://blob.example.com/old-avatar.png',
   locale: null,
   timezone: null,
   currency: 'HUF',
@@ -62,13 +62,13 @@ const mockedAuthUser = {
   nickname: 'user1',
 };
 
-const mockedProfile = {
-  email: 'user1@example.com',
-  nickname: 'user-1',
-  fullName: 'Old Name',
-  phone: '123456',
-  avatarUrl: 'https://blob.example.com/old-avatar.png',
-};
+// const mockedProfile = {
+//   email: "user1@example.com",
+//   nickname: "user-1",
+//   fullName: "Old Name",
+//   phone: "123456",
+//   avatarUrl: "https://blob.example.com/old-avatar.png",
+// };
 
 const mockedBlobInfo = {
   url: 'https://blob.example.com/new-avatar.png',
@@ -92,7 +92,7 @@ describe('editUserProfile action', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mockedGetAuthUser.mockResolvedValue(mockedAuthUser);
-    mockedGetUserProfile.mockResolvedValue(mockedProfile);
+    mockedGetUserById.mockResolvedValue(mockedUser);
   });
 
   it('returns validation errors when input is invalid', async () => {
@@ -101,14 +101,17 @@ describe('editUserProfile action', () => {
       phone: 'abc123',
     });
 
-    const result = (await editUserProfile(undefined as ProfileFormState, formData)) as ProfileFormState;
+    const result = (await editUserProfileAction(
+      undefined as ProfileFormState,
+      formData,
+    )) as ProfileFormState;
 
     expect(result?.errors).toBeDefined();
     expect(result?.errors?.phone).toBeTruthy();
 
     expect(mockedPut).not.toHaveBeenCalled();
     expect(mockedDel).not.toHaveBeenCalled();
-    expect(mockedUpdateUserProfile).not.toHaveBeenCalled();
+    expect(mockedUpdateUser).not.toHaveBeenCalled();
 
     expect(result?.values).toEqual({
       fullName: 'John Doe',
@@ -117,7 +120,7 @@ describe('editUserProfile action', () => {
   });
 
   it('updates profile successfully without avatar upload', async () => {
-    mockedUpdateUserProfile.mockResolvedValueOnce(mockedUser);
+    mockedUpdateUser.mockResolvedValueOnce(mockedUser);
 
     const formData = makeFormData({
       fullName: 'New Name',
@@ -125,19 +128,22 @@ describe('editUserProfile action', () => {
       // no avatar field
     });
 
-    const result = (await editUserProfile(undefined as ProfileFormState, formData)) as ProfileFormState;
+    const result = (await editUserProfileAction(
+      undefined as ProfileFormState,
+      formData,
+    )) as ProfileFormState;
 
     expect(mockedValidateImageFile).not.toHaveBeenCalled();
     expect(mockedPut).not.toHaveBeenCalled();
     // old avatar not deleted if no new avatar is uploaded
     expect(mockedDel).not.toHaveBeenCalled();
 
-    expect(mockedUpdateUserProfile).toHaveBeenCalledTimes(1);
-    expect(mockedUpdateUserProfile).toHaveBeenCalledWith(
+    expect(mockedUpdateUser).toHaveBeenCalledTimes(1);
+    expect(mockedUpdateUser).toHaveBeenCalledWith(
       'user-1',
       'New Name',
       '123 456 789',
-      undefined // avatarUrl
+      undefined, // avatarUrl
     );
 
     expect(result?.message).toBe('Profile updated successfully.');
@@ -148,7 +154,9 @@ describe('editUserProfile action', () => {
   });
 
   it('returns avatar error if file is larger than MAX_FILE_SIZE', async () => {
-    const bigFile = new File(['x'.repeat(10)], 'avatar.png', { type: 'image/png' });
+    const bigFile = new File(['x'.repeat(10)], 'avatar.png', {
+      type: 'image/png',
+    });
     Object.defineProperty(bigFile, 'size', { value: MAX_FILE_SIZE + 1 });
 
     const formData = makeFormData({
@@ -157,13 +165,16 @@ describe('editUserProfile action', () => {
       avatar: bigFile,
     });
 
-    const result = (await editUserProfile(undefined as ProfileFormState, formData)) as ProfileFormState;
+    const result = (await editUserProfileAction(
+      undefined as ProfileFormState,
+      formData,
+    )) as ProfileFormState;
 
     expect(result?.errors?.avatar).toEqual(['Avatar must be at most 5 MB.']);
     // no image validation or upload or DB write
     expect(mockedValidateImageFile).not.toHaveBeenCalled();
     expect(mockedPut).not.toHaveBeenCalled();
-    expect(mockedUpdateUserProfile).not.toHaveBeenCalled();
+    expect(mockedUpdateUser).not.toHaveBeenCalled();
     // old avatar is not deleted in this early-return branch
     expect(mockedDel).not.toHaveBeenCalled();
 
@@ -179,7 +190,7 @@ describe('editUserProfile action', () => {
 
     mockedValidateImageFile.mockResolvedValueOnce({ valid: true });
     mockedPut.mockResolvedValueOnce(mockedBlobInfo);
-    mockedUpdateUserProfile.mockResolvedValueOnce(mockedUser);
+    mockedUpdateUser.mockResolvedValueOnce(mockedUser);
 
     const formData = makeFormData({
       fullName: 'Jane Doe',
@@ -187,17 +198,20 @@ describe('editUserProfile action', () => {
       avatar: file,
     });
 
-    const result = (await editUserProfile(undefined as ProfileFormState, formData)) as ProfileFormState;
+    const result = (await editUserProfileAction(
+      undefined as ProfileFormState,
+      formData,
+    )) as ProfileFormState;
 
     expect(mockedValidateImageFile).toHaveBeenCalledTimes(1);
     expect(mockedPut).toHaveBeenCalledTimes(1);
-    expect(mockedUpdateUserProfile).toHaveBeenCalledTimes(1);
+    expect(mockedUpdateUser).toHaveBeenCalledTimes(1);
 
-    expect(mockedUpdateUserProfile).toHaveBeenCalledWith(
+    expect(mockedUpdateUser).toHaveBeenCalledWith(
       'user-1',
       'Jane Doe',
       '987654',
-      'https://blob.example.com/new-avatar.png'
+      'https://blob.example.com/new-avatar.png',
     );
 
     // previous avatar deleted in finally block
@@ -225,10 +239,13 @@ describe('editUserProfile action', () => {
       avatar: file,
     });
 
-    const result = (await editUserProfile(undefined as ProfileFormState, formData)) as ProfileFormState;
+    const result = (await editUserProfileAction(
+      undefined as ProfileFormState,
+      formData,
+    )) as ProfileFormState;
 
     expect(mockedPut).toHaveBeenCalledTimes(1);
-    expect(mockedUpdateUserProfile).not.toHaveBeenCalled();
+    expect(mockedUpdateUser).not.toHaveBeenCalled();
 
     // old avatar should be deleted in finally
     expect(mockedDel).toHaveBeenCalledWith('https://blob.example.com/old-avatar.png');
@@ -248,7 +265,7 @@ describe('editUserProfile action', () => {
 
     mockedValidateImageFile.mockResolvedValueOnce({ valid: true });
     mockedPut.mockResolvedValueOnce(mockedBlobInfo);
-    mockedUpdateUserProfile.mockRejectedValueOnce(new Error('DB failure'));
+    mockedUpdateUser.mockRejectedValueOnce(new Error('DB failure'));
 
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -258,12 +275,15 @@ describe('editUserProfile action', () => {
       avatar: file,
     });
 
-    const result = (await editUserProfile(undefined as ProfileFormState, formData)) as ProfileFormState;
+    const result = (await editUserProfileAction(
+      undefined as ProfileFormState,
+      formData,
+    )) as ProfileFormState;
 
     // upload was attempted
     expect(mockedPut).toHaveBeenCalledTimes(1);
     // DB update failed
-    expect(mockedUpdateUserProfile).toHaveBeenCalledTimes(1);
+    expect(mockedUpdateUser).toHaveBeenCalledTimes(1);
 
     // new avatar should be deleted on failure
     expect(mockedDel).toHaveBeenCalledWith('https://blob.example.com/new-avatar.png');

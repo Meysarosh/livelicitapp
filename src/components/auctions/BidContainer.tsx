@@ -1,28 +1,33 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
-import { placeBid } from '@/app/actions/auction/placeBid';
+import { placeBidAction } from '@/app/actions/auction/placeBid';
 import type { PlaceBidFormState } from '@/services/zodValidation-service';
 import { Form } from '@/components/forms/form.styles';
 import { Button, Input, Note } from '@/components/ui';
 import { getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
-import { AuctionDetailForPublic } from '@/data-access/auctions';
+import type { AuctionDetails } from '@/types/auction';
 import { FormFieldWrapper } from '../forms/FormFieldWrapper';
 import { useAuctionRealtime } from './AuctionRealtimeProvider';
 
 interface BidContainerProps {
-  auction: AuctionDetailForPublic;
+  auction: AuctionDetails;
   userId?: string;
 }
 
 export function BidContainer({ auction, userId }: BidContainerProps) {
   const { currentPriceMinor, highestBidderId } = useAuctionRealtime();
 
-  const [state, action, pending] = useActionState<PlaceBidFormState, FormData>(placeBid, undefined);
+  const [state, action, pending] = useActionState<PlaceBidFormState, FormData>(
+    placeBidAction,
+    undefined,
+  );
 
   const { id: auctionId, currency, minIncrementMinor, owner } = auction;
 
-  const [minNextPrice, setMinNextPrice] = useState<number>((currentPriceMinor + minIncrementMinor) / 100);
+  const [minNextPrice, setMinNextPrice] = useState<number>(
+    (currentPriceMinor + minIncrementMinor) / 100,
+  );
 
   useEffect(() => {
     setMinNextPrice((currentPriceMinor + minIncrementMinor) / 100);
@@ -48,7 +53,9 @@ export function BidContainer({ auction, userId }: BidContainerProps) {
   }
 
   if (!canBid) {
-    return <Note role='status'>{reasonIfCannotBid || 'Bidding is not available for this auction.'}</Note>;
+    return (
+      <Note role='status'>{reasonIfCannotBid || 'Bidding is not available for this auction.'}</Note>
+    );
   }
 
   return (
@@ -62,7 +69,11 @@ export function BidContainer({ auction, userId }: BidContainerProps) {
       <Form action={action}>
         <Input type='hidden' name='auctionId' value={auctionId} />
 
-        <FormFieldWrapper label={`Your bid (${currency})`} required error={state?.errors?.amount?.[0]}>
+        <FormFieldWrapper
+          label={`Your bid (${currency})`}
+          required
+          error={state?.errors?.amount?.[0]}
+        >
           <Input
             name='amount'
             type='number'

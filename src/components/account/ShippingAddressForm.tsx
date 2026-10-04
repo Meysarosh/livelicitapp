@@ -1,27 +1,22 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
-import { editShippingAddress } from '@/app/actions/profile/editShippingAddress';
+import { editShippingAddressAction } from '@/app/actions/profile/editShippingAddress';
+import type { ShippingAdress } from '@/types/shippingAddress';
 import type { ShippingAddressFormState } from '@/services/zodValidation-service';
 import { Form, FormButtonRow } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';
 import { Button, Title, Note, Input } from '@/components/ui';
-import { useRouter } from 'next/navigation';
 
 type ShippingAddressFormProps = {
-  address: {
-    street: string | null;
-    city: string | null;
-    state: string | null;
-    postalCode: string | null;
-    country: string | null;
-  } | null;
+  address: ShippingAdress | null;
 };
 
 export default function ShippingAddressForm({ address }: ShippingAddressFormProps) {
   const [state, formAction, pending] = useActionState<ShippingAddressFormState, FormData>(
-    editShippingAddress,
-    undefined
+    editShippingAddressAction,
+    undefined,
   );
 
   const router = useRouter();
@@ -81,7 +76,12 @@ export default function ShippingAddressForm({ address }: ShippingAddressFormProp
         </FormFieldWrapper>
 
         <FormFieldWrapper label='City' required error={state?.errors?.city?.[0]}>
-          <Input name='city' value={city} onChange={(e) => setCity(e.target.value)} placeholder='City' />
+          <Input
+            name='city'
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder='City'
+          />
         </FormFieldWrapper>
 
         <FormFieldWrapper label='State / region' error={state?.errors?.state?.[0]}>
@@ -102,7 +102,11 @@ export default function ShippingAddressForm({ address }: ShippingAddressFormProp
           />
         </FormFieldWrapper>
 
-        <FormFieldWrapper label='Country (2-letter code)' required error={state?.errors?.country?.[0]}>
+        <FormFieldWrapper
+          label='Country (2-letter code)'
+          required
+          error={state?.errors?.country?.[0]}
+        >
           <Input
             name='country'
             value={country}

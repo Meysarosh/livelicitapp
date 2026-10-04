@@ -1,3 +1,4 @@
+import 'server-only';
 import { prisma } from '@/lib/db';
 import { Bid, Prisma, PrismaClient } from '@prisma/client';
 
@@ -9,7 +10,7 @@ export async function createBid(
   auctionId: string,
   userId: string,
   amountMinor: number,
-  tx: DbClient = prisma
+  tx: DbClient = prisma,
 ): Promise<Bid> {
   return await tx.bid.create({
     data: {

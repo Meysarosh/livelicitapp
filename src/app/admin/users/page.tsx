@@ -1,5 +1,8 @@
 import { getAdminUser } from '@/lib/auth/getAdminUser';
-import { adminUpdateUserStatus, getUsersDataForAdmin } from '@/app/actions/admin/adminUserStatus';
+import {
+  adminUpdateUserStatusAction,
+  getUsersDataForAdminAction,
+} from '@/app/actions/admin/adminUserStatus';
 import { Title, Note, Input, Button } from '@/components/ui';
 import { Table, ActionsCell } from '../styles';
 import { ADMIN_TABLE_SIZE } from '@/lib/constants';
@@ -9,18 +12,23 @@ type SearchParams = {
   page?: string | string[];
 };
 
-export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   await getAdminUser();
 
   const params = await searchParams;
-  const getFirst = (v?: string | string[]) => (typeof v === 'string' ? v : Array.isArray(v) ? v[0] : '');
+  const getFirst = (v?: string | string[]) =>
+    typeof v === 'string' ? v : Array.isArray(v) ? v[0] : '';
 
   const rawQuery = getFirst(params.q);
   const rawPage = getFirst(params.page);
   const rawPageNum = rawPage ? Number(rawPage) : 1;
   const page = !Number.isFinite(rawPageNum) || rawPageNum < 1 ? 1 : rawPageNum;
 
-  const { users, total } = await getUsersDataForAdmin({
+  const { users, total } = await getUsersDataForAdminAction({
     page,
     pageSize: ADMIN_TABLE_SIZE,
     search: rawQuery,
@@ -33,8 +41,16 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
       <Title as='h1'>Users</Title>
       <Note>Search users and suspend/unsuspend accounts.</Note>
 
-      <form method='get' style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '16px 0' }}>
-        <Input name='q' placeholder='Search by email or nickname…' defaultValue={rawQuery} style={{ maxWidth: 280 }} />
+      <form
+        method='get'
+        style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '16px 0' }}
+      >
+        <Input
+          name='q'
+          placeholder='Search by email or nickname…'
+          defaultValue={rawQuery}
+          style={{ maxWidth: 280 }}
+        />
         <Button type='submit'>Search</Button>
       </form>
 
@@ -75,9 +91,13 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                 </td>
                 <td>{u.createdAt.toISOString().slice(0, 10)}</td>
                 <ActionsCell>
-                  <form action={adminUpdateUserStatus}>
+                  <form action={adminUpdateUserStatusAction}>
                     <input type='hidden' name='userId' value={u.id} />
-                    <input type='hidden' name='action' value={u.status === 'OK' ? 'suspend' : 'unsuspend'} />
+                    <input
+                      type='hidden'
+                      name='action'
+                      value={u.status === 'OK' ? 'suspend' : 'unsuspend'}
+                    />
                     <Button type='submit'>{u.status === 'OK' ? 'Suspend' : 'Unsuspend'}</Button>
                   </form>
                 </ActionsCell>
@@ -94,12 +114,18 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
           </span>
 
           {page > 1 && (
-            <a href={`/admin/users?page=${page - 1}${rawQuery ? `&q=${encodeURIComponent(rawQuery)}` : ''}`}>
+            <a
+              href={`/admin/users?page=${page - 1}${rawQuery ? `&q=${encodeURIComponent(rawQuery)}` : ''}`}
+            >
               Previous
             </a>
           )}
           {page < totalPages && (
-            <a href={`/admin/users?page=${page + 1}${rawQuery ? `&q=${encodeURIComponent(rawQuery)}` : ''}`}>Next</a>
+            <a
+              href={`/admin/users?page=${page + 1}${rawQuery ? `&q=${encodeURIComponent(rawQuery)}` : ''}`}
+            >
+              Next
+            </a>
           )}
         </div>
       )}

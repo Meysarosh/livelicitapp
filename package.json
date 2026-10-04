@@ -16,7 +16,8 @@
     "db:studio": "prisma studio",
     "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "seed": "tsx prisma/seed.ts",
-    "analyze": "next build --webpack"
+    "analyze": "next build --webpack",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
@@ -28,6 +29,7 @@
     "pusher-js": "^8.4.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "server-only": "^0.0.1",
     "styled-components": "^6.1.19",
     "zod": "^4.1.12"
   },

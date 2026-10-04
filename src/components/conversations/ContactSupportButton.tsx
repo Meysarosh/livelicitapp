@@ -6,7 +6,10 @@ import { useActionState } from 'react';
 import { Button, TextArea, Muted } from '@/components/ui';
 import { Form } from '../forms/form.styles';
 import { FormFieldWrapper } from '../forms/FormFieldWrapper';
-import { contactSupport, ContactSupportFormState } from '@/app/actions/conversation/contactSupport';
+import {
+  contactSupportAction,
+  ContactSupportFormState,
+} from '@/app/actions/conversation/contactSupport';
 
 type Props = {
   auctionId: string;
@@ -46,7 +49,10 @@ const ActionsRow = styled.div`
 
 export function ContactSupportButton({ auctionId }: Props) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState<ContactSupportFormState, FormData>(contactSupport, undefined);
+  const [state, action, pending] = useActionState<ContactSupportFormState, FormData>(
+    contactSupportAction,
+    undefined,
+  );
 
   const handleSubmit = () => {
     //TODO close only on success after short delay with success message shown
@@ -66,12 +72,21 @@ export function ContactSupportButton({ auctionId }: Props) {
               <input type='hidden' name='auctionId' value={auctionId} />
 
               <FormFieldWrapper required error={state?.errors?.body}>
-                <TextArea name='body' placeholder='Write your message…' defaultValue={state?.values?.body ?? ''} />
+                <TextArea
+                  name='body'
+                  placeholder='Write your message…'
+                  defaultValue={state?.values?.body ?? ''}
+                />
               </FormFieldWrapper>
               {state?.message && <Muted>{state.message}</Muted>}
 
               <ActionsRow>
-                <Button type='button' $variant='secondary' onClick={() => setOpen(false)} disabled={pending}>
+                <Button
+                  type='button'
+                  $variant='secondary'
+                  onClick={() => setOpen(false)}
+                  disabled={pending}
+                >
                   Cancel
                 </Button>
                 <Button type='submit' disabled={pending}>
