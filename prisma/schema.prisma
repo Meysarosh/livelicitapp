@@ -67,8 +67,8 @@ model User {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   
-  credentials              UserCredential?
-  identities               UserIdentity[]
+  password                 Password?
+  providerAccount          ProviderAccount[]
   auctions                 Auction[]       @relation("UserAuctions")
   highestBidderForAuctions Auction[]       @relation("UserBids")
   bids                     Bid[]
@@ -81,7 +81,7 @@ model User {
   shippingAddress          ShippingAddress? @relation("UserAddress")
 }
 
-model UserCredential {
+model Password {
   id        String   @id @default(cuid())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String   @unique
@@ -89,7 +89,7 @@ model UserCredential {
   createdAt DateTime @default(now())
 }
 
-model UserIdentity {
+model ProviderAccount {
   id             String   @id @default(cuid())
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         String

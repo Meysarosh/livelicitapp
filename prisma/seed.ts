@@ -43,7 +43,7 @@ async function createUserWithCredential(opts: {
     },
   });
 
-  await prisma.userCredential.upsert({
+  await prisma.password.upsert({
     where: { userId: user.id },
     update: { passHash },
     create: {
