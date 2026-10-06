@@ -1,11 +1,6 @@
 import 'server-only';
 import { prisma } from '@/lib/db';
-import {
-  User,
-  UserWithCredentials,
-  UserPasswordLookup,
-  ProviderAccountWithUser,
-} from '@/types/user';
+import { User, UserWithPassword, UserPasswordLookup, ProviderAccountWithUser } from '@/types/user';
 
 // CREATE USER
 export async function createUser(nickname: string, email: string, hash?: string): Promise<User> {
@@ -28,9 +23,9 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   });
 }
 
-export async function getUserWithCredentialsByIdentifier(
+export async function getUserWithPasswordByIdentifier(
   identifier: string,
-): Promise<UserWithCredentials | null> {
+): Promise<UserWithPassword | null> {
   return await prisma.user.findFirst({
     where: {
       OR: [{ email: identifier }, { nickname: identifier }],
@@ -41,21 +36,12 @@ export async function getUserWithCredentialsByIdentifier(
       nickname: true,
       role: true,
       status: true,
-      credentials: {
+      password: {
         select: {
           passHash: true,
         },
       },
     },
-  });
-}
-
-export async function getUserWithCredentialsById(
-  userId: string,
-): Promise<UserWithCredentials | null> {
-  return await prisma.user.findUnique({
-    where: { id: userId },
-    include: { credentials: true },
   });
 }
 
@@ -73,22 +59,22 @@ export async function updateUser(
 }
 
 // CREATE USER CREDENTIAL
-export async function createUserCredential(userId: string, passHash: string): Promise<void> {
-  await prisma.userCredential.create({
+export async function createUserPassword(userId: string, passHash: string): Promise<void> {
+  await prisma.password.create({
     data: { userId, passHash },
   });
 }
 
 // GET USER CREDENTIAL
-export async function hasUserCredential(userId: string): Promise<boolean> {
-  const credential = await prisma.userCredential.findUnique({
+export async function hasUserPassword(userId: string): Promise<boolean> {
+  const credential = await prisma.password.findUnique({
     where: { userId },
   });
   return !!credential;
 }
 
-export async function getUserCredential(userId: string): Promise<UserPasswordLookup | null> {
-  return await prisma.userCredential.findUnique({
+export async function getUserPassword(userId: string): Promise<UserPasswordLookup | null> {
+  return await prisma.password.findUnique({
     where: { userId },
     select: {
       userId: true,
@@ -98,8 +84,8 @@ export async function getUserCredential(userId: string): Promise<UserPasswordLoo
 }
 
 // UPDATE USER CREDENTIAL
-export async function updateUserCredential(userId: string, passHash: string): Promise<void> {
-  await prisma.userCredential.update({
+export async function updateUserPassword(userId: string, passHash: string): Promise<void> {
+  await prisma.password.update({
     where: { userId },
     data: { passHash },
   });
@@ -109,7 +95,7 @@ export async function getProviderAccountWithUser(
   provider: string,
   providerUserId: string,
 ): Promise<ProviderAccountWithUser | null> {
-  return await prisma.userIdentity.findUnique({
+  return await prisma.providerAccount.findUnique({
     where: {
       provider_providerUserId: {
         provider,
@@ -127,7 +113,7 @@ export async function upsertProviderAccount(
   provider: string,
   providerUserId: string,
 ): Promise<void> {
-  await prisma.userIdentity.upsert({
+  await prisma.providerAccount.upsert({
     where: {
       provider_providerUserId: {
         provider,

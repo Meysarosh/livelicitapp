@@ -3,7 +3,7 @@
 import bcrypt from 'bcrypt';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { PasswordFormSchema, type PasswordFormState } from '@/services/zodValidation-service';
-import { createUserCredential, getUserCredential, updateUserCredential } from '@/data-access/user';
+import { createUserPassword, getUserPassword, updateUserPassword } from '@/data-access/user';
 
 export async function changePasswordAction(
   _prevState: PasswordFormState,
@@ -35,7 +35,7 @@ export async function changePasswordAction(
     };
   }
 
-  const userCreds = await getUserCredential(user.id);
+  const userCreds = await getUserPassword(user.id);
 
   const hasLocalPassword = !!userCreds;
   const { currentPassword, newPassword } = parsed.data;
@@ -64,9 +64,9 @@ export async function changePasswordAction(
     const hash = await bcrypt.hash(newPassword, 10);
 
     if (hasLocalPassword) {
-      await updateUserCredential(userCreds.userId, hash);
+      await updateUserPassword(userCreds.userId, hash);
     } else {
-      await createUserCredential(user.id, hash);
+      await createUserPassword(user.id, hash);
     }
   } catch (err) {
     console.error('APP/ACTIONS/CHANGE_PASSWORD:', err);

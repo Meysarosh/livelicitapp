@@ -6,18 +6,18 @@ export type SessionUser = Pick<User, 'id' | 'nickname' | 'email'> & {
   role: 'USER' | 'ADMIN';
 };
 
-export type UserWithCredentials = Pick<
+export type UserWithPassword = Pick<
   Prisma.UserGetPayload<{
-    include: { credentials: { select: { passHash: true } } };
+    include: { password: { select: { passHash: true } } };
   }>,
-  'id' | 'email' | 'nickname' | 'role' | 'status' | 'credentials'
+  'id' | 'email' | 'nickname' | 'role' | 'status' | 'password'
 >;
 
 export type UserPasswordLookup = Pick<
-  Prisma.UserCredentialGetPayload<Prisma.UserCredentialDefaultArgs>,
+  Prisma.PasswordGetPayload<Prisma.PasswordDefaultArgs>,
   'userId' | 'passHash'
 >;
 
-export type ProviderAccountWithUser = Prisma.UserIdentityGetPayload<{
+export type ProviderAccountWithUser = Prisma.ProviderAccountGetPayload<{
   include: { user: true };
 }>;
