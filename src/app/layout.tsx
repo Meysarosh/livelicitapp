@@ -11,7 +11,7 @@ import {
   Footer,
   FooterInner,
 } from '@/components/layout/RootLayout/styles';
-import { getUserById } from '@/data-access/user';
+import { getUserById } from '@/data-access/user/user';
 import Watcher from '@/components/auth/Watcher';
 
 export const metadata: Metadata = {

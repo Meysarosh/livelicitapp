@@ -4,7 +4,7 @@ import {
   watchlistEntryWithAuctionArgs,
   type WatchlistEntry,
   WatchlistEntryWithAuction,
-} from '@/types/watchlist';
+} from '@/data-access/watchlist/watchlist.types';
 
 //CREATE WATCHLIST ENTRY
 export async function createWatchlistEntry(

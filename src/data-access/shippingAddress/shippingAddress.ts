@@ -1,6 +1,6 @@
 import 'server-only';
 import { prisma } from '@/lib/db';
-import { type ShippingAdress } from '@/types/shippingAddress';
+import { type ShippingAdress } from '@/data-access/shippingAddress/shippingAddress.types';
 
 // UPSERT SHIPPING ADDRESS
 

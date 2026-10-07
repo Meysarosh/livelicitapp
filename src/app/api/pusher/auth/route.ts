@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getPusherServer } from '@/lib/realtime/pusher-server';
-import { getConversationSummary } from '@/data-access/conversation';
+import { getConversationSummary } from '@/data-access/conversation/conversation';
 
 export async function POST(req: NextRequest) {
   const session = await auth();

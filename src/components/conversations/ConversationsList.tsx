@@ -16,7 +16,7 @@ import {
   LastLine,
   Badge,
 } from './ConversationsList.styles';
-import type { ConversationForList } from '@/types/conversation';
+import type { ConversationForList } from '@/data-access/conversation/conversation.types';
 import { formatDateTime } from '@/services/format-service';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
 

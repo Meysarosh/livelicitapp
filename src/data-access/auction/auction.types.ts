@@ -24,7 +24,19 @@ export const auctionMetaDataArgs = Prisma.validator<Prisma.AuctionDefaultArgs>()
 export type AuctionMetaData = Prisma.AuctionGetPayload<typeof auctionMetaDataArgs>;
 
 export const auctionDetailsArgs = Prisma.validator<Prisma.AuctionDefaultArgs>()({
-  include: {
+  select: {
+    id: true,
+    title: true,
+    description: true,
+    status: true,
+    ownerId: true,
+    startAt: true,
+    endAt: true,
+    startPriceMinor: true,
+    currentPriceMinor: true,
+    minIncrementMinor: true,
+    highestBidderId: true,
+    currency: true,
     images: {
       orderBy: { position: 'asc' },
       select: {

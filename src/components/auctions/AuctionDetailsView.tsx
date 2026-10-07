@@ -18,7 +18,7 @@ import { ImageWithSkeleton, Title, SubTitle } from '@/components/ui';
 import { LivePrice } from './LivePrice';
 import { LiveCountdown } from './LiveCountDown';
 import { LiveBidsCount } from './LiveBidsCount';
-import type { AuctionDetails } from '@/types/auction';
+import type { AuctionDetails } from '@/data-access/auction/auction.types';
 import { AuctionRealtimeProvider } from './AuctionRealtimeProvider';
 
 interface AuctionDetailsViewProps {

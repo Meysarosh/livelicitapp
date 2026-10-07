@@ -1,6 +1,6 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import ProfileForm from '@/components/account/ProfileForm';
-import { getUserById } from '@/data-access/user';
+import { getUserById } from '@/data-access/user/user';
 
 export default async function ProfilePage() {
   const authUser = await getAuthUser();

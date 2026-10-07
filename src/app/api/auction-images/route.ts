@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { auth } from '@/lib/auth';
-import { createImage } from '@/data-access/auctionImage';
+import { createImage } from '@/data-access/auctionImage/auctionImage';
 
 export const runtime = 'nodejs';
 

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
 import { Input, Select, Button } from '@/components/ui';
-import type { PublicAuctionsSort } from '@/data-access/auction';
+import type { PublicAuctionsSort } from '@/data-access/auction/auction';
 import { Toolbar, ToolbarGroup, Label, Pagination, PageInfo } from './PublicAuctionsControl.styles';
 import { MIN_SEARCH_LENGTH, SEARCH_DEBOUNCE_TIME } from '@/lib/constants';
 

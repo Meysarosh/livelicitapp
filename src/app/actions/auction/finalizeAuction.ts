@@ -1,9 +1,9 @@
 'use server';
 
-import { getAuctionToFinalaze, updateAuction } from '@/data-access/auction';
-import { updateConversation, upsertConversation } from '@/data-access/conversation';
-import { createDeal } from '@/data-access/deal';
-import { createMessage } from '@/data-access/message';
+import { getAuctionToFinalaze, updateAuction } from '@/data-access/auction/auction';
+import { updateConversation, upsertConversation } from '@/data-access/conversation/conversation';
+import { createDeal } from '@/data-access/deal/deal';
+import { createMessage } from '@/data-access/message/message';
 import {
   emitConversationUpdatedForUsers,
   emitNewMessageEvent,

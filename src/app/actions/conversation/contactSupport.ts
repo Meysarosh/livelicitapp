@@ -1,13 +1,13 @@
 'use server';
 
 import { prisma } from '@/lib/db';
-import { getAuction } from '@/data-access/auction';
-import { updateConversation, upsertConversation } from '@/data-access/conversation';
+import { getAuction } from '@/data-access/auction/auction';
+import { updateConversation, upsertConversation } from '@/data-access/conversation/conversation';
 import { MessageKind } from '@prisma/client';
-import { createMessage } from '@/data-access/message';
+import { createMessage } from '@/data-access/message/message';
 import { emitConversationUpdatedForUsers } from '@/lib/realtime/conversations-events';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getAdminUserId } from '@/data-access/admin';
+import { getAdminUserId } from '@/data-access/admin/admin';
 
 export type ContactSupportFormState =
   | {

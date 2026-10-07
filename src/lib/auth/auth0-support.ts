@@ -1,13 +1,13 @@
 import 'server-only';
 import type { Account, Profile, User as NextAuthUser } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
-import type { User } from '@/types/user';
+import type { User } from '@/data-access/user/user.types';
 import {
   getProviderAccountWithUser,
   createUser,
   getUserByEmail,
   upsertProviderAccount,
-} from '@/data-access/user';
+} from '@/data-access/user/user';
 
 type SignInArgs = {
   user: NextAuthUser;

@@ -1,7 +1,10 @@
 'use server';
 
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getConversationSummary, updateConversation } from '@/data-access/conversation';
+import {
+  getConversationSummary,
+  updateConversation,
+} from '@/data-access/conversation/conversation';
 import {
   emitConversationRead,
   emitConversationUpdatedForUsers,

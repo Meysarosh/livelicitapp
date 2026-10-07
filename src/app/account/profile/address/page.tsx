@@ -1,6 +1,6 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import ShippingAddressForm from '@/components/account/ShippingAddressForm';
-import { getShippingAddress } from '@/data-access/shippingAddress';
+import { getShippingAddress } from '@/data-access/shippingAddress/shippingAddress';
 
 export default async function ShippingAddressPage() {
   const authUser = await getAuthUser();

@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { RegisterFormSchema, type RegisterFormState } from '@/services/zodValidation-service';
 import { signIn } from '@/lib/auth';
 import { isNextRedirectError } from '@/lib/utils/isNextRedirectError';
-import { createUser } from '@/data-access/user';
+import { createUser } from '@/data-access/user/user';
 
 export async function registerUserAction(
   _prev: RegisterFormState,

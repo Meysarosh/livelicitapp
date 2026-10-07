@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
-import { AuctionForList } from '@/types/auction';
+import { AuctionForList } from '@/data-access/auction/auction.types';
 
 type AuctionContextType = {
   currentPriceMinor: number;

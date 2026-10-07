@@ -5,10 +5,10 @@ import { AuctionStatus, DealStatus, MessageKind } from '@prisma/client';
 
 import { prisma } from '@/lib/db';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getDealForStatusAction, updateDeal } from '@/data-access/deal';
-import { upsertConversation, updateConversation } from '@/data-access/conversation';
-import { createMessage } from '@/data-access/message';
-import { getShippingAddress } from '@/data-access/shippingAddress';
+import { getDealForStatusAction, updateDeal } from '@/data-access/deal/deal';
+import { upsertConversation, updateConversation } from '@/data-access/conversation/conversation';
+import { createMessage } from '@/data-access/message/message';
+import { getShippingAddress } from '@/data-access/shippingAddress/shippingAddress';
 import { broadcastDealUpdated } from '@/lib/realtime/deals-events';
 import {
   emitConversationUpdatedForUsers,
@@ -25,21 +25,21 @@ vi.mock('@/lib/auth/getAuthUser', () => ({
   getAuthUser: vi.fn(),
 }));
 
-vi.mock('@/data-access/deal', () => ({
+vi.mock('@/data-access/deal/deal', () => ({
   getDealForStatusAction: vi.fn(),
   updateDeal: vi.fn(),
 }));
 
-vi.mock('@/data-access/conversation', () => ({
+vi.mock('@/data-access/conversation/conversation', () => ({
   upsertConversation: vi.fn(),
   updateConversation: vi.fn(),
 }));
 
-vi.mock('@/data-access/message', () => ({
+vi.mock('@/data-access/message/message', () => ({
   createMessage: vi.fn(),
 }));
 
-vi.mock('@/data-access/shippingAddress', () => ({
+vi.mock('@/data-access/shippingAddress/shippingAddress', () => ({
   getShippingAddress: vi.fn(),
 }));
 

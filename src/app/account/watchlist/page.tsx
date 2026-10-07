@@ -1,5 +1,5 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getWatchlistByUser } from '@/data-access/watchlist';
+import { getWatchlistByUser } from '@/data-access/watchlist/watchlist';
 import { AuctionsList } from '@/components/auctions/AuctionsList';
 
 export default async function WatchlistPage() {

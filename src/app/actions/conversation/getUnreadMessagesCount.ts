@@ -1,7 +1,7 @@
 'use server';
 
 import { auth } from '@/lib/auth';
-import { getUnreadMessagesCountForUser } from '@/data-access/conversation';
+import { getUnreadMessagesCountForUser } from '@/data-access/conversation/conversation';
 
 export async function getUnreadMessagesCountAction() {
   const session = await auth();

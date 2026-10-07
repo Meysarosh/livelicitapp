@@ -1,5 +1,5 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getUserConversations } from '@/data-access/conversation';
+import { getUserConversations } from '@/data-access/conversation/conversation';
 import { Title, Note } from '@/components/ui';
 import { PageSection } from '@/components/layout';
 import { ConversationsList } from '@/components/conversations/ConversationsList';

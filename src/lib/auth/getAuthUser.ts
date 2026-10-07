@@ -1,6 +1,6 @@
 import 'server-only';
 import { auth } from '@/lib/auth';
-import { SessionUser } from '@/types/user';
+import { SessionUser } from '@/data-access/user/user.types';
 import { redirect } from 'next/navigation';
 
 export async function getAuthUser(): Promise<SessionUser> {
