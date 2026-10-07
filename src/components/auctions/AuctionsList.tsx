@@ -11,11 +11,11 @@ import { AuctionRealtimeProvider } from './AuctionRealtimeProvider';
 import { LiveCountdown } from './LiveCountDown';
 import { LiveBidsCount } from './LiveBidsCount';
 
-import type { AuctionForList } from '@/types/auction';
+import type { AuctionForList } from '@/data-access/auction/auction.types';
 
 import { getDealStatusChip } from '@/services/dealStatus-service';
 import { StatusChip } from '../ui/StatusChip';
-import type { DealForList } from '@/types/deal';
+import type { DealForList } from '@/data-access/deal/deal.types';
 
 type AuctionsListPage = 'public' | 'watchlist' | 'account' | 'won' | 'sold';
 

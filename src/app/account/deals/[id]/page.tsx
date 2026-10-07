@@ -1,6 +1,6 @@
 import { AuctionDetailsView } from '@/components/auctions/AuctionDetailsView';
 import { DealPanel } from '@/components/deals/DealPanel';
-import { getAuctionWithDeal } from '@/data-access/auction';
+import { getAuctionWithDeal } from '@/data-access/auction/auction';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { notFound } from 'next/navigation';
 

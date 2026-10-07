@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { auctionForListArgs } from '@/types/auction';
+import { auctionForListArgs } from '@/data-access/auction/auction.types';
 
 export const dealForStatusActionArgs = Prisma.validator<Prisma.DealDefaultArgs>()({
   select: {

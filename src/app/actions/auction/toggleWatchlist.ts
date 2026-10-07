@@ -1,6 +1,6 @@
 'use server';
 
-import { createWatchlistEntry, deleteWatchlistEntry } from '@/data-access/watchlist';
+import { createWatchlistEntry, deleteWatchlistEntry } from '@/data-access/watchlist/watchlist';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 
 export async function toggleWatchlistAction(auctionId: string, inWatchlist: boolean) {

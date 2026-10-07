@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { editShippingAddressAction } from '@/app/actions/profile/editShippingAddress';
-import type { ShippingAdress } from '@/types/shippingAddress';
+import type { ShippingAdress } from '@/data-access/shippingAddress/shippingAddress.types';
 import type { ShippingAddressFormState } from '@/services/zodValidation-service';
 import { Form, FormButtonRow } from '@/components/forms/form.styles';
 import { FormFieldWrapper } from '@/components/forms/FormFieldWrapper';

@@ -1,6 +1,6 @@
 'use server';
 
-import { upsertShippingAddress } from '@/data-access/shippingAddress';
+import { upsertShippingAddress } from '@/data-access/shippingAddress/shippingAddress';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import {
   ShippingAddressFormSchema,

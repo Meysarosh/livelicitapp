@@ -2,7 +2,7 @@ import AuctionForm from '@/components/auctions/AuctionForm';
 import { editAuctionAction } from '@/app/actions/auction/editAuction';
 import { notFound } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getAuctionDetails } from '@/data-access/auction';
+import { getAuctionDetails } from '@/data-access/auction/auction';
 import { ErrorText } from '@/components/ui';
 
 type PageProps = {

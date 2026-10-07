@@ -9,7 +9,7 @@ import {
   type ConversationSummary,
   ConversationForList,
   ConversationDetails,
-} from '@/types/conversation';
+} from '@/data-access/conversation/conversation.types';
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
 //CREATE CONVERSATION

@@ -1,7 +1,10 @@
 import 'server-only';
 import { prisma } from '@/lib/db';
 import { AuctionImage, Prisma, PrismaClient } from '@prisma/client';
-import { auctionImagesByAuctionIdArgs, AuctionImageForAuction } from '@/types/auctionImage';
+import {
+  auctionImagesByAuctionIdArgs,
+  AuctionImageForAuction,
+} from '@/data-access/auctionImage/auctionImage.types';
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 

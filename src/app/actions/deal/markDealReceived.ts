@@ -2,9 +2,9 @@
 
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { prisma } from '@/lib/db';
-import { getDealForStatusAction, updateDeal } from '@/data-access/deal';
-import { upsertConversation, updateConversation } from '@/data-access/conversation';
-import { createMessage } from '@/data-access/message';
+import { getDealForStatusAction, updateDeal } from '@/data-access/deal/deal';
+import { upsertConversation, updateConversation } from '@/data-access/conversation/conversation';
+import { createMessage } from '@/data-access/message/message';
 import { MessageKind, DealStatus, Deal } from '@prisma/client';
 import { broadcastDealUpdated } from '@/lib/realtime/deals-events';
 import {

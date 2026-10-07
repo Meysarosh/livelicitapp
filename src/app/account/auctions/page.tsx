@@ -1,5 +1,5 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getAuctionsByUser } from '@/data-access/auction';
+import { getAuctionsByUser } from '@/data-access/auction/auction';
 import { AuctionsList } from '@/components/auctions/AuctionsList';
 import { PageSection } from '@/components/layout/primitives';
 import { Title } from '@/components/ui';

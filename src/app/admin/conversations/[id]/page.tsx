@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getConversationDetails } from '@/data-access/conversation';
+import { getConversationDetails } from '@/data-access/conversation/conversation';
 import { Title, Note } from '@/components/ui';
 import { PageSection } from '@/components/layout';
 import { ConversationView } from '@/components/conversations/ConversationView';

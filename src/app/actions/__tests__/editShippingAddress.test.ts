@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { editShippingAddressAction } from '../profile/editShippingAddress';
 import type { ShippingAddressFormState } from '@/services/zodValidation-service';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { upsertShippingAddress } from '@/data-access/shippingAddress';
+import { upsertShippingAddress } from '@/data-access/shippingAddress/shippingAddress';
 
 vi.mock('@/lib/auth/getAuthUser', () => ({
   getAuthUser: vi.fn(),
 }));
 
-vi.mock('@/data-access/shippingAddress', () => ({
+vi.mock('@/data-access/shippingAddress/shippingAddress', () => ({
   upsertShippingAddress: vi.fn(),
 }));
 

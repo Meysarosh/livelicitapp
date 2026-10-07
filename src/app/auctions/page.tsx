@@ -1,5 +1,5 @@
 import { AuctionsList } from '@/components/auctions/AuctionsList';
-import { getPublicAuctions, type PublicAuctionsSort } from '@/data-access/auction';
+import { getPublicAuctions, type PublicAuctionsSort } from '@/data-access/auction/auction';
 import { PublicAuctionsControls } from '@/components/auctions/PublicAuctionsControls';
 import { PAGE_SIZE } from '@/lib/constants';
 

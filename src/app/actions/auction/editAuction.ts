@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getAuction, updateAuctionWithImages } from '@/data-access/auction';
+import { getAuction, updateAuctionWithImages } from '@/data-access/auction/auction';
 import {
   CreateAuctionFormSchema,
   durationDayOptions,
@@ -18,7 +18,7 @@ import {
   getAuctionImagesByAuctionId,
   updateAuctionImagePosition,
   deleteAuctionImagesByIds,
-} from '@/data-access/auctionImage';
+} from '@/data-access/auctionImage/auctionImage';
 
 export async function editAuctionAction(
   auctionId: string,

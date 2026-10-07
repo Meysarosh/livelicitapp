@@ -3,8 +3,8 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { redirect } from 'next/navigation';
 import { AuctionStatus, Prisma } from '@prisma/client';
-import { updateAuction } from '@/data-access/auction';
-import { getAuctionsCountForAdmin, getAuctionsForAdmin } from '@/data-access/admin';
+import { updateAuction } from '@/data-access/auction/auction';
+import { getAuctionsCountForAdmin, getAuctionsForAdmin } from '@/data-access/admin/admin';
 
 export type AuctionRow = {
   id: string;

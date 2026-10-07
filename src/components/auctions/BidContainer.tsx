@@ -6,7 +6,7 @@ import type { PlaceBidFormState } from '@/services/zodValidation-service';
 import { Form } from '@/components/forms/form.styles';
 import { Button, Input, Note } from '@/components/ui';
 import { getEffectiveAuctionStatus } from '@/services/auctionStatus-service';
-import type { AuctionDetails } from '@/types/auction';
+import type { AuctionDetails } from '@/data-access/auction/auction.types';
 import { FormFieldWrapper } from '../forms/FormFieldWrapper';
 import { useAuctionRealtime } from './AuctionRealtimeProvider';
 

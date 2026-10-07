@@ -4,8 +4,11 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { redirect } from 'next/navigation';
 import { MessageKind } from '@prisma/client';
-import { getConversationSummary, updateConversation } from '@/data-access/conversation';
-import { createMessage } from '@/data-access/message';
+import {
+  getConversationSummary,
+  updateConversation,
+} from '@/data-access/conversation/conversation';
+import { createMessage } from '@/data-access/message/message';
 import {
   emitConversationUpdatedForUsers,
   emitNewMessageEvent,

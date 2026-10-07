@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User } from '@/types/user';
+import { User } from '@/data-access/user/user.types';
 import { editUserProfileAction } from '@/app/actions/profile/editUserProfile';
 import type { ProfileFormState } from '@/services/zodValidation-service';
 import { Form, FormButtonRow } from '@/components/forms/form.styles';

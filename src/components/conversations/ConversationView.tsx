@@ -10,8 +10,8 @@ import { FormFieldWrapper } from '../forms/FormFieldWrapper';
 import { MessagesBox, MessageRow, Bubble, MetaLine } from './ConversationView.styles';
 import { getPusherClient } from '@/lib/realtime/pusher-client';
 import { markConversationReadAction } from '@/app/actions/conversation/markConversationRead';
-import { ConversationDetails } from '@/types/conversation';
-import type { User } from '@/types/user';
+import { ConversationDetails } from '@/data-access/conversation/conversation.types';
+import type { User } from '@/data-access/user/user.types';
 
 type Props = {
   conversation: ConversationDetails;

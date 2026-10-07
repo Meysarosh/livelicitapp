@@ -16,7 +16,7 @@ import {
   AuctionToFinalaze,
   AuctionWithDeal,
   AuctionForList,
-} from '@/types/auction';
+} from '@/data-access/auction/auction.types';
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 

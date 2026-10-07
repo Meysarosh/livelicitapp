@@ -4,7 +4,7 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { ProfileFormSchema, type ProfileFormState } from '@/services/zodValidation-service';
 import { del, put } from '@vercel/blob';
 import { MAX_FILE_SIZE } from '@/lib/constants';
-import { getUserById, updateUser } from '@/data-access/user';
+import { getUserById, updateUser } from '@/data-access/user/user';
 import { validateImageFile } from '@/services/validateImageFile';
 
 export async function editUserProfileAction(

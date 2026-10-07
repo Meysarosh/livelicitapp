@@ -6,7 +6,7 @@ import {
   dealForStatusActionArgs,
   type DealForList,
   type DealForStatusAction,
-} from '@/types/deal';
+} from '@/data-access/deal/deal.types';
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 

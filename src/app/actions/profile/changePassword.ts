@@ -3,7 +3,7 @@
 import bcrypt from 'bcrypt';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { PasswordFormSchema, type PasswordFormState } from '@/services/zodValidation-service';
-import { createUserPassword, getUserPassword, updateUserPassword } from '@/data-access/user';
+import { createUserPassword, getUserPassword, updateUserPassword } from '@/data-access/user/user';
 
 export async function changePasswordAction(
   _prevState: PasswordFormState,

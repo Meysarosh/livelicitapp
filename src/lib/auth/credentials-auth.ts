@@ -2,7 +2,7 @@ import 'server-only';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
-import { getUserWithPasswordByIdentifier } from '@/data-access/user';
+import { getUserWithPasswordByIdentifier } from '@/data-access/user/user';
 
 const Creds = z.object({
   identifier: z.string(),

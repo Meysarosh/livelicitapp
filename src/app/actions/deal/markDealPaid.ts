@@ -4,10 +4,10 @@ import { MessageKind, DealStatus, Deal } from '@prisma/client';
 
 import { prisma } from '@/lib/db';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getDealForStatusAction, updateDeal } from '@/data-access/deal';
-import { upsertConversation, updateConversation } from '@/data-access/conversation';
-import { createMessage } from '@/data-access/message';
-import { getShippingAddress } from '@/data-access/shippingAddress';
+import { getDealForStatusAction, updateDeal } from '@/data-access/deal/deal';
+import { upsertConversation, updateConversation } from '@/data-access/conversation/conversation';
+import { createMessage } from '@/data-access/message/message';
+import { getShippingAddress } from '@/data-access/shippingAddress/shippingAddress';
 import { broadcastDealUpdated } from '@/lib/realtime/deals-events';
 import {
   emitConversationUpdatedForUsers,

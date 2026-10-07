@@ -3,8 +3,8 @@
 import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { PlaceBidFormSchema, type PlaceBidFormState } from '@/services/zodValidation-service';
 import { prisma } from '@/lib/db';
-import { getAuctionForBidTransaction, updateAuctionBid } from '@/data-access/auction';
-import { createBid } from '@/data-access/bid';
+import { getAuctionForBidTransaction, updateAuctionBid } from '@/data-access/auction/auction';
+import { createBid } from '@/data-access/bid/bid';
 import { TIME_EXTEND_AFTER_BID } from '@/lib/constants';
 import { emitBidPlaced } from '@/lib/realtime/auctions-events';
 

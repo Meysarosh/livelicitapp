@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getAuctionDetails } from '@/data-access/auction';
+import { getAuctionDetails } from '@/data-access/auction/auction';
 import { AuctionDetailsView } from '@/components/auctions/AuctionDetailsView';
 import { ContactSupportButton } from '@/components/conversations/ContactSupportButton';
 

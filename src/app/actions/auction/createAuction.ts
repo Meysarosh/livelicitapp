@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { createAuction } from '@/data-access/auction';
+import { createAuction } from '@/data-access/auction/auction';
 import {
   CreateAuctionFormSchema,
   durationDayOptions,

@@ -3,7 +3,7 @@ import { editUserProfileAction } from '../profile/editUserProfile';
 import type { ProfileFormState } from '@/services/zodValidation-service';
 
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-import { getUserById, updateUser } from '@/data-access/user';
+import { getUserById, updateUser } from '@/data-access/user/user';
 import { validateImageFile } from '@/services/validateImageFile';
 import { put, del } from '@vercel/blob';
 import { MAX_FILE_SIZE } from '@/lib/constants';
@@ -12,7 +12,7 @@ vi.mock('@/lib/auth/getAuthUser', () => ({
   getAuthUser: vi.fn(),
 }));
 
-vi.mock('@/data-access/user', () => ({
+vi.mock('@/data-access/user/user', () => ({
   getUserById: vi.fn(),
   updateUser: vi.fn(),
 }));

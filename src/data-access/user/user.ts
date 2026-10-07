@@ -1,6 +1,11 @@
 import 'server-only';
 import { prisma } from '@/lib/db';
-import { User, UserWithPassword, UserPasswordLookup, ProviderAccountWithUser } from '@/types/user';
+import {
+  User,
+  UserWithPassword,
+  UserPasswordLookup,
+  ProviderAccountWithUser,
+} from '@/data-access/user/user.types';
 
 // CREATE USER
 export async function createUser(nickname: string, email: string, hash?: string): Promise<User> {
